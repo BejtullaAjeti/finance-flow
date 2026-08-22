@@ -15,7 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -94,7 +94,7 @@ fun SettingsScreen(onNavigateToCategories: () -> Unit) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(text = stringResource(R.string.settings_categories), style = MaterialTheme.typography.bodyLarge)
-            Icon(Icons.Filled.ChevronRight, contentDescription = null)
+            Icon(Icons.Rounded.ChevronRight, contentDescription = null)
         }
 
         Spacer(Modifier.height(24.dp))

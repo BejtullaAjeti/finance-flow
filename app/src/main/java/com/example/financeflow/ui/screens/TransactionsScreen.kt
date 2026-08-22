@@ -15,8 +15,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.rounded.DateRange
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -80,7 +80,7 @@ fun TransactionsScreen(
             onValueChange = { query ->
                 transactionViewModel.updateListFilter { it.copy(searchQuery = query) }
             },
-            leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+            leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
             label = { Text(stringResource(R.string.search_notes_label)) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
@@ -208,7 +208,7 @@ private fun DateRangeField(start: LocalDate?, end: LocalDate?, onClick: () -> Un
                 Text(text = stringResource(R.string.date_range_label), style = MaterialTheme.typography.labelSmall)
                 Text(text = label, style = MaterialTheme.typography.bodyLarge)
             }
-            Icon(Icons.Filled.DateRange, contentDescription = stringResource(R.string.date_range_change_content_description))
+            Icon(Icons.Rounded.DateRange, contentDescription = stringResource(R.string.date_range_change_content_description))
         }
     }
 }

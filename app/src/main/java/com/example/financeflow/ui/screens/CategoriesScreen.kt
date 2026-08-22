@@ -1,0 +1,334 @@
+package com.example.financeflow.ui.screens
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.dp
+import com.example.financeflow.R
+import com.example.financeflow.data.Category
+import com.example.financeflow.data.CategoryType
+import com.example.financeflow.locale.rememberCurrencyFormat
+import com.example.financeflow.ui.components.CategoryColorPalette
+import com.example.financeflow.ui.components.CategoryIcons
+import com.example.financeflow.ui.components.toCategoryColor
+import com.example.financeflow.viewmodel.CategoryDeleteBlockReason
+import com.example.financeflow.viewmodel.CategoryViewModel
+import com.example.financeflow.viewmodel.rememberCategoryViewModel
+import kotlinx.coroutines.launch
+import java.text.NumberFormat
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CategoriesScreen(
+    onBack: () -> Unit,
+    categoryViewModel: CategoryViewModel = rememberCategoryViewModel()
+) {
+    val categories by categoryViewModel.categories.collectAsState()
+    val currencyFormat = rememberCurrencyFormat()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
+    var showDialog by remember { mutableStateOf(false) }
+    var editingCategory by remember { mutableStateOf<Category?>(null) }
+    val inUseMessage = stringResource(R.string.categories_delete_blocked)
+    val lastOfTypeMessage = stringResource(R.string.categories_delete_blocked_last)
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.settings_categories)) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(Icons.Rounded.ArrowBack, contentDescription = null)
+                    }
+                }
+            )
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        floatingActionButton = {
+            FloatingActionButton(onClick = { editingCategory = null; showDialog = true }) {
+                Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.categories_add_content_description))
+            }
+        }
+    ) { innerPadding ->
+        if (categories.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize().padding(innerPadding),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(stringResource(R.string.categories_empty))
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(horizontal = 16.dp)
+            ) {
+                items(categories, key = { it.id }) { category ->
+                    CategoryRow(
+                        category = category,
+                        currencyFormat = currencyFormat,
+                        onClick = { editingCategory = category; showDialog = true },
+                        onDelete = {
+                            categoryViewModel.deleteCategory(category) { reason ->
+                                val message = when (reason) {
+                                    CategoryDeleteBlockReason.IN_USE -> inUseMessage
+                                    CategoryDeleteBlockReason.LAST_OF_TYPE -> lastOfTypeMessage
+                                }
+                                scope.launch { snackbarHostState.showSnackbar(message.format(category.name)) }
+                            }
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    if (showDialog) {
+        AddEditCategoryDialog(
+            editing = editingCategory,
+            onDismiss = { showDialog = false },
+            onSave = { category ->
+                if (editingCategory != null) {
+                    categoryViewModel.updateCategory(category)
+                } else {
+                    categoryViewModel.addCategory(category)
+                }
+                showDialog = false
+            }
+        )
+    }
+}
+
+@Composable
+private fun CategoryRow(
+    category: Category,
+    currencyFormat: NumberFormat,
+    onClick: () -> Unit,
+    onDelete: () -> Unit
+) {
+    val swatch = category.color.toCategoryColor()
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(swatch.copy(alpha = 0.22f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(CategoryIcons.resolve(category.icon), contentDescription = null, tint = swatch)
+            }
+            Spacer(Modifier.width(12.dp))
+            Column {
+                Text(text = category.name, style = MaterialTheme.typography.bodyLarge)
+                Text(
+                    text = buildString {
+                        append(categoryTypeLabel(category.type))
+                        category.budgetLimit?.let {
+                            append(" · ")
+                            append(stringResource(R.string.categories_budget_suffix, currencyFormat.format(it)))
+                        }
+                    },
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+        IconButton(onClick = onDelete) {
+            Icon(
+                Icons.Rounded.Delete,
+                contentDescription = stringResource(R.string.categories_delete_content_description, category.name)
+            )
+        }
+    }
+}
+
+@Composable
+private fun categoryTypeLabel(type: CategoryType): String = when (type) {
+    CategoryType.PERSONAL -> stringResource(R.string.type_personal)
+    CategoryType.BUSINESS -> stringResource(R.string.type_business)
+    CategoryType.BOTH -> stringResource(R.string.type_both)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AddEditCategoryDialog(
+    editing: Category?,
+    onDismiss: () -> Unit,
+    onSave: (Category) -> Unit
+) {
+    var name by remember { mutableStateOf(editing?.name ?: "") }
+    var type by remember { mutableStateOf(editing?.type ?: CategoryType.PERSONAL) }
+    var icon by remember { mutableStateOf(editing?.icon) }
+    var color by remember { mutableStateOf(editing?.color ?: CategoryColorPalette.first()) }
+    var budgetText by remember { mutableStateOf(editing?.budgetLimit?.toString().orEmpty()) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                stringResource(
+                    if (editing != null) R.string.categories_edit_title else R.string.categories_add_title
+                )
+            )
+        },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text(stringResource(R.string.categories_name_label)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(Modifier.height(12.dp))
+
+                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                    CategoryType.entries.forEachIndexed { index, option ->
+                        SegmentedButton(
+                            selected = type == option,
+                            onClick = { type = option },
+                            shape = SegmentedButtonDefaults.itemShape(index, CategoryType.entries.size)
+                        ) {
+                            Text(categoryTypeLabel(option))
+                        }
+                    }
+                }
+
+                Spacer(Modifier.height(16.dp))
+
+                Text(stringResource(R.string.categories_icon_label), style = MaterialTheme.typography.labelSmall)
+                Spacer(Modifier.height(4.dp))
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    CategoryIcons.Catalog.forEach { (key, vector) ->
+                        val selected = icon == key
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .background(
+                                    if (selected) color.toCategoryColor().copy(alpha = 0.3f) else Color.Transparent,
+                                    CircleShape
+                                )
+                                .clickable { icon = key },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(vector, contentDescription = key)
+                        }
+                    }
+                }
+
+                Spacer(Modifier.height(16.dp))
+
+                Text(stringResource(R.string.categories_color_label), style = MaterialTheme.typography.labelSmall)
+                Spacer(Modifier.height(4.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    CategoryColorPalette.forEach { hex ->
+                        val swatchColor = hex.toCategoryColor()
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .background(swatchColor, CircleShape)
+                                .border(
+                                    width = if (color == hex) 3.dp else 0.dp,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    shape = CircleShape
+                                )
+                                .clickable { color = hex }
+                        )
+                    }
+                }
+
+                Spacer(Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = budgetText,
+                    onValueChange = { input ->
+                        if (input.isEmpty() || input.matches(Regex("^\\d*\\.?\\d{0,2}$"))) {
+                            budgetText = input
+                        }
+                    },
+                    label = { Text(stringResource(R.string.categories_budget_label)) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                enabled = name.isNotBlank(),
+                onClick = {
+                    onSave(
+                        Category(
+                            id = editing?.id ?: 0,
+                            name = name.trim(),
+                            type = type,
+                            budgetLimit = budgetText.toDoubleOrNull(),
+                            icon = icon,
+                            color = color
+                        )
+                    )
+                }
+            ) { Text(stringResource(R.string.action_save)) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+        }
+    )
+}
