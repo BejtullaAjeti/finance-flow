@@ -31,15 +31,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.financeflow.R
 import com.example.financeflow.data.Category
+import com.example.financeflow.data.Currency
 import com.example.financeflow.data.Frequency
 import com.example.financeflow.data.RecurringRule
 import com.example.financeflow.data.TransactionType
 import com.example.financeflow.data.categoryTypeFor
+import com.example.financeflow.locale.CurrencyPreferences
 import com.example.financeflow.ui.components.DateField
 import com.example.financeflow.viewmodel.CategoryViewModel
 import com.example.financeflow.viewmodel.RecurringRuleViewModel
@@ -61,6 +64,8 @@ fun AddEditRecurringRuleScreen(
     }
     val filteredCategories by categoryViewModel.filteredCategories.collectAsState()
 
+    val displayCurrency by CurrencyPreferences.flow(LocalContext.current).collectAsState()
+
     var initialized by remember { mutableStateOf(ruleId == null) }
     var label by remember { mutableStateOf("") }
     var amountText by remember { mutableStateOf("") }
@@ -70,6 +75,7 @@ fun AddEditRecurringRuleScreen(
     var customIntervalText by remember { mutableStateOf("") }
     var nextDueDate by remember { mutableStateOf(LocalDate.now()) }
     var selectedCategory by remember { mutableStateOf<Category?>(null) }
+    var currency by remember { mutableStateOf(displayCurrency) }
 
     LaunchedEffect(existing) {
         if (existing != null && !initialized) {
@@ -80,6 +86,7 @@ fun AddEditRecurringRuleScreen(
             frequency = existing.frequency
             customIntervalText = existing.customIntervalDays?.toString().orEmpty()
             nextDueDate = existing.nextDueDate
+            currency = existing.currency
             initialized = true
         }
     }
@@ -106,6 +113,7 @@ fun AddEditRecurringRuleScreen(
             id = existing?.id ?: 0,
             label = label.trim(),
             amount = amount,
+            currency = currency,
             categoryId = category.id,
             type = type,
             isIncome = isIncome,
@@ -196,6 +204,18 @@ fun AddEditRecurringRuleScreen(
                     onClick = { type = TransactionType.BUSINESS; selectedCategory = null },
                     shape = SegmentedButtonDefaults.itemShape(1, 2)
                 ) { Text(stringResource(R.string.type_business)) }
+            }
+
+            Spacer(Modifier.height(12.dp))
+
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                Currency.entries.forEachIndexed { index, option ->
+                    SegmentedButton(
+                        selected = currency == option,
+                        onClick = { currency = option },
+                        shape = SegmentedButtonDefaults.itemShape(index, Currency.entries.size)
+                    ) { Text(option.name) }
+                }
             }
 
             Spacer(Modifier.height(20.dp))

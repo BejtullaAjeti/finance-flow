@@ -33,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -40,9 +41,11 @@ import androidx.compose.ui.unit.dp
 import com.example.financeflow.R
 import com.example.financeflow.data.Category
 import com.example.financeflow.data.CategoryType
+import com.example.financeflow.data.Currency
 import com.example.financeflow.data.Transaction
 import com.example.financeflow.data.TransactionType
 import com.example.financeflow.data.categoryTypeFor
+import com.example.financeflow.locale.CurrencyPreferences
 import com.example.financeflow.ui.components.DateField
 import com.example.financeflow.viewmodel.CategoryViewModel
 import com.example.financeflow.viewmodel.TransactionViewModel
@@ -64,6 +67,8 @@ fun AddEditTransactionScreen(
     }
     val filteredCategories by categoryViewModel.filteredCategories.collectAsState()
 
+    val displayCurrency by CurrencyPreferences.flow(LocalContext.current).collectAsState()
+
     var initialized by remember { mutableStateOf(transactionId == null) }
     var amountText by remember { mutableStateOf("") }
     var type by remember { mutableStateOf(TransactionType.PERSONAL) }
@@ -71,6 +76,7 @@ fun AddEditTransactionScreen(
     var date by remember { mutableStateOf(LocalDate.now()) }
     var note by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf<Category?>(null) }
+    var currency by remember { mutableStateOf(displayCurrency) }
 
     LaunchedEffect(existing) {
         if (existing != null && !initialized) {
@@ -79,6 +85,7 @@ fun AddEditTransactionScreen(
             isIncome = existing.isIncome
             date = existing.date
             note = existing.note.orEmpty()
+            currency = existing.currency
             initialized = true
         }
     }
@@ -110,6 +117,7 @@ fun AddEditTransactionScreen(
         val transaction = Transaction(
             id = existing?.id ?: 0,
             amount = amount,
+            currency = currency,
             type = type,
             categoryId = category.id,
             date = date,
@@ -191,6 +199,18 @@ fun AddEditTransactionScreen(
                     onClick = { type = TransactionType.BUSINESS; selectedCategory = null },
                     shape = SegmentedButtonDefaults.itemShape(1, 2)
                 ) { Text(stringResource(R.string.type_business)) }
+            }
+
+            Spacer(Modifier.height(12.dp))
+
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                Currency.entries.forEachIndexed { index, option ->
+                    SegmentedButton(
+                        selected = currency == option,
+                        onClick = { currency = option },
+                        shape = SegmentedButtonDefaults.itemShape(index, Currency.entries.size)
+                    ) { Text(option.name) }
+                }
             }
 
             Spacer(Modifier.height(20.dp))

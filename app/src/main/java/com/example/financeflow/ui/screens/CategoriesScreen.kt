@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import com.example.financeflow.R
 import com.example.financeflow.data.Category
 import com.example.financeflow.data.CategoryType
+import com.example.financeflow.data.Currency
 import com.example.financeflow.locale.rememberCurrencyFormat
 import com.example.financeflow.ui.components.CategoryColorPalette
 import com.example.financeflow.ui.components.CategoryIcons
@@ -217,6 +218,7 @@ private fun AddEditCategoryDialog(
     var icon by remember { mutableStateOf(editing?.icon) }
     var color by remember { mutableStateOf(editing?.color ?: CategoryColorPalette.first()) }
     var budgetText by remember { mutableStateOf(editing?.budgetLimit?.toString().orEmpty()) }
+    var budgetCurrency by remember { mutableStateOf(editing?.budgetLimitCurrency ?: Currency.MKD) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -308,6 +310,18 @@ private fun AddEditCategoryDialog(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
+
+                Spacer(Modifier.height(8.dp))
+
+                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                    Currency.entries.forEachIndexed { index, option ->
+                        SegmentedButton(
+                            selected = budgetCurrency == option,
+                            onClick = { budgetCurrency = option },
+                            shape = SegmentedButtonDefaults.itemShape(index, Currency.entries.size)
+                        ) { Text(option.name) }
+                    }
+                }
             }
         },
         confirmButton = {
@@ -320,6 +334,7 @@ private fun AddEditCategoryDialog(
                             name = name.trim(),
                             type = type,
                             budgetLimit = budgetText.toDoubleOrNull(),
+                            budgetLimitCurrency = budgetCurrency,
                             icon = icon,
                             color = color
                         )
