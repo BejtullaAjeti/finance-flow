@@ -1,58 +1,62 @@
 package com.example.financeflow.ui.theme
 
-import android.app.Activity
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+// Shared corner-radius scale — medium matches GlassCard's own 24dp default, so every themed
+// surface (text fields, buttons, dialogs) reads as part of the same rounded language.
+private val FinanceFlowShapes = Shapes(
+    extraSmall = RoundedCornerShape(12.dp),
+    small = RoundedCornerShape(16.dp),
+    medium = RoundedCornerShape(24.dp),
+    large = RoundedCornerShape(28.dp),
+    extraLarge = RoundedCornerShape(28.dp)
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+private val FinanceFlowDarkScheme = darkColorScheme(
+    primary = Accent,
+    onPrimary = OnAccent,
+    secondary = Income,
+    onSecondary = OnAccent,
+    secondaryContainer = IncomeContainer,
+    tertiary = Expense,
+    onTertiary = OnAccent,
+    tertiaryContainer = ExpenseContainer,
+    background = Backdrop,
+    onBackground = OnBackground,
+    surface = Surface,
+    onSurface = OnBackground,
+    surfaceVariant = SurfaceVariant,
+    onSurfaceVariant = OnSurfaceMuted,
+    error = Expense,
+    onError = OnAccent
+)
 
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+// ponytail: a real light theme is v2 ("Dark mode/theming" is a nice-to-have in CLAUDE.md); this
+// only exists so MaterialTheme has a non-crashing fallback if isSystemInDarkTheme() ever replaces
+// the fixed `darkTheme = true` default below.
+private val FinanceFlowLightScheme = lightColorScheme(
+    primary = Accent,
+    secondary = Income,
+    tertiary = Expense
 )
 
 @Composable
 fun FinanceFlowTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    darkTheme: Boolean = true,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    val colorScheme = if (darkTheme) FinanceFlowDarkScheme else FinanceFlowLightScheme
 
     MaterialTheme(
         colorScheme = colorScheme,
         typography = Typography,
+        shapes = FinanceFlowShapes,
         content = content
     )
 }
