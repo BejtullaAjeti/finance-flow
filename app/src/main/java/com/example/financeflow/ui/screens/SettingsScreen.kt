@@ -27,6 +27,7 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,16 +35,24 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.financeflow.R
 import com.example.financeflow.data.AppDatabase
+import com.example.financeflow.data.Currency
+import com.example.financeflow.data.ExchangeRateCache
 import com.example.financeflow.data.backup.BackupManager
 import com.example.financeflow.data.backup.parseBackup
 import com.example.financeflow.data.backup.toJson
+import com.example.financeflow.data.repository.ExchangeRateRepository
+import com.example.financeflow.locale.CurrencyPreferences
 import com.example.financeflow.locale.LocalePreferences
+import com.example.financeflow.locale.rememberDateFormat
 import kotlinx.coroutines.launch
+import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,6 +66,13 @@ fun SettingsScreen(onNavigateToCategories: () -> Unit, onNavigateToRecurring: ()
     val scope = rememberCoroutineScope()
     var statusMessage by remember { mutableStateOf<String?>(null) }
     var pendingImportUri by remember { mutableStateOf<Uri?>(null) }
+
+    val exchangeRateRepository = remember { ExchangeRateRepository(AppDatabase.getInstance(context).exchangeRateDao(), context) }
+    val rates by exchangeRateRepository.rates.collectAsState(initial = ExchangeRateCache())
+    val displayCurrency by CurrencyPreferences.flow(context).collectAsState()
+    var isRefreshingRates by remember { mutableStateOf(false) }
+    val currencyDateFormat = rememberDateFormat("MMM d, yyyy")
+    val uriHandler = LocalUriHandler.current
 
     val exportSuccessMessage = stringResource(R.string.backup_export_success)
     val exportFailedMessage = stringResource(R.string.backup_export_failed)
@@ -153,6 +169,49 @@ fun SettingsScreen(onNavigateToCategories: () -> Unit, onNavigateToRecurring: ()
             Spacer(Modifier.height(8.dp))
             Text(text = message, style = MaterialTheme.typography.bodyMedium)
         }
+
+        Spacer(Modifier.height(24.dp))
+
+        Text(text = stringResource(R.string.settings_currency_title), style = MaterialTheme.typography.titleLarge)
+        Spacer(Modifier.height(8.dp))
+
+        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            Currency.entries.forEachIndexed { index, option ->
+                SegmentedButton(
+                    selected = displayCurrency == option,
+                    onClick = { CurrencyPreferences.set(context, option) },
+                    shape = SegmentedButtonDefaults.itemShape(index, Currency.entries.size)
+                ) { Text(option.name) }
+            }
+        }
+
+        Spacer(Modifier.height(8.dp))
+
+        val lastUpdatedText = rates.lastUpdatedEpochMillis?.let { millis ->
+            val date = Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalDate()
+            stringResource(R.string.settings_currency_last_updated, date.format(currencyDateFormat))
+        } ?: stringResource(R.string.settings_currency_never_updated)
+
+        Text(text = lastUpdatedText, style = MaterialTheme.typography.bodySmall)
+
+        Spacer(Modifier.height(4.dp))
+
+        TextButton(
+            enabled = !isRefreshingRates,
+            onClick = {
+                isRefreshingRates = true
+                scope.launch {
+                    exchangeRateRepository.forceRefresh()
+                    isRefreshingRates = false
+                }
+            }
+        ) { Text(stringResource(R.string.settings_currency_refresh)) }
+
+        Text(
+            text = stringResource(R.string.settings_currency_attribution),
+            style = MaterialTheme.typography.labelSmall,
+            modifier = Modifier.clickable { uriHandler.openUri("https://www.exchangerate-api.com") }
+        )
     }
 
     pendingImportUri?.let { uri ->

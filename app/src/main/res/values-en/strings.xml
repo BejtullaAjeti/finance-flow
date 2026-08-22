@@ -47,6 +47,12 @@
     <string name="backup_import_confirm_body">Importing will replace all transactions, categories, and recurring rules with the contents of this file. This cannot be undone.</string>
     <string name="backup_import_confirm_action">Replace</string>
 
+    <string name="settings_currency_title">Display currency</string>
+    <string name="settings_currency_last_updated">Updated %1$s</string>
+    <string name="settings_currency_never_updated">Not yet updated</string>
+    <string name="settings_currency_refresh">Refresh rates</string>
+    <string name="settings_currency_attribution">Rates by Exchange Rate API</string>
+
     <string name="action_ok">OK</string>
     <string name="action_clear">Clear</string>
     <string name="action_apply">Apply</string>

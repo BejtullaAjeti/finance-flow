@@ -47,6 +47,12 @@
     <string name="backup_import_confirm_body">Importimi do të zëvendësojë të gjitha transaksionet, kategoritë dhe rregullat e përsëritura me përmbajtjen e këtij skedari. Kjo nuk mund të zhbëhet.</string>
     <string name="backup_import_confirm_action">Zëvendëso</string>
 
+    <string name="settings_currency_title">Monedha e shfaqjes</string>
+    <string name="settings_currency_last_updated">Përditësuar më %1$s</string>
+    <string name="settings_currency_never_updated">Ende pa u përditësuar</string>
+    <string name="settings_currency_refresh">Rifresko kurset</string>
+    <string name="settings_currency_attribution">Kurset nga Exchange Rate API</string>
+
     <string name="action_ok">OK</string>
     <string name="action_clear">Pastro</string>
     <string name="action_apply">Apliko</string>
