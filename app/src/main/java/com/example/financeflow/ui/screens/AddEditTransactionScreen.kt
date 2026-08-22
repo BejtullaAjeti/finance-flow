@@ -1,16 +1,22 @@
 package com.example.financeflow.ui.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -22,6 +28,7 @@ import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,9 +37,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -46,7 +55,9 @@ import com.example.financeflow.data.Transaction
 import com.example.financeflow.data.TransactionType
 import com.example.financeflow.data.categoryTypeFor
 import com.example.financeflow.locale.CurrencyPreferences
+import com.example.financeflow.ui.components.CategoryIcons
 import com.example.financeflow.ui.components.DateField
+import com.example.financeflow.ui.components.categoryTypeLabel
 import com.example.financeflow.viewmodel.CategoryViewModel
 import com.example.financeflow.viewmodel.TransactionViewModel
 import com.example.financeflow.viewmodel.rememberCategoryViewModel
@@ -77,6 +88,7 @@ fun AddEditTransactionScreen(
     var note by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf<Category?>(null) }
     var currency by remember { mutableStateOf(displayCurrency) }
+    var showQuickAddCategory by remember { mutableStateOf(false) }
 
     LaunchedEffect(existing) {
         if (existing != null && !initialized) {
@@ -217,18 +229,19 @@ fun AddEditTransactionScreen(
 
             Text(text = stringResource(R.string.field_category_label), style = MaterialTheme.typography.titleLarge)
             Spacer(Modifier.height(8.dp))
-            if (filteredCategories.isEmpty()) {
-                Text(text = stringResource(R.string.categories_picker_empty), style = MaterialTheme.typography.bodyMedium)
-            } else {
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    filteredCategories.forEach { category ->
-                        FilterChip(
-                            selected = selectedCategory?.id == category.id,
-                            onClick = { selectedCategory = category },
-                            label = { Text(category.name) }
-                        )
-                    }
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                filteredCategories.forEach { category ->
+                    FilterChip(
+                        selected = selectedCategory?.id == category.id,
+                        onClick = { selectedCategory = category },
+                        label = { Text(category.name) }
+                    )
                 }
+                FilterChip(
+                    selected = false,
+                    onClick = { showQuickAddCategory = true },
+                    label = { Text(stringResource(R.string.categories_add_new_chip)) }
+                )
             }
 
             Spacer(Modifier.height(20.dp))
@@ -245,4 +258,90 @@ fun AddEditTransactionScreen(
             )
         }
     }
+
+    if (showQuickAddCategory) {
+        QuickAddCategoryDialog(
+            defaultType = categoryTypeFor(type),
+            onDismiss = { showQuickAddCategory = false },
+            onSave = { category ->
+                categoryViewModel.addCategory(category) { id ->
+                    selectedCategory = category.copy(id = id)
+                }
+                showQuickAddCategory = false
+            }
+        )
+    }
+}
+
+// Lightweight: name + type + icon only, unlike the full category management dialog in
+// CategoriesScreen which also handles color and budget — those stay reachable from Settings.
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun QuickAddCategoryDialog(
+    defaultType: CategoryType,
+    onDismiss: () -> Unit,
+    onSave: (Category) -> Unit
+) {
+    var name by remember { mutableStateOf("") }
+    var type by remember { mutableStateOf(defaultType) }
+    var icon by remember { mutableStateOf<String?>(null) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.categories_add_title)) },
+        text = {
+            Column {
+                OutlinedTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text(stringResource(R.string.categories_name_label)) },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(Modifier.height(12.dp))
+
+                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                    CategoryType.entries.forEachIndexed { index, option ->
+                        SegmentedButton(
+                            selected = type == option,
+                            onClick = { type = option },
+                            shape = SegmentedButtonDefaults.itemShape(index, CategoryType.entries.size)
+                        ) { Text(categoryTypeLabel(option)) }
+                    }
+                }
+
+                Spacer(Modifier.height(16.dp))
+
+                Text(stringResource(R.string.categories_icon_label), style = MaterialTheme.typography.labelSmall)
+                Spacer(Modifier.height(4.dp))
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    CategoryIcons.Catalog.forEach { (key, vector) ->
+                        val selected = icon == key
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .background(
+                                    if (selected) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f) else Color.Transparent,
+                                    CircleShape
+                                )
+                                .clickable { icon = key },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(vector, contentDescription = key)
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                enabled = name.isNotBlank(),
+                onClick = { onSave(Category(name = name.trim(), type = type, icon = icon)) }
+            ) { Text(stringResource(R.string.action_save)) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+        }
+    )
 }

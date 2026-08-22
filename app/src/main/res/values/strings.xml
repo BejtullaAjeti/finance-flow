@@ -24,6 +24,9 @@
     <string name="categories_delete_blocked">"%1$s" përdoret nga transaksione ekzistuese dhe nuk mund të fshihet.</string>
     <string name="categories_delete_blocked_last">"%1$s" është kategoria e vetme e këtij lloji dhe nuk mund të fshihet.</string>
     <string name="categories_add_content_description">Shto kategori</string>
+    <string name="categories_add_new_chip">+ Kategori e re</string>
+    <string name="categories_delete_success">"%1$s" u fshi.</string>
+    <string name="action_undo">Zhbëj</string>
 
     <string name="category_default_food">Ushqim</string>
     <string name="category_default_transport">Transporti</string>
@@ -89,9 +92,14 @@
     <string name="date_range_between">%1$s – %2$s</string>
     <string name="date_range_change_content_description">Zgjidh intervalin e datave</string>
 
-    <string name="budgets_empty">Nuk ka buxhete të caktuara për këtë filtër ende.</string>
+    <string name="budgets_empty">Nuk ka kategori për këtë filtër ende.</string>
     <string name="budget_spent_of_limit">%1$s nga %2$s</string>
     <string name="budget_over_amount">%1$s mbi buxhet</string>
+    <string name="budget_not_set">Prek për të caktuar një buxhet</string>
+    <string name="budget_spent_no_limit">%1$s shpenzuar deri tani</string>
+    <string name="budget_amount_label">Shuma e buxhetit mujor</string>
+    <string name="budget_add_content_description">Shto buxhet</string>
+    <string name="budget_pick_category_title">Zgjidh një kategori</string>
 
     <string name="label_daily">Ditore</string>
     <string name="label_weekly">Javore</string>

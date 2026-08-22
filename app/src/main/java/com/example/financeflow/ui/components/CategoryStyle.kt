@@ -16,8 +16,12 @@ import androidx.compose.material.icons.rounded.Receipt
 import androidx.compose.material.icons.rounded.School
 import androidx.compose.material.icons.rounded.ShoppingCart
 import androidx.compose.material.icons.rounded.Work
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import com.example.financeflow.R
+import com.example.financeflow.data.CategoryType
 import com.example.financeflow.ui.theme.OnSurfaceMuted
 
 object CategoryIcons {
@@ -57,3 +61,10 @@ fun String?.toCategoryColor(): Color =
             null
         }
     } ?: OnSurfaceMuted
+
+@Composable
+fun categoryTypeLabel(type: CategoryType): String = when (type) {
+    CategoryType.PERSONAL -> stringResource(R.string.type_personal)
+    CategoryType.BUSINESS -> stringResource(R.string.type_business)
+    CategoryType.BOTH -> stringResource(R.string.type_both)
+}

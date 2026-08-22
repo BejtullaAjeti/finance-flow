@@ -24,7 +24,7 @@ import java.time.LocalDate
 data class CategoryBudget(
     val category: Category,
     val spent: Double,
-    val limit: Double
+    val limit: Double?
 )
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -51,11 +51,11 @@ class BudgetViewModel(
                 transactionRepository.getByTypeAndDateRange(type, monthStart, monthEnd)
             ) { categories, transactions ->
                 val spent = spentByCategory(transactions, display, rates)
-                categories.mapNotNull { category ->
-                    category.budgetLimit?.let { limit ->
-                        val convertedLimit = ExchangeRateRepository.convert(limit, category.budgetLimitCurrency, display, rates)
-                        CategoryBudget(category, spent[category.id] ?: 0.0, convertedLimit)
+                categories.map { category ->
+                    val convertedLimit = category.budgetLimit?.let { limit ->
+                        ExchangeRateRepository.convert(limit, category.budgetLimitCurrency, display, rates)
                     }
+                    CategoryBudget(category, spent[category.id] ?: 0.0, convertedLimit)
                 }
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())

@@ -35,9 +35,13 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -59,7 +63,9 @@ import com.example.financeflow.locale.rememberCurrencyFormat
 import com.example.financeflow.ui.components.CategoryColorPalette
 import com.example.financeflow.ui.components.CategoryIcons
 import com.example.financeflow.ui.components.GlassFab
+import com.example.financeflow.ui.components.categoryTypeLabel
 import com.example.financeflow.ui.components.toCategoryColor
+import com.example.financeflow.ui.theme.Expense
 import com.example.financeflow.viewmodel.CategoryDeleteBlockReason
 import com.example.financeflow.viewmodel.CategoryViewModel
 import com.example.financeflow.viewmodel.rememberCategoryViewModel
@@ -79,6 +85,8 @@ fun CategoriesScreen(
     var editingCategory by remember { mutableStateOf<Category?>(null) }
     val inUseMessage = stringResource(R.string.categories_delete_blocked)
     val lastOfTypeMessage = stringResource(R.string.categories_delete_blocked_last)
+    val deletedMessage = stringResource(R.string.categories_delete_success)
+    val undoLabel = stringResource(R.string.action_undo)
 
     Scaffold(
         topBar = {
@@ -116,17 +124,31 @@ fun CategoriesScreen(
                     .padding(horizontal = 16.dp)
             ) {
                 items(categories, key = { it.id }) { category ->
-                    CategoryRow(
+                    SwipeToDeleteCategoryRow(
                         category = category,
                         onClick = { editingCategory = category; showDialog = true },
                         onDelete = {
-                            categoryViewModel.deleteCategory(category) { reason ->
-                                val message = when (reason) {
-                                    CategoryDeleteBlockReason.IN_USE -> inUseMessage
-                                    CategoryDeleteBlockReason.LAST_OF_TYPE -> lastOfTypeMessage
+                            categoryViewModel.deleteCategory(
+                                category,
+                                onDeleted = {
+                                    scope.launch {
+                                        val result = snackbarHostState.showSnackbar(
+                                            message = deletedMessage.format(category.name),
+                                            actionLabel = undoLabel
+                                        )
+                                        if (result == SnackbarResult.ActionPerformed) {
+                                            categoryViewModel.addCategory(category.copy(id = 0))
+                                        }
+                                    }
+                                },
+                                onBlocked = { reason ->
+                                    val message = when (reason) {
+                                        CategoryDeleteBlockReason.IN_USE -> inUseMessage
+                                        CategoryDeleteBlockReason.LAST_OF_TYPE -> lastOfTypeMessage
+                                    }
+                                    scope.launch { snackbarHostState.showSnackbar(message.format(category.name)) }
                                 }
-                                scope.launch { snackbarHostState.showSnackbar(message.format(category.name)) }
-                            }
+                            )
                         }
                     )
                 }
@@ -147,6 +169,42 @@ fun CategoriesScreen(
                 showDialog = false
             }
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SwipeToDeleteCategoryRow(
+    category: Category,
+    onClick: () -> Unit,
+    onDelete: () -> Unit
+) {
+    // Never let the box auto-remove itself — the row's actual removal (or spring-back, if the
+    // delete was blocked) is driven by `categories` re-emitting once the real DB delete resolves.
+    val dismissState = rememberSwipeToDismissBoxState(
+        confirmValueChange = { value ->
+            if (value != SwipeToDismissBoxValue.Settled) {
+                onDelete()
+            }
+            false
+        }
+    )
+
+    SwipeToDismissBox(
+        state = dismissState,
+        backgroundContent = {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Expense.copy(alpha = 0.25f), MaterialTheme.shapes.small)
+                    .padding(horizontal = 20.dp),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                Icon(Icons.Rounded.Delete, contentDescription = null, tint = Expense)
+            }
+        }
+    ) {
+        CategoryRow(category = category, onClick = onClick, onDelete = onDelete)
     }
 }
 
@@ -197,13 +255,6 @@ private fun CategoryRow(
             )
         }
     }
-}
-
-@Composable
-private fun categoryTypeLabel(type: CategoryType): String = when (type) {
-    CategoryType.PERSONAL -> stringResource(R.string.type_personal)
-    CategoryType.BUSINESS -> stringResource(R.string.type_business)
-    CategoryType.BOTH -> stringResource(R.string.type_both)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
