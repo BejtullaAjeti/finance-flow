@@ -50,7 +50,8 @@ object CategoryIcons {
 
 val CategoryColorPalette = listOf(
     "#7FB88F", "#D9825F", "#C9A24B", "#6B9BD1",
-    "#B07CC6", "#E0A458", "#5FA9A8", "#D16C8F"
+    "#B07CC6", "#E0A458", "#5FA9A8", "#D16C8F",
+    "#C77B7B", "#8FA85F"
 )
 
 fun String?.toCategoryColor(): Color =

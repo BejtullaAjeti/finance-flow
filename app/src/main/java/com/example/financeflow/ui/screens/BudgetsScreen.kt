@@ -18,9 +18,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Warning
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -50,7 +48,9 @@ import com.example.financeflow.locale.CurrencyPreferences
 import com.example.financeflow.locale.rememberCurrencyFormat
 import com.example.financeflow.ui.components.CategoryIcons
 import com.example.financeflow.ui.components.GlassCard
+import com.example.financeflow.ui.components.GlassDialog
 import com.example.financeflow.ui.components.GlassFab
+import com.example.financeflow.ui.components.GlassFilterChip
 import com.example.financeflow.ui.components.InlineHint
 import com.example.financeflow.ui.components.TransactionTypeToggle
 import com.example.financeflow.ui.components.toCategoryColor
@@ -246,7 +246,7 @@ private fun SetBudgetDialog(
 
     val canSave = selected != null && amountText.toDoubleOrNull()?.let { it > 0 } == true
 
-    AlertDialog(
+    GlassDialog(
         onDismissRequest = onDismiss,
         title = { Text(selected?.name ?: stringResource(R.string.budget_pick_category_title)) },
         text = {
@@ -254,7 +254,7 @@ private fun SetBudgetDialog(
                 if (fixedCategory == null) {
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         pickableCategories.forEach { category ->
-                            FilterChip(
+                            GlassFilterChip(
                                 selected = selected?.id == category.id,
                                 onClick = { selected = category },
                                 label = { Text(category.name) }

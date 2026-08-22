@@ -16,8 +16,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ChevronRight
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -49,6 +47,9 @@ import com.example.financeflow.data.repository.ExchangeRateRepository
 import com.example.financeflow.locale.CurrencyPreferences
 import com.example.financeflow.locale.LocalePreferences
 import com.example.financeflow.locale.rememberDateFormat
+import com.example.financeflow.ui.components.GlassButton
+import com.example.financeflow.ui.components.GlassCard
+import com.example.financeflow.ui.components.GlassDialog
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
@@ -101,30 +102,26 @@ fun SettingsScreen(onNavigateToCategories: () -> Unit, onNavigateToRecurring: ()
 
         Spacer(Modifier.height(24.dp))
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surface, MaterialTheme.shapes.small)
-                .clickable(onClick = onNavigateToCategories)
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+        GlassCard(
+            modifier = Modifier.fillMaxWidth().clickable(onClick = onNavigateToCategories),
+            contentPadding = 16.dp
         ) {
-            Text(text = stringResource(R.string.settings_categories), style = MaterialTheme.typography.bodyLarge)
-            Icon(Icons.Rounded.ChevronRight, contentDescription = null)
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(text = stringResource(R.string.settings_categories), style = MaterialTheme.typography.bodyLarge)
+                Icon(Icons.Rounded.ChevronRight, contentDescription = null)
+            }
         }
 
         Spacer(Modifier.height(12.dp))
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surface, MaterialTheme.shapes.small)
-                .clickable(onClick = onNavigateToRecurring)
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+        GlassCard(
+            modifier = Modifier.fillMaxWidth().clickable(onClick = onNavigateToRecurring),
+            contentPadding = 16.dp
         ) {
-            Text(text = stringResource(R.string.settings_recurring), style = MaterialTheme.typography.bodyLarge)
-            Icon(Icons.Rounded.ChevronRight, contentDescription = null)
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(text = stringResource(R.string.settings_recurring), style = MaterialTheme.typography.bodyLarge)
+                Icon(Icons.Rounded.ChevronRight, contentDescription = null)
+            }
         }
 
         Spacer(Modifier.height(24.dp))
@@ -160,10 +157,10 @@ fun SettingsScreen(onNavigateToCategories: () -> Unit, onNavigateToRecurring: ()
         Text(text = stringResource(R.string.settings_backup), style = MaterialTheme.typography.titleLarge)
         Spacer(Modifier.height(8.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Button(onClick = { exportLauncher.launch("financeflow-backup-${LocalDate.now()}.json") }) {
+            GlassButton(onClick = { exportLauncher.launch("financeflow-backup-${LocalDate.now()}.json") }) {
                 Text(stringResource(R.string.backup_export))
             }
-            Button(onClick = { importLauncher.launch(arrayOf("application/json")) }) {
+            GlassButton(onClick = { importLauncher.launch(arrayOf("application/json")) }) {
                 Text(stringResource(R.string.backup_import))
             }
         }
@@ -218,7 +215,7 @@ fun SettingsScreen(onNavigateToCategories: () -> Unit, onNavigateToRecurring: ()
     }
 
     pendingImportUri?.let { uri ->
-        AlertDialog(
+        GlassDialog(
             onDismissRequest = { pendingImportUri = null },
             title = { Text(stringResource(R.string.backup_import_confirm_title)) },
             text = { Text(stringResource(R.string.backup_import_confirm_body)) },

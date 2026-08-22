@@ -12,7 +12,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -44,6 +43,7 @@ import com.example.financeflow.data.TransactionType
 import com.example.financeflow.data.categoryTypeFor
 import com.example.financeflow.locale.CurrencyPreferences
 import com.example.financeflow.ui.components.DateField
+import com.example.financeflow.ui.components.GlassFilterChip
 import com.example.financeflow.viewmodel.CategoryViewModel
 import com.example.financeflow.viewmodel.RecurringRuleViewModel
 import com.example.financeflow.viewmodel.rememberCategoryViewModel
@@ -232,7 +232,7 @@ fun AddEditRecurringRuleScreen(
             } else {
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     filteredCategories.forEach { category ->
-                        FilterChip(
+                        GlassFilterChip(
                             selected = selectedCategory?.id == category.id,
                             onClick = { selectedCategory = category },
                             label = { Text(category.name) }

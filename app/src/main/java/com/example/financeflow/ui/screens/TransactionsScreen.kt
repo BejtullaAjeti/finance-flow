@@ -1,6 +1,6 @@
 package com.example.financeflow.ui.screens
 
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -54,6 +54,7 @@ import com.example.financeflow.data.repository.ExchangeRateRepository
 import com.example.financeflow.locale.CurrencyPreferences
 import com.example.financeflow.locale.rememberCurrencyFormat
 import com.example.financeflow.locale.rememberDateFormat
+import com.example.financeflow.ui.components.GlassCard
 import com.example.financeflow.ui.components.GlassFab
 import com.example.financeflow.ui.components.TransactionRow
 import com.example.financeflow.ui.components.TransactionTypeToggle
@@ -217,14 +218,12 @@ private fun DateRangeField(start: LocalDate?, end: LocalDate?, onClick: () -> Un
         else -> stringResource(R.string.date_range_until, end!!.format(formatter))
     }
 
-    Surface(
-        onClick = onClick,
-        shape = MaterialTheme.shapes.extraSmall,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-        modifier = Modifier.fillMaxWidth()
+    GlassCard(
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+        contentPadding = 16.dp
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column {

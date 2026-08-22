@@ -16,9 +16,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -58,6 +56,8 @@ import com.example.financeflow.locale.CurrencyPreferences
 import com.example.financeflow.locale.HintPreferences
 import com.example.financeflow.ui.components.CategoryIcons
 import com.example.financeflow.ui.components.DateField
+import com.example.financeflow.ui.components.GlassDialog
+import com.example.financeflow.ui.components.GlassFilterChip
 import com.example.financeflow.ui.components.InlineHint
 import com.example.financeflow.ui.components.categoryTypeLabel
 import com.example.financeflow.viewmodel.CategoryViewModel
@@ -240,13 +240,13 @@ fun AddEditTransactionScreen(
             Spacer(Modifier.height(8.dp))
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 filteredCategories.forEach { category ->
-                    FilterChip(
+                    GlassFilterChip(
                         selected = selectedCategory?.id == category.id,
                         onClick = { selectedCategory = category },
                         label = { Text(category.name) }
                     )
                 }
-                FilterChip(
+                GlassFilterChip(
                     selected = false,
                     onClick = { showQuickAddCategory = true },
                     label = { Text(stringResource(R.string.categories_add_new_chip)) }
@@ -305,7 +305,7 @@ private fun QuickAddCategoryDialog(
     var type by remember { mutableStateOf(defaultType) }
     var icon by remember { mutableStateOf<String?>(null) }
 
-    AlertDialog(
+    GlassDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.categories_add_title)) },
         text = {

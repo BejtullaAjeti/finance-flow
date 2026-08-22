@@ -23,7 +23,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -62,6 +61,8 @@ import com.example.financeflow.data.Currency
 import com.example.financeflow.locale.rememberCurrencyFormat
 import com.example.financeflow.ui.components.CategoryColorPalette
 import com.example.financeflow.ui.components.CategoryIcons
+import com.example.financeflow.ui.components.GlassCard
+import com.example.financeflow.ui.components.GlassDialog
 import com.example.financeflow.ui.components.GlassFab
 import com.example.financeflow.ui.components.categoryTypeLabel
 import com.example.financeflow.ui.components.toCategoryColor
@@ -271,7 +272,7 @@ private fun AddEditCategoryDialog(
     var budgetText by remember { mutableStateOf(editing?.budgetLimit?.toString().orEmpty()) }
     var budgetCurrency by remember { mutableStateOf(editing?.budgetLimitCurrency ?: Currency.MKD) }
 
-    AlertDialog(
+    GlassDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
@@ -331,20 +332,22 @@ private fun AddEditCategoryDialog(
 
                 Text(stringResource(R.string.categories_color_label), style = MaterialTheme.typography.labelSmall)
                 Spacer(Modifier.height(4.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    CategoryColorPalette.forEach { hex ->
-                        val swatchColor = hex.toCategoryColor()
-                        Box(
-                            modifier = Modifier
-                                .size(32.dp)
-                                .background(swatchColor, CircleShape)
-                                .border(
-                                    width = if (color == hex) 3.dp else 0.dp,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    shape = CircleShape
-                                )
-                                .clickable { color = hex }
-                        )
+                GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = 12.dp) {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        CategoryColorPalette.forEach { hex ->
+                            val swatchColor = hex.toCategoryColor()
+                            Box(
+                                modifier = Modifier
+                                    .size(32.dp)
+                                    .background(swatchColor, CircleShape)
+                                    .border(
+                                        width = if (color == hex) 3.dp else 0.dp,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        shape = CircleShape
+                                    )
+                                    .clickable { color = hex }
+                            )
+                        }
                     }
                 }
 
