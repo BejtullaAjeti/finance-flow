@@ -31,12 +31,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.financeflow.R
+import com.example.financeflow.data.AppDatabase
+import com.example.financeflow.data.Currency
+import com.example.financeflow.data.ExchangeRateCache
 import com.example.financeflow.data.PeriodTotal
 import com.example.financeflow.data.ReportPeriod
 import com.example.financeflow.data.Transaction
+import com.example.financeflow.data.repository.ExchangeRateRepository
+import com.example.financeflow.locale.CurrencyPreferences
 import com.example.financeflow.locale.currentAppLocale
 import com.example.financeflow.locale.rememberCurrencyFormat
 import com.example.financeflow.ui.components.TransactionTypeToggle
@@ -88,7 +94,11 @@ fun ReportsScreen(
     val categoryBreakdown by reportsViewModel.categoryBreakdown.collectAsState()
     val categories by categoryViewModel.categories.collectAsState()
     val categoryNames = remember(categories) { categories.associate { it.id to it.name } }
-    val currencyFormat = rememberCurrencyFormat()
+    val context = LocalContext.current
+    val displayCurrency by CurrencyPreferences.flow(context).collectAsState()
+    val exchangeRateRepository = remember { ExchangeRateRepository(AppDatabase.getInstance(context).exchangeRateDao(), context) }
+    val rates by exchangeRateRepository.rates.collectAsState(initial = ExchangeRateCache())
+    val currencyFormat = rememberCurrencyFormat(displayCurrency)
     val locale = currentAppLocale()
     val uncategorized = stringResource(R.string.category_uncategorized)
 
@@ -131,7 +141,7 @@ fun ReportsScreen(
                 Spacer(Modifier.height(20.dp))
 
                 if (period == ReportPeriod.DAY) {
-                    DailyReportList(dailyTransactions, categoryNames, uncategorized, currencyFormat)
+                    DailyReportList(dailyTransactions, categoryNames, uncategorized, currencyFormat, displayCurrency, rates)
                 } else {
                     ReportBarChart(barChartData, period, locale)
                 }
@@ -153,7 +163,9 @@ private fun DailyReportList(
     transactions: List<Transaction>,
     categoryNames: Map<Long, String>,
     uncategorized: String,
-    currencyFormat: NumberFormat
+    currencyFormat: NumberFormat,
+    displayCurrency: Currency,
+    rates: ExchangeRateCache
 ) {
     if (transactions.isEmpty()) {
         Text(text = stringResource(R.string.report_no_transactions_today), style = MaterialTheme.typography.bodyMedium)
@@ -165,7 +177,8 @@ private fun DailyReportList(
 
     Column {
         ordered.forEach { transaction ->
-            running += if (transaction.isIncome) transaction.amount else -transaction.amount
+            val convertedAmount = ExchangeRateRepository.convert(transaction.amount, transaction.currency, displayCurrency, rates)
+            running += if (transaction.isIncome) convertedAmount else -convertedAmount
             Row(
                 modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -177,7 +190,7 @@ private fun DailyReportList(
                 Column(horizontalAlignment = Alignment.End) {
                     val sign = if (transaction.isIncome) "+" else "-"
                     Text(
-                        text = "$sign${currencyFormat.format(transaction.amount)}",
+                        text = "$sign${currencyFormat.format(convertedAmount)}",
                         style = MoneyFigure,
                         color = if (transaction.isIncome) Income else Expense
                     )

@@ -23,9 +23,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.financeflow.R
+import com.example.financeflow.locale.CurrencyPreferences
 import com.example.financeflow.locale.rememberCurrencyFormat
 import com.example.financeflow.ui.components.CategoryIcons
 import com.example.financeflow.ui.components.GlassCard
@@ -44,7 +46,8 @@ fun BudgetsScreen(
     budgetViewModel: BudgetViewModel = rememberBudgetViewModel()
 ) {
     val budgets by budgetViewModel.budgets.collectAsState()
-    val currencyFormat = rememberCurrencyFormat()
+    val displayCurrency by CurrencyPreferences.flow(LocalContext.current).collectAsState()
+    val currencyFormat = rememberCurrencyFormat(displayCurrency)
 
     val typeFilter by budgetViewModel.currentTypeFilter.collectAsState()
 

@@ -23,9 +23,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.financeflow.R
+import com.example.financeflow.data.AppDatabase
+import com.example.financeflow.data.ExchangeRateCache
+import com.example.financeflow.data.repository.ExchangeRateRepository
+import com.example.financeflow.locale.CurrencyPreferences
 import com.example.financeflow.locale.rememberCurrencyFormat
 import com.example.financeflow.locale.rememberDateFormat
 import com.example.financeflow.ui.components.GlassCard
@@ -47,17 +52,20 @@ fun HomeScreen(
     transactionViewModel: TransactionViewModel = rememberTransactionViewModel(),
     categoryViewModel: CategoryViewModel = rememberCategoryViewModel()
 ) {
+    val context = LocalContext.current
     val transactions by transactionViewModel.filteredTransactions.collectAsState()
     val categories by categoryViewModel.categories.collectAsState()
     val categoryNames = remember(categories) { categories.associate { it.id to it.name } }
 
     val typeFilter by transactionViewModel.currentTypeFilter.collectAsState()
-    val currencyFormat = rememberCurrencyFormat()
+    val displayCurrency by CurrencyPreferences.flow(context).collectAsState()
+    val exchangeRateRepository = remember { ExchangeRateRepository(AppDatabase.getInstance(context).exchangeRateDao(), context) }
+    val rates by exchangeRateRepository.rates.collectAsState(initial = ExchangeRateCache())
+    val currencyFormat = rememberCurrencyFormat(displayCurrency)
     val dateFormat = rememberDateFormat("MMM d")
     val uncategorized = stringResource(R.string.category_uncategorized)
 
-    val income = remember(transactions) { transactions.filter { it.isIncome }.sumOf { it.amount } }
-    val expense = remember(transactions) { transactions.filter { !it.isIncome }.sumOf { it.amount } }
+    val summary by transactionViewModel.monthSummary.collectAsState()
 
     Scaffold(
         floatingActionButton = {
@@ -86,14 +94,14 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(text = stringResource(R.string.toggle_income), style = MaterialTheme.typography.bodyMedium)
-                    Text(text = currencyFormat.format(income), style = MoneyFigure, color = Income)
+                    Text(text = currencyFormat.format(summary.income), style = MoneyFigure, color = Income)
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(text = stringResource(R.string.home_expenses_label), style = MaterialTheme.typography.bodyMedium)
-                    Text(text = currencyFormat.format(expense), style = MoneyFigure, color = Expense)
+                    Text(text = currencyFormat.format(summary.expense), style = MoneyFigure, color = Expense)
                 }
             }
 
@@ -113,8 +121,10 @@ fun HomeScreen(
                         TransactionRow(
                             transaction = transaction,
                             categoryName = categoryNames[transaction.categoryId] ?: uncategorized,
+                            displayAmount = ExchangeRateRepository.convert(transaction.amount, transaction.currency, displayCurrency, rates),
                             currencyFormat = currencyFormat,
                             dateFormat = dateFormat,
+                            displayCurrency = displayCurrency,
                             onClick = { onEditTransaction(transaction.id) }
                         )
                     }

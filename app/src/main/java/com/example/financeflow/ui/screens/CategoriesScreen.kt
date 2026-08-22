@@ -63,7 +63,6 @@ import com.example.financeflow.viewmodel.CategoryDeleteBlockReason
 import com.example.financeflow.viewmodel.CategoryViewModel
 import com.example.financeflow.viewmodel.rememberCategoryViewModel
 import kotlinx.coroutines.launch
-import java.text.NumberFormat
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,7 +71,6 @@ fun CategoriesScreen(
     categoryViewModel: CategoryViewModel = rememberCategoryViewModel()
 ) {
     val categories by categoryViewModel.categories.collectAsState()
-    val currencyFormat = rememberCurrencyFormat()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
@@ -119,7 +117,6 @@ fun CategoriesScreen(
                 items(categories, key = { it.id }) { category ->
                     CategoryRow(
                         category = category,
-                        currencyFormat = currencyFormat,
                         onClick = { editingCategory = category; showDialog = true },
                         onDelete = {
                             categoryViewModel.deleteCategory(category) { reason ->
@@ -155,10 +152,10 @@ fun CategoriesScreen(
 @Composable
 private fun CategoryRow(
     category: Category,
-    currencyFormat: NumberFormat,
     onClick: () -> Unit,
     onDelete: () -> Unit
 ) {
+    val currencyFormat = rememberCurrencyFormat(category.budgetLimitCurrency)
     val swatch = category.color.toCategoryColor()
     Row(
         modifier = Modifier

@@ -41,7 +41,6 @@ import com.example.financeflow.viewmodel.CategoryViewModel
 import com.example.financeflow.viewmodel.RecurringRuleViewModel
 import com.example.financeflow.viewmodel.rememberCategoryViewModel
 import com.example.financeflow.viewmodel.rememberRecurringRuleViewModel
-import java.text.NumberFormat
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -55,7 +54,6 @@ fun RecurringRulesScreen(
     val typeFilter by recurringRuleViewModel.currentTypeFilter.collectAsState()
     val categories by categoryViewModel.categories.collectAsState()
     val categoryNames = remember(categories) { categories.associate { it.id to it.name } }
-    val currencyFormat = rememberCurrencyFormat()
     val dateFormat = rememberDateFormat("MMM d, yyyy")
     val uncategorized = stringResource(R.string.category_uncategorized)
 
@@ -90,7 +88,6 @@ fun RecurringRulesScreen(
                         RecurringRuleRow(
                             rule = rule,
                             categoryName = categoryNames[rule.categoryId] ?: uncategorized,
-                            currencyFormat = currencyFormat,
                             dateFormat = dateFormat,
                             onClick = { onEditRule(rule.id) },
                             onToggleActive = { active ->
@@ -108,11 +105,11 @@ fun RecurringRulesScreen(
 private fun RecurringRuleRow(
     rule: RecurringRule,
     categoryName: String,
-    currencyFormat: NumberFormat,
     dateFormat: DateTimeFormatter,
     onClick: () -> Unit,
     onToggleActive: (Boolean) -> Unit
 ) {
+    val currencyFormat = rememberCurrencyFormat(rule.currency)
     Row(
         modifier = Modifier
             .fillMaxWidth()

@@ -40,13 +40,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.financeflow.R
+import com.example.financeflow.data.AppDatabase
 import com.example.financeflow.data.Category
+import com.example.financeflow.data.ExchangeRateCache
 import com.example.financeflow.data.categoryTypeFor
+import com.example.financeflow.data.repository.ExchangeRateRepository
+import com.example.financeflow.locale.CurrencyPreferences
 import com.example.financeflow.locale.rememberCurrencyFormat
 import com.example.financeflow.locale.rememberDateFormat
 import com.example.financeflow.ui.components.GlassFab
@@ -68,11 +73,15 @@ fun TransactionsScreen(
     transactionViewModel: TransactionViewModel = rememberTransactionViewModel(),
     categoryViewModel: CategoryViewModel = rememberCategoryViewModel()
 ) {
+    val context = LocalContext.current
     val filter by transactionViewModel.currentListFilter.collectAsState()
     val transactions by transactionViewModel.filteredList.collectAsState()
     val categories by categoryViewModel.filteredCategories.collectAsState()
     val categoryNames = remember(categories) { categories.associate { it.id to it.name } }
-    val currencyFormat = rememberCurrencyFormat()
+    val displayCurrency by CurrencyPreferences.flow(context).collectAsState()
+    val exchangeRateRepository = remember { ExchangeRateRepository(AppDatabase.getInstance(context).exchangeRateDao(), context) }
+    val rates by exchangeRateRepository.rates.collectAsState(initial = ExchangeRateCache())
+    val currencyFormat = rememberCurrencyFormat(displayCurrency)
     val dateFormat = rememberDateFormat("MMM d")
     val uncategorized = stringResource(R.string.category_uncategorized)
 
@@ -138,8 +147,10 @@ fun TransactionsScreen(
                     TransactionRow(
                         transaction = transaction,
                         categoryName = categoryNames[transaction.categoryId] ?: uncategorized,
+                        displayAmount = ExchangeRateRepository.convert(transaction.amount, transaction.currency, displayCurrency, rates),
                         currencyFormat = currencyFormat,
                         dateFormat = dateFormat,
+                        displayCurrency = displayCurrency,
                         onClick = { onEditTransaction(transaction.id) }
                     )
                 }
