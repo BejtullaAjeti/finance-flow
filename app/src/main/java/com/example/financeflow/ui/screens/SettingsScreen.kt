@@ -48,7 +48,7 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen(onNavigateToCategories: () -> Unit) {
+fun SettingsScreen(onNavigateToCategories: () -> Unit, onNavigateToRecurring: () -> Unit) {
     val context = LocalContext.current
     var languageCode by remember {
         mutableStateOf(LocalePreferences.get(context) ?: Locale.getDefault().language)
@@ -94,6 +94,20 @@ fun SettingsScreen(onNavigateToCategories: () -> Unit) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(text = stringResource(R.string.settings_categories), style = MaterialTheme.typography.bodyLarge)
+            Icon(Icons.Rounded.ChevronRight, contentDescription = null)
+        }
+
+        Spacer(Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surface, MaterialTheme.shapes.small)
+                .clickable(onClick = onNavigateToRecurring)
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(text = stringResource(R.string.settings_recurring), style = MaterialTheme.typography.bodyLarge)
             Icon(Icons.Rounded.ChevronRight, contentDescription = null)
         }
 

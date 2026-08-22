@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.DateRange
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.DateRangePicker
@@ -27,6 +28,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -47,6 +49,7 @@ import com.example.financeflow.data.Category
 import com.example.financeflow.data.categoryTypeFor
 import com.example.financeflow.locale.rememberCurrencyFormat
 import com.example.financeflow.locale.rememberDateFormat
+import com.example.financeflow.ui.components.GlassFab
 import com.example.financeflow.ui.components.TransactionRow
 import com.example.financeflow.ui.components.TransactionTypeToggle
 import com.example.financeflow.viewmodel.CategoryViewModel
@@ -61,6 +64,7 @@ import java.time.ZoneOffset
 @Composable
 fun TransactionsScreen(
     onEditTransaction: (Long) -> Unit,
+    onAddTransaction: () -> Unit,
     transactionViewModel: TransactionViewModel = rememberTransactionViewModel(),
     categoryViewModel: CategoryViewModel = rememberCategoryViewModel()
 ) {
@@ -74,7 +78,14 @@ fun TransactionsScreen(
 
     var showDateRangePicker by remember { mutableStateOf(false) }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+    Scaffold(
+        floatingActionButton = {
+            GlassFab(onClick = onAddTransaction, contentDescription = stringResource(R.string.home_add_transaction_content_description)) {
+                Icon(Icons.Rounded.Add, contentDescription = null)
+            }
+        }
+    ) { innerPadding ->
+    Column(modifier = Modifier.fillMaxSize().padding(innerPadding).padding(16.dp)) {
         OutlinedTextField(
             value = filter.searchQuery,
             onValueChange = { query ->
@@ -146,6 +157,7 @@ fun TransactionsScreen(
                 showDateRangePicker = false
             }
         )
+    }
     }
 }
 

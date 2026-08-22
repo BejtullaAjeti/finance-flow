@@ -13,7 +13,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -30,6 +29,7 @@ import com.example.financeflow.R
 import com.example.financeflow.locale.rememberCurrencyFormat
 import com.example.financeflow.locale.rememberDateFormat
 import com.example.financeflow.ui.components.GlassCard
+import com.example.financeflow.ui.components.GlassFab
 import com.example.financeflow.ui.components.TransactionRow
 import com.example.financeflow.ui.components.TransactionTypeToggle
 import com.example.financeflow.ui.theme.Expense
@@ -61,8 +61,8 @@ fun HomeScreen(
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(onClick = onAddTransaction) {
-                Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.home_add_transaction_content_description))
+            GlassFab(onClick = onAddTransaction, contentDescription = stringResource(R.string.home_add_transaction_content_description)) {
+                Icon(Icons.Rounded.Add, contentDescription = null)
             }
         }
     ) { innerPadding ->

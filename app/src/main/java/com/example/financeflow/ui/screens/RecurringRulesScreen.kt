@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -33,6 +32,7 @@ import com.example.financeflow.data.Frequency
 import com.example.financeflow.data.RecurringRule
 import com.example.financeflow.locale.rememberCurrencyFormat
 import com.example.financeflow.locale.rememberDateFormat
+import com.example.financeflow.ui.components.GlassFab
 import com.example.financeflow.ui.components.TransactionTypeToggle
 import com.example.financeflow.ui.theme.Expense
 import com.example.financeflow.ui.theme.Income
@@ -61,8 +61,8 @@ fun RecurringRulesScreen(
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(onClick = onAddRule) {
-                Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.recurring_add_content_description))
+            GlassFab(onClick = onAddRule, contentDescription = stringResource(R.string.recurring_add_content_description)) {
+                Icon(Icons.Rounded.Add, contentDescription = null)
             }
         }
     ) { innerPadding ->

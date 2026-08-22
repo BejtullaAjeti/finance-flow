@@ -1,3 +1,115 @@
 <resources>
-    <string name="app_name">Finance Flow</string>
+    <string name="app_name">Finance Flow</string> <!-- brand name, kept untranslated -->
+
+    <string name="settings_title">Cilësimet</string>
+    <string name="settings_categories">Kategoritë</string>
+    <string name="settings_language">Gjuha</string>
+    <string name="language_albanian">Shqip</string>
+    <string name="language_english">Anglisht</string>
+
+    <string name="categories_add_title">Shto Kategori</string>
+    <string name="categories_edit_title">Redakto Kategorinë</string>
+    <string name="categories_name_label">Emri</string>
+    <string name="type_personal">Personale</string>
+    <string name="type_business">Biznesi</string>
+    <string name="type_both">Të dyja</string>
+    <string name="type_combined">Kombinuar</string>
+    <string name="categories_icon_label">Ikona</string>
+    <string name="categories_color_label">Ngjyra</string>
+    <string name="categories_budget_label">Buxheti mujor (opsional)</string>
+    <string name="categories_budget_suffix">Buxheti %1$s/muaj</string>
+    <string name="categories_empty">Nuk ka kategori ende. Prek + për të shtuar një.</string>
+    <string name="categories_picker_empty">Nuk ka kategori për këtë lloj ende. Shto një nga Cilësimet → Kategoritë.</string>
+    <string name="categories_delete_content_description">Fshi %1$s</string>
+    <string name="categories_delete_blocked">"%1$s" përdoret nga transaksione ekzistuese dhe nuk mund të fshihet.</string>
+    <string name="categories_delete_blocked_last">"%1$s" është kategoria e vetme e këtij lloji dhe nuk mund të fshihet.</string>
+    <string name="categories_add_content_description">Shto kategori</string>
+
+    <string name="category_default_food">Ushqim</string>
+    <string name="category_default_transport">Transporti</string>
+    <string name="category_default_bills">Faturat</string>
+    <string name="category_default_salary">Paga</string>
+    <string name="category_default_business_income">Të ardhura biznesi</string>
+    <string name="category_default_business_expenses">Shpenzime biznesi</string>
+    <string name="category_default_others">Të tjera</string>
+
+    <string name="action_save">Ruaj</string>
+    <string name="action_cancel">Anulo</string>
+
+    <string name="settings_backup">Kopje Rezervë</string>
+    <string name="backup_export">Eksporto</string>
+    <string name="backup_import">Importo</string>
+    <string name="backup_export_success">Kopja rezervë u ruajt.</string>
+    <string name="backup_export_failed">Eksportimi dështoi.</string>
+    <string name="backup_import_success">Kopja rezervë u rikthye.</string>
+    <string name="backup_import_failed">Importimi dështoi. Sigurohu që skedari është një kopje rezervë e vlefshme.</string>
+    <string name="backup_import_confirm_title">Të zëvendësohen të gjitha të dhënat?</string>
+    <string name="backup_import_confirm_body">Importimi do të zëvendësojë të gjitha transaksionet, kategoritë dhe rregullat e përsëritura me përmbajtjen e këtij skedari. Kjo nuk mund të zhbëhet.</string>
+    <string name="backup_import_confirm_action">Zëvendëso</string>
+
+    <string name="action_ok">OK</string>
+    <string name="action_clear">Pastro</string>
+    <string name="action_apply">Apliko</string>
+
+    <string name="toggle_expense">Shpenzim</string>
+    <string name="toggle_income">Të ardhura</string>
+    <string name="field_amount_label">Shuma</string>
+    <string name="field_category_label">Kategoria</string>
+    <string name="field_note_optional_label">Shënim (opsional)</string>
+    <string name="field_date_label">Data</string>
+    <string name="category_uncategorized">Pa kategori</string>
+
+    <string name="nav_home">Kryesore</string>
+    <string name="nav_transactions">Transaksionet</string>
+    <string name="nav_reports">Raportet</string>
+    <string name="nav_settings">Cilësimet</string>
+
+    <string name="report_tab_overview">Përmbledhje</string>
+    <string name="report_tab_budgets">Buxhetet</string>
+    <string name="settings_recurring">Të Përsëritura</string>
+
+    <string name="home_add_transaction_content_description">Shto transaksion</string>
+    <string name="home_this_month_title">Këtë Muaj</string>
+    <string name="home_expenses_label">Shpenzimet</string>
+    <string name="home_recent_transactions_title">Transaksionet e Fundit</string>
+
+    <string name="search_notes_label">Kërko shënime</string>
+    <string name="transactions_empty">Asnjë transaksion nuk përputhet me këto filtra.</string>
+    <string name="category_filter_all">Të gjitha kategoritë</string>
+    <string name="date_range_label">Intervali i datave</string>
+    <string name="date_range_all">Të gjitha datat</string>
+    <string name="date_range_from">Nga %1$s</string>
+    <string name="date_range_until">Deri %1$s</string>
+    <string name="date_range_between">%1$s – %2$s</string>
+    <string name="date_range_change_content_description">Zgjidh intervalin e datave</string>
+
+    <string name="budgets_empty">Nuk ka buxhete të caktuara për këtë filtër ende.</string>
+    <string name="budget_spent_of_limit">%1$s nga %2$s</string>
+    <string name="budget_over_amount">%1$s mbi buxhet</string>
+
+    <string name="label_daily">Ditore</string>
+    <string name="label_weekly">Javore</string>
+    <string name="label_monthly">Mujore</string>
+    <string name="label_yearly">Vjetore</string>
+    <string name="label_custom">Personalizuar</string>
+    <string name="report_by_category_title">Sipas Kategorisë</string>
+    <string name="report_no_transactions_today">Asnjë transaksion sot.</string>
+    <string name="report_running_total">Gjendja: %1$s</string>
+    <string name="report_no_spending_period">Asnjë shpenzim në këtë periudhë.</string>
+
+    <string name="transaction_edit_title">Redakto Transaksionin</string>
+    <string name="transaction_add_title">Shto Transaksion</string>
+
+    <string name="recurring_add_content_description">Shto rregull të përsëritur</string>
+    <string name="recurring_empty">Nuk ka rregulla të përsëritura për këtë filtër ende. Prek + për të shtuar një.</string>
+    <string name="recurring_row_summary">%1$s · %2$s · Data tjetër %3$s</string>
+    <string name="frequency_every_n_days">Çdo %1$d ditë</string>
+    <string name="recurring_every_n_days_field_label">Çdo N ditë</string>
+    <string name="recurring_next_due_date_label">Data e ardhshme</string>
+    <string name="recurring_edit_title">Redakto Rregullin e Përsëritur</string>
+    <string name="recurring_add_title">Shto Rregull të Përsëritur</string>
+    <string name="recurring_label_field">Etiketa</string>
+    <string name="recurring_frequency_title">Frekuenca</string>
+
+    <string name="date_field_change_content_description">Ndrysho %1$s</string>
 </resources>
