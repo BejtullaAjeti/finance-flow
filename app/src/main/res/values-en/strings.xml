@@ -27,6 +27,8 @@
     <string name="categories_add_new_chip">+ New category</string>
     <string name="categories_delete_success">"%1$s" deleted.</string>
     <string name="action_undo">Undo</string>
+    <string name="action_dismiss_hint">Dismiss</string>
+    <string name="hint_category_picker">Tap + to add a new category</string>
 
     <string name="category_default_food">Food</string>
     <string name="category_default_transport">Transport</string>
@@ -100,6 +102,7 @@
     <string name="budget_amount_label">Monthly budget amount</string>
     <string name="budget_add_content_description">Add budget</string>
     <string name="budget_pick_category_title">Choose a category</string>
+    <string name="hint_budgets_empty">Tap a category to set its budget</string>
 
     <string name="label_daily">Daily</string>
     <string name="label_weekly">Weekly</string>
@@ -116,6 +119,7 @@
 
     <string name="recurring_add_content_description">Add recurring rule</string>
     <string name="recurring_empty">No recurring rules for this filter yet. Tap + to add one.</string>
+    <string name="hint_recurring_empty">Recurring rules auto-generate transactions like rent or salary each period</string>
     <string name="recurring_row_summary">%1$s · %2$s · Next %3$s</string>
     <string name="frequency_every_n_days">Every %1$d days</string>
     <string name="recurring_every_n_days_field_label">Every N days</string>

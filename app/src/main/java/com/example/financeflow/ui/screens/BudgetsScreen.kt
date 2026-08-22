@@ -51,6 +51,7 @@ import com.example.financeflow.locale.rememberCurrencyFormat
 import com.example.financeflow.ui.components.CategoryIcons
 import com.example.financeflow.ui.components.GlassCard
 import com.example.financeflow.ui.components.GlassFab
+import com.example.financeflow.ui.components.InlineHint
 import com.example.financeflow.ui.components.TransactionTypeToggle
 import com.example.financeflow.ui.components.toCategoryColor
 import com.example.financeflow.ui.theme.Expense
@@ -77,8 +78,10 @@ fun BudgetsScreen(
 
     var editingCategory by remember { mutableStateOf<Category?>(null) }
     var pickingCategory by remember { mutableStateOf(false) }
+    var showBudgetHint by remember { mutableStateOf(true) }
 
     val unbudgeted = remember(budgets) { budgets.filter { it.limit == null }.map { it.category } }
+    val noneHaveBudgets = budgets.isNotEmpty() && unbudgeted.size == budgets.size
 
     Scaffold(
         floatingActionButton = {
@@ -96,6 +99,14 @@ fun BudgetsScreen(
             )
 
             Spacer(Modifier.height(16.dp))
+
+            if (noneHaveBudgets && showBudgetHint) {
+                InlineHint(
+                    text = stringResource(R.string.hint_budgets_empty),
+                    onDismiss = { showBudgetHint = false }
+                )
+                Spacer(Modifier.height(8.dp))
+            }
 
             if (budgets.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

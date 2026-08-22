@@ -22,7 +22,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -33,6 +35,7 @@ import com.example.financeflow.data.RecurringRule
 import com.example.financeflow.locale.rememberCurrencyFormat
 import com.example.financeflow.locale.rememberDateFormat
 import com.example.financeflow.ui.components.GlassFab
+import com.example.financeflow.ui.components.InlineHint
 import com.example.financeflow.ui.components.TransactionTypeToggle
 import com.example.financeflow.ui.theme.Expense
 import com.example.financeflow.ui.theme.Income
@@ -56,6 +59,7 @@ fun RecurringRulesScreen(
     val categoryNames = remember(categories) { categories.associate { it.id to it.name } }
     val dateFormat = rememberDateFormat("MMM d, yyyy")
     val uncategorized = stringResource(R.string.category_uncategorized)
+    var showRecurringHint by remember { mutableStateOf(true) }
 
     Scaffold(
         floatingActionButton = {
@@ -80,7 +84,15 @@ fun RecurringRulesScreen(
 
             if (rules.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(stringResource(R.string.recurring_empty))
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(stringResource(R.string.recurring_empty), style = MaterialTheme.typography.bodyMedium)
+                        if (showRecurringHint) {
+                            InlineHint(
+                                text = stringResource(R.string.hint_recurring_empty),
+                                onDismiss = { showRecurringHint = false }
+                            )
+                        }
+                    }
                 }
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {

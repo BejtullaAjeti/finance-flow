@@ -55,8 +55,10 @@ import com.example.financeflow.data.Transaction
 import com.example.financeflow.data.TransactionType
 import com.example.financeflow.data.categoryTypeFor
 import com.example.financeflow.locale.CurrencyPreferences
+import com.example.financeflow.locale.HintPreferences
 import com.example.financeflow.ui.components.CategoryIcons
 import com.example.financeflow.ui.components.DateField
+import com.example.financeflow.ui.components.InlineHint
 import com.example.financeflow.ui.components.categoryTypeLabel
 import com.example.financeflow.viewmodel.CategoryViewModel
 import com.example.financeflow.viewmodel.TransactionViewModel
@@ -78,7 +80,9 @@ fun AddEditTransactionScreen(
     }
     val filteredCategories by categoryViewModel.filteredCategories.collectAsState()
 
-    val displayCurrency by CurrencyPreferences.flow(LocalContext.current).collectAsState()
+    val context = LocalContext.current
+    val displayCurrency by CurrencyPreferences.flow(context).collectAsState()
+    var showCategoryHint by remember { mutableStateOf(!HintPreferences.isCategoryPickerHintDismissed(context)) }
 
     var initialized by remember { mutableStateOf(transactionId == null) }
     var amountText by remember { mutableStateOf("") }
@@ -246,6 +250,16 @@ fun AddEditTransactionScreen(
                     selected = false,
                     onClick = { showQuickAddCategory = true },
                     label = { Text(stringResource(R.string.categories_add_new_chip)) }
+                )
+            }
+
+            if (showCategoryHint) {
+                InlineHint(
+                    text = stringResource(R.string.hint_category_picker),
+                    onDismiss = {
+                        HintPreferences.dismissCategoryPickerHint(context)
+                        showCategoryHint = false
+                    }
                 )
             }
 

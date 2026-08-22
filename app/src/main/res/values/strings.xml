@@ -27,6 +27,8 @@
     <string name="categories_add_new_chip">+ Kategori e re</string>
     <string name="categories_delete_success">"%1$s" u fshi.</string>
     <string name="action_undo">Zhbëj</string>
+    <string name="action_dismiss_hint">Mbyll</string>
+    <string name="hint_category_picker">Prek + për të shtuar një kategori të re</string>
 
     <string name="category_default_food">Ushqim</string>
     <string name="category_default_transport">Transporti</string>
@@ -100,6 +102,7 @@
     <string name="budget_amount_label">Shuma e buxhetit mujor</string>
     <string name="budget_add_content_description">Shto buxhet</string>
     <string name="budget_pick_category_title">Zgjidh një kategori</string>
+    <string name="hint_budgets_empty">Prek një kategori për të caktuar buxhetin e saj</string>
 
     <string name="label_daily">Ditore</string>
     <string name="label_weekly">Javore</string>
@@ -116,6 +119,7 @@
 
     <string name="recurring_add_content_description">Shto rregull të përsëritur</string>
     <string name="recurring_empty">Nuk ka rregulla të përsëritura për këtë filtër ende. Prek + për të shtuar një.</string>
+    <string name="hint_recurring_empty">Rregullat e përsëritura krijojnë vetë transaksione si qiraja apo paga në çdo periudhë</string>
     <string name="recurring_row_summary">%1$s · %2$s · Data tjetër %3$s</string>
     <string name="frequency_every_n_days">Çdo %1$d ditë</string>
     <string name="recurring_every_n_days_field_label">Çdo N ditë</string>
