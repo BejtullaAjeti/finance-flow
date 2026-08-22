@@ -295,6 +295,7 @@ private fun AddEditCategoryDialog(
                 SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                     CategoryType.entries.forEachIndexed { index, option ->
                         SegmentedButton(
+                            icon = {},
                             selected = type == option,
                             onClick = { type = option },
                             shape = SegmentedButtonDefaults.itemShape(index, CategoryType.entries.size)
@@ -367,6 +368,7 @@ private fun AddEditCategoryDialog(
                 SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                     Currency.entries.forEachIndexed { index, option ->
                         SegmentedButton(
+                            icon = {},
                             selected = budgetCurrency == option,
                             onClick = { budgetCurrency = option },
                             shape = SegmentedButtonDefaults.itemShape(index, Currency.entries.size)

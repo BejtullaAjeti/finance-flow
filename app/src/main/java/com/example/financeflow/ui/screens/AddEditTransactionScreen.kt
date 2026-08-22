@@ -187,11 +187,13 @@ fun AddEditTransactionScreen(
 
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                 SegmentedButton(
+                    icon = {},
                     selected = !isIncome,
                     onClick = { isIncome = false },
                     shape = SegmentedButtonDefaults.itemShape(0, 2)
                 ) { Text(stringResource(R.string.toggle_expense)) }
                 SegmentedButton(
+                    icon = {},
                     selected = isIncome,
                     onClick = { isIncome = true },
                     shape = SegmentedButtonDefaults.itemShape(1, 2)
@@ -202,11 +204,13 @@ fun AddEditTransactionScreen(
 
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                 SegmentedButton(
+                    icon = {},
                     selected = type == TransactionType.PERSONAL,
                     onClick = { type = TransactionType.PERSONAL; selectedCategory = null },
                     shape = SegmentedButtonDefaults.itemShape(0, 2)
                 ) { Text(stringResource(R.string.type_personal)) }
                 SegmentedButton(
+                    icon = {},
                     selected = type == TransactionType.BUSINESS,
                     onClick = { type = TransactionType.BUSINESS; selectedCategory = null },
                     shape = SegmentedButtonDefaults.itemShape(1, 2)
@@ -218,6 +222,7 @@ fun AddEditTransactionScreen(
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                 Currency.entries.forEachIndexed { index, option ->
                     SegmentedButton(
+                        icon = {},
                         selected = currency == option,
                         onClick = { currency = option },
                         shape = SegmentedButtonDefaults.itemShape(index, Currency.entries.size)
@@ -304,6 +309,7 @@ private fun QuickAddCategoryDialog(
                 SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                     CategoryType.entries.forEachIndexed { index, option ->
                         SegmentedButton(
+                            icon = {},
                             selected = type == option,
                             onClick = { type = option },
                             shape = SegmentedButtonDefaults.itemShape(index, CategoryType.entries.size)

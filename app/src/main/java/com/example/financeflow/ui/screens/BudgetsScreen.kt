@@ -271,6 +271,7 @@ private fun SetBudgetDialog(
                 SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                     Currency.entries.forEachIndexed { index, option ->
                         SegmentedButton(
+                            icon = {},
                             selected = currency == option,
                             onClick = { currency = option },
                             shape = SegmentedButtonDefaults.itemShape(index, Currency.entries.size)

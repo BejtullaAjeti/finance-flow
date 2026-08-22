@@ -134,6 +134,7 @@ fun SettingsScreen(onNavigateToCategories: () -> Unit, onNavigateToRecurring: ()
 
         SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
             SegmentedButton(
+                icon = {},
                 selected = languageCode == "sq",
                 onClick = {
                     LocalePreferences.set(context, "sq")
@@ -143,6 +144,7 @@ fun SettingsScreen(onNavigateToCategories: () -> Unit, onNavigateToRecurring: ()
                 shape = SegmentedButtonDefaults.itemShape(0, 2)
             ) { Text(stringResource(R.string.language_albanian)) }
             SegmentedButton(
+                icon = {},
                 selected = languageCode == "en",
                 onClick = {
                     LocalePreferences.set(context, "en")
@@ -178,6 +180,7 @@ fun SettingsScreen(onNavigateToCategories: () -> Unit, onNavigateToRecurring: ()
         SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
             Currency.entries.forEachIndexed { index, option ->
                 SegmentedButton(
+                    icon = {},
                     selected = displayCurrency == option,
                     onClick = { CurrencyPreferences.set(context, option) },
                     shape = SegmentedButtonDefaults.itemShape(index, Currency.entries.size)

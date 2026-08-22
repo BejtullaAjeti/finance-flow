@@ -109,6 +109,7 @@ fun ReportsScreen(
         SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
             tabLabels.forEachIndexed { index, label ->
                 SegmentedButton(
+                    icon = {},
                     selected = selectedTab == index,
                     onClick = { selectedTab = index },
                     shape = SegmentedButtonDefaults.itemShape(index, tabLabels.size)
@@ -125,6 +126,7 @@ fun ReportsScreen(
                 SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                     ReportPeriod.entries.forEachIndexed { index, option ->
                         SegmentedButton(
+                            icon = {},
                             selected = period == option,
                             onClick = { reportsViewModel.setPeriod(option) },
                             shape = SegmentedButtonDefaults.itemShape(index, ReportPeriod.entries.size)

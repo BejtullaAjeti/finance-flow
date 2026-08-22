@@ -180,11 +180,13 @@ fun AddEditRecurringRuleScreen(
 
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                 SegmentedButton(
+                    icon = {},
                     selected = !isIncome,
                     onClick = { isIncome = false },
                     shape = SegmentedButtonDefaults.itemShape(0, 2)
                 ) { Text(stringResource(R.string.toggle_expense)) }
                 SegmentedButton(
+                    icon = {},
                     selected = isIncome,
                     onClick = { isIncome = true },
                     shape = SegmentedButtonDefaults.itemShape(1, 2)
@@ -195,11 +197,13 @@ fun AddEditRecurringRuleScreen(
 
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                 SegmentedButton(
+                    icon = {},
                     selected = type == TransactionType.PERSONAL,
                     onClick = { type = TransactionType.PERSONAL; selectedCategory = null },
                     shape = SegmentedButtonDefaults.itemShape(0, 2)
                 ) { Text(stringResource(R.string.type_personal)) }
                 SegmentedButton(
+                    icon = {},
                     selected = type == TransactionType.BUSINESS,
                     onClick = { type = TransactionType.BUSINESS; selectedCategory = null },
                     shape = SegmentedButtonDefaults.itemShape(1, 2)
@@ -211,6 +215,7 @@ fun AddEditRecurringRuleScreen(
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                 Currency.entries.forEachIndexed { index, option ->
                     SegmentedButton(
+                        icon = {},
                         selected = currency == option,
                         onClick = { currency = option },
                         shape = SegmentedButtonDefaults.itemShape(index, Currency.entries.size)
@@ -243,6 +248,7 @@ fun AddEditRecurringRuleScreen(
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                 Frequency.entries.forEachIndexed { index, option ->
                     SegmentedButton(
+                        icon = {},
                         selected = frequency == option,
                         onClick = { frequency = option },
                         shape = SegmentedButtonDefaults.itemShape(index, Frequency.entries.size)
