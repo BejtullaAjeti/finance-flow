@@ -1,6 +1,13 @@
 # Full Visual Redesign — Design System & Screen-by-Screen Rework
 
-Status: approved in chat 2026-08-23. Implementing now.
+Status: **SUPERSEDED 2026-08-23.** The glassmorphism direction in this spec has been abandoned
+in favor of a minimalist direction (no transparency/blur anywhere, including dialogs) — see the
+forthcoming replacement spec. This document is kept for history and because the code it describes
+was fully implemented before the direction changed; do not use it to guide new work. See
+"State at supersession" at the end of this file for exactly what was built and what that implies
+for the minimalist rework.
+
+~~Status: approved in chat 2026-08-23. Implementing now.~~
 
 ## 1. Goals
 
@@ -200,3 +207,55 @@ the reason for the per-screen check-ins.
   toward flat rather than push the tier further.
 - **Icon mapping edge cases** — a handful of the 25 glyphs may not have a clean Phosphor
   equivalent; handled case-by-case per §5 rather than blocking.
+
+## State at supersession (2026-08-23)
+
+This spec was not stopped partway — the full plan (`docs/superpowers/plans/2026-08-23-full-redesign.md`,
+19 tasks, also marked superseded) was completed and committed to `master` across 20 commits
+(`47a65f2`..`bf71072`), touching every screen, plus one follow-up crash fix unrelated to visual
+style. Recorded here so the minimalist replacement spec can account for the real scope of the
+rework, not just Home.
+
+**New files — pure glassmorphism infrastructure, full revert/replace candidates:**
+- `ui/theme/GlassTier.kt` — the 4-tier elevation spec table (fill/border/glow/shadow per level).
+  No minimalist equivalent needed unless the new spec wants its own flat elevation/shadow scale.
+- `ui/components/GlassCard.kt`, `GlassButton.kt`, `GlassDialog.kt`, `GlassFab.kt`,
+  `GlassFilterChip.kt`, `GlassRow.kt`, `GlassTextField.kt`, `GlassSegmentedControl.kt` — every
+  "Glass*" component. Each has call sites in most/all of the 8 screens (see below), so this isn't
+  a clean file deletion — every call site needs to move to whatever the new spec's components are.
+- `ui/components/SnackbarController.kt` — the controller itself isn't glass-specific (a plain
+  `SnackbarHostState` wrapper); only its container render in `FinanceFlowApp.kt`
+  (`GlassCard(tier = GlassTier.Overlay)`) needs restyling. Keep the mechanism.
+
+**Modified existing files carrying glass-specific styling:**
+- `ui/theme/Color.kt` — `GlassFill`/`GlassGlow`/`GlassBorderTop`/`GlassBorderBottom`/`GlassShadow`
+  (pre-existing from the 2026-08-22 pass, before this spec) need removal. This spec's own
+  `Warning`/`WarningContainer`/`OnWarning` addition is color semantics, not glass — keep it.
+- `ui/components/CategoryStyle.kt`, `ui/navigation/FinanceFlowDestination.kt` — icon catalog
+  migrated to Phosphor Icons. Icon family is orthogonal to glass-vs-flat; keep unless the
+  minimalist spec also wants a different icon set.
+- `ui/navigation/FinanceFlowApp.kt` — bottom nav bar is a `GlassCard`; needs a flat container.
+  Its Fill/Regular selected-icon-weight trick is independent of that and can stay.
+- Every screen file (`HomeScreen`, `AddEditTransactionScreen`, `TransactionsScreen`,
+  `CategoriesScreen`, `BudgetsScreen`, `ReportsScreen`, `RecurringRulesScreen`, `SettingsScreen`)
+  now uses `GlassRow`/`GlassTextField`/`GlassSegmentedControl`/`GlassCard`/`GlassFab`/
+  `GlassFilterChip`/`GlassDialog` in place of the flat M3/plain-`Row` equivalents they had before.
+  All of these call sites need to move to the minimalist spec's replacement components.
+
+**Should NOT be touched by the rework — not glass-related:**
+- Icon migration to Phosphor Icons (a font/family choice).
+- Three-state budget progress coloring (fine/warning/over) in `BudgetsScreen.kt`.
+- Chart entrance animations in `ReportsScreen.kt` (pie sweep, bar fade/slide-in).
+- The Vico `CartesianValueFormatter` crash fix (commit `bf71072`) — a real bug fix.
+- Localization strings added for the Recurring pause/resume snackbar messages.
+- `Modifier.pressScale()` and `Modifier.selectionRing()` — style-agnostic interaction mechanisms
+  (press-scale feedback, animated selection border) with no inherent dependency on glass; a
+  minimalist design can very likely reuse both against flat surfaces unchanged.
+
+**`app/CLAUDE.md`** — its "Glassmorphism" paragraph (§5) was rewritten this session to describe
+the 4-tier system as canonical guidance. Needs rewriting again once the minimalist spec exists —
+right now it documents an abandoned direction as current.
+
+Given how many call sites are involved, the cleanest path is almost certainly a second pass at
+the same granularity as this one (shared components first, then screen-by-screen), not a
+revert-then-reimplement — the file-touch list is essentially identical either way.

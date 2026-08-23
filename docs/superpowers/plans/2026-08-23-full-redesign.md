@@ -1,5 +1,11 @@
 # Full Visual Redesign Implementation Plan
 
+Status: **SUPERSEDED 2026-08-23.** The glassmorphism spec this plan implements
+(`docs/superpowers/specs/2026-08-23-full-redesign-design.md`) has been abandoned in favor of a
+minimalist, no-transparency direction. All 19 tasks below were completed and committed before the
+direction changed — see that spec's "State at supersession" section for exactly what exists now
+and what it means for the rework. Do not execute this plan; it is kept for history only.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Formalize the app's partial design system into a complete token set (color, spacing,
