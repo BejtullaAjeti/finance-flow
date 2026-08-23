@@ -1,5 +1,11 @@
 package com.example.financeflow.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,9 +24,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,6 +37,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.financeflow.ui.components.GlassRow
+import com.example.financeflow.ui.components.GlassSegmentedControl
+import com.example.financeflow.ui.theme.Spacing
 import com.example.financeflow.R
 import com.example.financeflow.data.AppDatabase
 import com.example.financeflow.data.Currency
@@ -103,38 +109,28 @@ fun ReportsScreen(
     val uncategorized = stringResource(R.string.category_uncategorized)
 
     var selectedTab by remember { mutableIntStateOf(0) }
-    val tabLabels = listOf(stringResource(R.string.report_tab_overview), stringResource(R.string.report_tab_budgets))
+    val overviewLabel = stringResource(R.string.report_tab_overview)
+    val budgetsLabel = stringResource(R.string.report_tab_budgets)
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-            tabLabels.forEachIndexed { index, label ->
-                SegmentedButton(
-                    icon = {},
-                    selected = selectedTab == index,
-                    onClick = { selectedTab = index },
-                    shape = SegmentedButtonDefaults.itemShape(index, tabLabels.size)
-                ) {
-                    Text(label)
-                }
-            }
-        }
+        GlassSegmentedControl(
+            options = listOf(0, 1),
+            selected = selectedTab,
+            onSelect = { selectedTab = it },
+            label = { if (it == 0) overviewLabel else budgetsLabel }
+        )
 
         Spacer(Modifier.height(16.dp))
 
         if (selectedTab == 0) {
             Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                    ReportPeriod.entries.forEachIndexed { index, option ->
-                        SegmentedButton(
-                            icon = {},
-                            selected = period == option,
-                            onClick = { reportsViewModel.setPeriod(option) },
-                            shape = SegmentedButtonDefaults.itemShape(index, ReportPeriod.entries.size)
-                        ) {
-                            Text(periodLabel(option))
-                        }
-                    }
-                }
+                val periodLabels = ReportPeriod.entries.associateWith { periodLabel(it) }
+                GlassSegmentedControl(
+                    options = ReportPeriod.entries,
+                    selected = period,
+                    onSelect = { reportsViewModel.setPeriod(it) },
+                    label = { periodLabels[it] ?: "" }
+                )
 
                 Spacer(Modifier.height(12.dp))
 
@@ -177,26 +173,28 @@ private fun DailyReportList(
     val ordered = remember(transactions) { transactions.sortedWith(compareBy({ it.date }, { it.id })) }
     var running = 0.0
 
-    Column {
+    Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
         ordered.forEach { transaction ->
             val convertedAmount = ExchangeRateRepository.convert(transaction.amount, transaction.currency, displayCurrency, rates)
             running += if (transaction.isIncome) convertedAmount else -convertedAmount
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column {
-                    Text(text = categoryNames[transaction.categoryId] ?: uncategorized, style = MaterialTheme.typography.bodyLarge)
-                    transaction.note?.let { Text(text = it, style = MaterialTheme.typography.bodyMedium) }
-                }
-                Column(horizontalAlignment = Alignment.End) {
-                    val sign = if (transaction.isIncome) "+" else "-"
-                    Text(
-                        text = "$sign${currencyFormat.format(convertedAmount)}",
-                        style = MoneyFigure,
-                        color = if (transaction.isIncome) Income else Expense
-                    )
-                    Text(text = stringResource(R.string.report_running_total, currencyFormat.format(running)), style = MaterialTheme.typography.bodyMedium)
+            GlassRow(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column {
+                        Text(text = categoryNames[transaction.categoryId] ?: uncategorized, style = MaterialTheme.typography.bodyLarge)
+                        transaction.note?.let { Text(text = it, style = MaterialTheme.typography.bodyMedium) }
+                    }
+                    Column(horizontalAlignment = Alignment.End) {
+                        val sign = if (transaction.isIncome) "+" else "-"
+                        Text(
+                            text = "$sign${currencyFormat.format(convertedAmount)}",
+                            style = MoneyFigure,
+                            color = if (transaction.isIncome) Income else Expense
+                        )
+                        Text(text = stringResource(R.string.report_running_total, currencyFormat.format(running)), style = MaterialTheme.typography.bodyMedium)
+                    }
                 }
             }
         }
@@ -220,17 +218,23 @@ private fun ReportBarChart(data: List<PeriodTotal>, period: ReportPeriod, locale
         }
     }
 
-    CartesianChartHost(
-        chart = rememberCartesianChart(
-            rememberColumnCartesianLayer(),
-            startAxis = VerticalAxis.rememberStart(),
-            bottomAxis = HorizontalAxis.rememberBottom(
-                valueFormatter = CartesianValueFormatter { _, value, _ -> labels.getOrNull(value.toInt()).orEmpty() }
-            )
-        ),
-        modelProducer = modelProducer,
-        modifier = Modifier.fillMaxWidth().height(220.dp)
-    )
+    val visibleState = remember(data) { MutableTransitionState(false).apply { targetState = true } }
+    AnimatedVisibility(
+        visibleState = visibleState,
+        enter = fadeIn(tween(500)) + slideInVertically(tween(500)) { it / 4 }
+    ) {
+        CartesianChartHost(
+            chart = rememberCartesianChart(
+                rememberColumnCartesianLayer(),
+                startAxis = VerticalAxis.rememberStart(),
+                bottomAxis = HorizontalAxis.rememberBottom(
+                    valueFormatter = CartesianValueFormatter { _, value, _ -> labels.getOrNull(value.toInt()).orEmpty() }
+                )
+            ),
+            modelProducer = modelProducer,
+            modifier = Modifier.fillMaxWidth().height(220.dp)
+        )
+    }
 }
 
 private fun bucketLabel(bucket: String, period: ReportPeriod, locale: Locale): String = when (period) {
@@ -250,18 +254,30 @@ private fun CategoryPieChart(slices: List<CategorySlice>, currencyFormat: Number
         return
     }
 
+    val progress = remember(slices) { Animatable(0f) }
+    LaunchedEffect(slices) {
+        progress.snapTo(0f)
+        progress.animateTo(1f, animationSpec = tween(durationMillis = 700))
+    }
+
     Row(verticalAlignment = Alignment.CenterVertically) {
         Canvas(modifier = Modifier.size(140.dp)) {
             var startAngle = -90f
+            var cumulativeDegrees = 0f
+            val animatedTotalDegrees = 360f * progress.value
             slices.forEach { slice ->
-                val sweep = (slice.total / total * 360.0).toFloat()
-                drawArc(
-                    color = slice.category.color.toCategoryColor(),
-                    startAngle = startAngle,
-                    sweepAngle = sweep,
-                    useCenter = true
-                )
-                startAngle += sweep
+                val fullSweep = (slice.total / total * 360.0).toFloat()
+                val drawnSweep = (animatedTotalDegrees - cumulativeDegrees).coerceIn(0f, fullSweep)
+                if (drawnSweep > 0f) {
+                    drawArc(
+                        color = slice.category.color.toCategoryColor(),
+                        startAngle = startAngle,
+                        sweepAngle = drawnSweep,
+                        useCenter = true
+                    )
+                }
+                startAngle += fullSweep
+                cumulativeDegrees += fullSweep
             }
         }
         Spacer(Modifier.width(16.dp))
