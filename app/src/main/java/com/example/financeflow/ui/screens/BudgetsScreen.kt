@@ -15,18 +15,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.Warning
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Fill
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.fill.WarningCircle
+import com.adamglin.phosphoricons.regular.Plus
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -51,11 +49,15 @@ import com.example.financeflow.ui.components.GlassCard
 import com.example.financeflow.ui.components.GlassDialog
 import com.example.financeflow.ui.components.GlassFab
 import com.example.financeflow.ui.components.GlassFilterChip
+import com.example.financeflow.ui.components.GlassSegmentedControl
+import com.example.financeflow.ui.components.GlassTextField
 import com.example.financeflow.ui.components.InlineHint
 import com.example.financeflow.ui.components.TransactionTypeToggle
 import com.example.financeflow.ui.components.toCategoryColor
 import com.example.financeflow.ui.theme.Expense
+import com.example.financeflow.ui.theme.GlassAlpha
 import com.example.financeflow.ui.theme.Income
+import com.example.financeflow.ui.theme.Warning
 import com.example.financeflow.viewmodel.BudgetViewModel
 import com.example.financeflow.viewmodel.CategoryBudget
 import com.example.financeflow.viewmodel.CategoryViewModel
@@ -87,7 +89,7 @@ fun BudgetsScreen(
         floatingActionButton = {
             if (unbudgeted.isNotEmpty()) {
                 GlassFab(onClick = { pickingCategory = true }, contentDescription = stringResource(R.string.budget_add_content_description)) {
-                    Icon(Icons.Rounded.Add, contentDescription = null)
+                    Icon(PhosphorIcons.Regular.Plus, contentDescription = null)
                 }
             }
         }
@@ -189,13 +191,17 @@ private fun BudgetCard(budget: CategoryBudget, currencyFormat: NumberFormat, onC
         } else {
             val fraction = if (limit > 0) (budget.spent / limit).toFloat() else 0f
             val isOverBudget = budget.spent > limit
-            val statusColor = if (isOverBudget) Expense else Income
+            val statusColor = when {
+                fraction >= 1f -> Expense
+                fraction >= 0.8f -> Warning
+                else -> Income
+            }
 
             LinearProgressIndicator(
                 progress = { fraction.coerceIn(0f, 1f) },
                 modifier = Modifier.fillMaxWidth().height(8.dp),
                 color = statusColor,
-                trackColor = statusColor.copy(alpha = 0.15f)
+                trackColor = statusColor.copy(alpha = GlassAlpha.trackTint)
             )
 
             Spacer(Modifier.height(8.dp))
@@ -218,7 +224,7 @@ private fun BudgetCard(budget: CategoryBudget, currencyFormat: NumberFormat, onC
             if (isOverBudget) {
                 Spacer(Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Rounded.Warning, contentDescription = null, tint = Expense)
+                    Icon(PhosphorIcons.Fill.WarningCircle, contentDescription = null, tint = Expense)
                     Spacer(Modifier.width(4.dp))
                     Text(
                         text = stringResource(R.string.budget_over_amount, currencyFormat.format(budget.spent - limit)),
@@ -264,14 +270,14 @@ private fun SetBudgetDialog(
                     Spacer(Modifier.height(16.dp))
                 }
 
-                OutlinedTextField(
+                GlassTextField(
                     value = amountText,
                     onValueChange = { input ->
                         if (input.isEmpty() || input.matches(Regex("^\\d*\\.?\\d{0,2}$"))) {
                             amountText = input
                         }
                     },
-                    label = { Text(stringResource(R.string.budget_amount_label)) },
+                    label = stringResource(R.string.budget_amount_label),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
@@ -279,16 +285,12 @@ private fun SetBudgetDialog(
 
                 Spacer(Modifier.height(8.dp))
 
-                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                    Currency.entries.forEachIndexed { index, option ->
-                        SegmentedButton(
-                            icon = {},
-                            selected = currency == option,
-                            onClick = { currency = option },
-                            shape = SegmentedButtonDefaults.itemShape(index, Currency.entries.size)
-                        ) { Text(option.name) }
-                    }
-                }
+                GlassSegmentedControl(
+                    options = Currency.entries,
+                    selected = currency,
+                    onSelect = { currency = it },
+                    label = { it.name }
+                )
             }
         },
         confirmButton = {
