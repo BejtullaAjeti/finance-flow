@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.example.financeflow.ui.theme.GlassTier
 
 /**
  * Glass-styled drop-in for M3's AlertDialog — same title/text/buttons shape, but the container
@@ -32,7 +33,7 @@ fun GlassDialog(
     modifier: Modifier = Modifier
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
-        GlassCard(modifier = modifier.fillMaxWidth()) {
+        GlassCard(modifier = modifier.fillMaxWidth(), tier = GlassTier.Overlay) {
             CompositionLocalProvider(LocalTextStyle provides MaterialTheme.typography.titleLarge) {
                 title()
             }
