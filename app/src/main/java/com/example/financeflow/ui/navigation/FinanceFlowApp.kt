@@ -136,8 +136,9 @@ private fun FinanceFlowBottomBar(navController: NavHostController) {
         ) {
             FinanceFlowDestination.entries.forEach { destination ->
                 val label = stringResource(destination.labelRes)
+                val isSelected = currentRoute == destination.route
                 NavigationBarItem(
-                    selected = currentRoute == destination.route,
+                    selected = isSelected,
                     onClick = {
                         navController.navigate(destination.route) {
                             popUpTo(navController.graph.findStartDestination().id) { saveState = true }
@@ -145,7 +146,12 @@ private fun FinanceFlowBottomBar(navController: NavHostController) {
                             restoreState = true
                         }
                     },
-                    icon = { Icon(destination.icon, contentDescription = label) },
+                    icon = {
+                        Icon(
+                            if (isSelected) destination.filledIcon else destination.icon,
+                            contentDescription = label
+                        )
+                    },
                     label = { Text(label) }
                 )
             }

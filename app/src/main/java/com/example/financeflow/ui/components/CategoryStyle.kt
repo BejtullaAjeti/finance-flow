@@ -1,21 +1,22 @@
 package com.example.financeflow.ui.components
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AttachMoney
-import androidx.compose.material.icons.rounded.Category
-import androidx.compose.material.icons.rounded.Coffee
-import androidx.compose.material.icons.rounded.DirectionsCar
-import androidx.compose.material.icons.rounded.Fastfood
-import androidx.compose.material.icons.rounded.FitnessCenter
-import androidx.compose.material.icons.rounded.Flight
-import androidx.compose.material.icons.rounded.Home
-import androidx.compose.material.icons.rounded.LocalHospital
-import androidx.compose.material.icons.rounded.Movie
-import androidx.compose.material.icons.rounded.Pets
-import androidx.compose.material.icons.rounded.Receipt
-import androidx.compose.material.icons.rounded.School
-import androidx.compose.material.icons.rounded.ShoppingCart
-import androidx.compose.material.icons.rounded.Work
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.Airplane
+import com.adamglin.phosphoricons.regular.Barbell
+import com.adamglin.phosphoricons.regular.Briefcase
+import com.adamglin.phosphoricons.regular.Car
+import com.adamglin.phosphoricons.regular.Coffee
+import com.adamglin.phosphoricons.regular.FilmSlate
+import com.adamglin.phosphoricons.regular.FirstAid
+import com.adamglin.phosphoricons.regular.ForkKnife
+import com.adamglin.phosphoricons.regular.GraduationCap
+import com.adamglin.phosphoricons.regular.House
+import com.adamglin.phosphoricons.regular.Money
+import com.adamglin.phosphoricons.regular.PawPrint
+import com.adamglin.phosphoricons.regular.Receipt
+import com.adamglin.phosphoricons.regular.ShoppingCart
+import com.adamglin.phosphoricons.regular.Tag
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -26,24 +27,24 @@ import com.example.financeflow.ui.theme.OnSurfaceMuted
 
 object CategoryIcons {
     val Catalog: List<Pair<String, ImageVector>> = listOf(
-        "food" to Icons.Rounded.Fastfood,
-        "car" to Icons.Rounded.DirectionsCar,
-        "home" to Icons.Rounded.Home,
-        "shopping" to Icons.Rounded.ShoppingCart,
-        "health" to Icons.Rounded.LocalHospital,
-        "school" to Icons.Rounded.School,
-        "travel" to Icons.Rounded.Flight,
-        "movie" to Icons.Rounded.Movie,
-        "bill" to Icons.Rounded.Receipt,
-        "work" to Icons.Rounded.Work,
-        "income" to Icons.Rounded.AttachMoney,
-        "coffee" to Icons.Rounded.Coffee,
-        "pets" to Icons.Rounded.Pets,
-        "fitness" to Icons.Rounded.FitnessCenter
+        "food" to PhosphorIcons.Regular.ForkKnife,
+        "car" to PhosphorIcons.Regular.Car,
+        "home" to PhosphorIcons.Regular.House,
+        "shopping" to PhosphorIcons.Regular.ShoppingCart,
+        "health" to PhosphorIcons.Regular.FirstAid,
+        "school" to PhosphorIcons.Regular.GraduationCap,
+        "travel" to PhosphorIcons.Regular.Airplane,
+        "movie" to PhosphorIcons.Regular.FilmSlate,
+        "bill" to PhosphorIcons.Regular.Receipt,
+        "work" to PhosphorIcons.Regular.Briefcase,
+        "income" to PhosphorIcons.Regular.Money,
+        "coffee" to PhosphorIcons.Regular.Coffee,
+        "pets" to PhosphorIcons.Regular.PawPrint,
+        "fitness" to PhosphorIcons.Regular.Barbell
     )
 
     private val byKey = Catalog.toMap()
-    val Fallback: ImageVector = Icons.Rounded.Category
+    val Fallback: ImageVector = PhosphorIcons.Regular.Tag
 
     fun resolve(key: String?): ImageVector = byKey[key] ?: Fallback
 }

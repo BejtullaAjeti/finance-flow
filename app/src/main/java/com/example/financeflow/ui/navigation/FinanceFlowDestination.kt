@@ -1,22 +1,33 @@
 package com.example.financeflow.ui.navigation
 
 import androidx.annotation.StringRes
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.BarChart
-import androidx.compose.material.icons.rounded.Home
-import androidx.compose.material.icons.rounded.ReceiptLong
-import androidx.compose.material.icons.rounded.Settings
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Fill
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.fill.ChartBar
+import com.adamglin.phosphoricons.fill.Gear
+import com.adamglin.phosphoricons.fill.House
+import com.adamglin.phosphoricons.fill.Receipt
+import com.adamglin.phosphoricons.regular.ChartBar
+import com.adamglin.phosphoricons.regular.Gear
+import com.adamglin.phosphoricons.regular.House
+import com.adamglin.phosphoricons.regular.Receipt
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.financeflow.R
 
 // ponytail: enum constants are initialized once at class-load, so this stores a @StringRes id
 // (not a resolved String) — the label is only ever resolved via stringResource() at the point of
 // use, so it stays correct across a runtime language switch instead of being frozen at first load.
-enum class FinanceFlowDestination(val route: String, @StringRes val labelRes: Int, val icon: ImageVector) {
-    Home("home", R.string.nav_home, Icons.Rounded.Home),
-    Transactions("transactions", R.string.nav_transactions, Icons.Rounded.ReceiptLong),
-    Reports("reports", R.string.nav_reports, Icons.Rounded.BarChart),
-    Settings("settings", R.string.nav_settings, Icons.Rounded.Settings)
+enum class FinanceFlowDestination(
+    val route: String,
+    @StringRes val labelRes: Int,
+    val icon: ImageVector,
+    val filledIcon: ImageVector
+) {
+    Home("home", R.string.nav_home, PhosphorIcons.Regular.House, PhosphorIcons.Fill.House),
+    Transactions("transactions", R.string.nav_transactions, PhosphorIcons.Regular.Receipt, PhosphorIcons.Fill.Receipt),
+    Reports("reports", R.string.nav_reports, PhosphorIcons.Regular.ChartBar, PhosphorIcons.Fill.ChartBar),
+    Settings("settings", R.string.nav_settings, PhosphorIcons.Regular.Gear, PhosphorIcons.Fill.Gear)
 }
 
 // Budgets and Recurring are no longer bottom-nav destinations (folded into Reports' tab and
