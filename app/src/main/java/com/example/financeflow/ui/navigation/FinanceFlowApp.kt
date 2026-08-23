@@ -7,9 +7,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -23,6 +28,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.financeflow.ui.components.GlassCard
+import com.example.financeflow.ui.components.LocalSnackbarController
+import com.example.financeflow.ui.components.SnackbarController
+import com.example.financeflow.ui.theme.GlassTier
 import com.example.financeflow.ui.screens.AddEditRecurringRuleScreen
 import com.example.financeflow.ui.screens.AddEditTransactionScreen
 import com.example.financeflow.ui.screens.BudgetsScreen
@@ -35,8 +43,20 @@ import com.example.financeflow.ui.screens.TransactionsScreen
 
 @Composable
 fun FinanceFlowApp(navController: NavHostController = rememberNavController()) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+    val snackbarController = remember { SnackbarController(snackbarHostState, coroutineScope) }
+
+    CompositionLocalProvider(LocalSnackbarController provides snackbarController) {
     Scaffold(
-        bottomBar = { FinanceFlowBottomBar(navController) }
+        bottomBar = { FinanceFlowBottomBar(navController) },
+        snackbarHost = {
+            SnackbarHost(snackbarHostState) { data ->
+                GlassCard(tier = GlassTier.Overlay, contentPadding = 16.dp) {
+                    Text(data.visuals.message)
+                }
+            }
+        }
     ) { innerPadding ->
         NavHost(
             navController = navController,
@@ -93,6 +113,7 @@ fun FinanceFlowApp(navController: NavHostController = rememberNavController()) {
                 )
             }
         }
+    }
     }
 }
 
