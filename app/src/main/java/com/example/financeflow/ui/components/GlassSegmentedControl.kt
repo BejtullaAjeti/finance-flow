@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import com.example.financeflow.ui.theme.GlassTier
 import com.example.financeflow.ui.theme.Radius
@@ -34,7 +36,8 @@ fun <T> GlassSegmentedControl(
     selected: T,
     onSelect: (T) -> Unit,
     label: (T) -> String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    icon: ((T) -> ImageVector?)? = null
 ) {
     val outerSpec = GlassTier.Row.spec()
     Row(
@@ -65,7 +68,15 @@ fun <T> GlassSegmentedControl(
                     .padding(vertical = Spacing.sm),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = label(option), color = textColor, textAlign = TextAlign.Center)
+                val optionIcon = icon?.invoke(option)
+                if (optionIcon != null) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(optionIcon, contentDescription = null, tint = textColor, modifier = Modifier.padding(end = Spacing.xs))
+                        Text(text = label(option), color = textColor, textAlign = TextAlign.Center)
+                    }
+                } else {
+                    Text(text = label(option), color = textColor, textAlign = TextAlign.Center)
+                }
             }
         }
     }

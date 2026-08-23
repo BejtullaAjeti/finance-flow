@@ -24,7 +24,7 @@ data class RecurringRule(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val label: String,
     val amount: Double,
-    val currency: Currency = Currency.MKD,
+    val currency: Currency = Currency.EUR,
     val categoryId: Long,
     val type: TransactionType,
     val isIncome: Boolean,

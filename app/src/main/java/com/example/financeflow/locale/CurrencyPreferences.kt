@@ -32,5 +32,5 @@ object CurrencyPreferences {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .getString(KEY_DISPLAY_CURRENCY, null)
             ?.let { runCatching { Currency.valueOf(it) }.getOrNull() }
-            ?: Currency.MKD
+            ?: Currency.EUR
 }

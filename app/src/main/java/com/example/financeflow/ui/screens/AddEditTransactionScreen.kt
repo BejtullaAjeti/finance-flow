@@ -16,7 +16,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.ArrowLeft
+import com.adamglin.phosphoricons.regular.Briefcase
 import com.adamglin.phosphoricons.regular.Check
+import com.adamglin.phosphoricons.regular.User
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -51,6 +53,7 @@ import com.example.financeflow.data.TransactionType
 import com.example.financeflow.data.categoryTypeFor
 import com.example.financeflow.locale.CurrencyPreferences
 import com.example.financeflow.locale.HintPreferences
+import com.example.financeflow.locale.LastUsedTypePreferences
 import com.example.financeflow.ui.components.CategoryIcons
 import com.example.financeflow.ui.components.DateField
 import com.example.financeflow.ui.components.GlassDialog
@@ -72,6 +75,7 @@ import java.time.LocalDate
 @Composable
 fun AddEditTransactionScreen(
     transactionId: Long?,
+    suggestedType: TransactionType? = null,
     onDone: () -> Unit,
     transactionViewModel: TransactionViewModel = rememberTransactionViewModel(),
     categoryViewModel: CategoryViewModel = rememberCategoryViewModel()
@@ -90,7 +94,7 @@ fun AddEditTransactionScreen(
 
     var initialized by remember { mutableStateOf(transactionId == null) }
     var amountText by remember { mutableStateOf("") }
-    var type by remember { mutableStateOf(TransactionType.PERSONAL) }
+    var type by remember { mutableStateOf(suggestedType ?: LastUsedTypePreferences.get(context)) }
     var isIncome by remember { mutableStateOf(false) }
     var date by remember { mutableStateOf(LocalDate.now()) }
     var note by remember { mutableStateOf("") }
@@ -150,6 +154,7 @@ fun AddEditTransactionScreen(
         } else {
             transactionViewModel.addTransaction(transaction)
         }
+        LastUsedTypePreferences.set(context, type)
         snackbarController.show(savedMessage)
         onDone()
     }
@@ -212,7 +217,8 @@ fun AddEditTransactionScreen(
                 options = listOf(TransactionType.PERSONAL, TransactionType.BUSINESS),
                 selected = type,
                 onSelect = { type = it; selectedCategory = null },
-                label = { if (it == TransactionType.PERSONAL) personalLabel else businessLabel }
+                label = { if (it == TransactionType.PERSONAL) personalLabel else businessLabel },
+                icon = { if (it == TransactionType.PERSONAL) PhosphorIcons.Regular.User else PhosphorIcons.Regular.Briefcase }
             )
 
             Spacer(Modifier.height(12.dp))

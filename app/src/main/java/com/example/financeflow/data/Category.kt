@@ -11,7 +11,7 @@ data class Category(
     val name: String,
     val type: CategoryType,
     val budgetLimit: Double? = null,
-    val budgetLimitCurrency: Currency = Currency.MKD,
+    val budgetLimitCurrency: Currency = Currency.EUR,
     val icon: String? = null,
     val color: String? = null
 )

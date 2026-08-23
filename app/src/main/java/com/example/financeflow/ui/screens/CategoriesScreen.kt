@@ -21,8 +21,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.ArrowLeft
+import com.adamglin.phosphoricons.regular.Briefcase
 import com.adamglin.phosphoricons.regular.Plus
 import com.adamglin.phosphoricons.regular.Trash
+import com.adamglin.phosphoricons.regular.User
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -280,7 +282,7 @@ private fun AddEditCategoryDialog(
     var icon by remember { mutableStateOf(editing?.icon) }
     var color by remember { mutableStateOf(editing?.color ?: CategoryColorPalette.first()) }
     var budgetText by remember { mutableStateOf(editing?.budgetLimit?.toString().orEmpty()) }
-    var budgetCurrency by remember { mutableStateOf(editing?.budgetLimitCurrency ?: Currency.MKD) }
+    var budgetCurrency by remember { mutableStateOf(editing?.budgetLimitCurrency ?: Currency.EUR) }
     val categoryTypeLabels = CategoryType.entries.associateWith { categoryTypeLabel(it) }
 
     GlassDialog(
@@ -308,7 +310,14 @@ private fun AddEditCategoryDialog(
                     options = CategoryType.entries,
                     selected = type,
                     onSelect = { type = it },
-                    label = { categoryTypeLabels[it] ?: "" }
+                    label = { categoryTypeLabels[it] ?: "" },
+                    icon = {
+                        when (it) {
+                            CategoryType.PERSONAL -> PhosphorIcons.Regular.User
+                            CategoryType.BUSINESS -> PhosphorIcons.Regular.Briefcase
+                            CategoryType.BOTH -> null
+                        }
+                    }
                 )
 
                 Spacer(Modifier.height(16.dp))

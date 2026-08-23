@@ -29,7 +29,7 @@ enum class TransactionType { PERSONAL, BUSINESS }
 data class Transaction(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val amount: Double,
-    val currency: Currency = Currency.MKD,
+    val currency: Currency = Currency.EUR,
     val type: TransactionType,
     val categoryId: Long,
     val date: LocalDate,

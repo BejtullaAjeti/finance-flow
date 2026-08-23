@@ -14,6 +14,7 @@ import com.adamglin.phosphoricons.regular.House
 import com.adamglin.phosphoricons.regular.Receipt
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.financeflow.R
+import com.example.financeflow.data.TransactionType
 
 // ponytail: enum constants are initialized once at class-load, so this stores a @StringRes id
 // (not a resolved String) — the label is only ever resolved via stringResource() at the point of
@@ -36,9 +37,15 @@ const val BUDGETS_ROUTE = "budgets"
 const val RECURRING_ROUTE = "recurring"
 
 private const val ADD_EDIT_TRANSACTION_BASE_ROUTE = "transaction"
-const val ADD_EDIT_TRANSACTION_ROUTE = "$ADD_EDIT_TRANSACTION_BASE_ROUTE?transactionId={transactionId}"
+const val ADD_EDIT_TRANSACTION_ROUTE = "$ADD_EDIT_TRANSACTION_BASE_ROUTE?transactionId={transactionId}&suggestedType={suggestedType}"
 
 fun editTransactionRoute(transactionId: Long) = "$ADD_EDIT_TRANSACTION_BASE_ROUTE?transactionId=$transactionId"
+
+// Only Personal/Business narrows the add-transaction default — a Combined/neutral context passes
+// null and leaves the last-used type (LastUsedTypePreferences) as the fallback.
+fun addTransactionRoute(suggestedType: TransactionType? = null): String =
+    if (suggestedType != null) "$ADD_EDIT_TRANSACTION_BASE_ROUTE?suggestedType=${suggestedType.name}"
+    else ADD_EDIT_TRANSACTION_BASE_ROUTE
 
 const val CATEGORIES_ROUTE = "categories"
 

@@ -27,6 +27,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.financeflow.data.TransactionType
 import com.example.financeflow.ui.components.GlassCard
 import com.example.financeflow.ui.components.LocalSnackbarController
 import com.example.financeflow.ui.components.SnackbarController
@@ -65,14 +66,14 @@ fun FinanceFlowApp(navController: NavHostController = rememberNavController()) {
         ) {
             composable(FinanceFlowDestination.Home.route) {
                 HomeScreen(
-                    onAddTransaction = { navController.navigate("transaction") },
+                    onAddTransaction = { type -> navController.navigate(addTransactionRoute(type)) },
                     onEditTransaction = { id -> navController.navigate(editTransactionRoute(id)) }
                 )
             }
             composable(FinanceFlowDestination.Transactions.route) {
                 TransactionsScreen(
                     onEditTransaction = { id -> navController.navigate(editTransactionRoute(id)) },
-                    onAddTransaction = { navController.navigate("transaction") }
+                    onAddTransaction = { type -> navController.navigate(addTransactionRoute(type)) }
                 )
             }
             composable(BUDGETS_ROUTE) { BudgetsScreen() }
@@ -94,11 +95,17 @@ fun FinanceFlowApp(navController: NavHostController = rememberNavController()) {
             }
             composable(
                 route = ADD_EDIT_TRANSACTION_ROUTE,
-                arguments = listOf(navArgument("transactionId") { type = NavType.LongType; defaultValue = -1L })
+                arguments = listOf(
+                    navArgument("transactionId") { type = NavType.LongType; defaultValue = -1L },
+                    navArgument("suggestedType") { type = NavType.StringType; nullable = true; defaultValue = null }
+                )
             ) { backStackEntry ->
                 val transactionId = backStackEntry.arguments?.getLong("transactionId")?.takeIf { it != -1L }
+                val suggestedType = backStackEntry.arguments?.getString("suggestedType")
+                    ?.let { runCatching { TransactionType.valueOf(it) }.getOrNull() }
                 AddEditTransactionScreen(
                     transactionId = transactionId,
+                    suggestedType = suggestedType,
                     onDone = { navController.popBackStack() }
                 )
             }

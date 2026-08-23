@@ -1,5 +1,9 @@
 package com.example.financeflow.ui.components
 
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.Briefcase
+import com.adamglin.phosphoricons.regular.User
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -27,6 +31,13 @@ fun TransactionTypeToggle(
                 TransactionType.PERSONAL -> personalLabel
                 TransactionType.BUSINESS -> businessLabel
                 null -> combinedLabel
+            }
+        },
+        icon = { type ->
+            when (type) {
+                TransactionType.PERSONAL -> PhosphorIcons.Regular.User
+                TransactionType.BUSINESS -> PhosphorIcons.Regular.Briefcase
+                null -> null
             }
         },
         modifier = modifier

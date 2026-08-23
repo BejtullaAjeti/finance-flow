@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.example.financeflow.R
 import com.example.financeflow.data.AppDatabase
 import com.example.financeflow.data.ExchangeRateCache
+import com.example.financeflow.data.TransactionType
 import com.example.financeflow.data.repository.ExchangeRateRepository
 import com.example.financeflow.locale.CurrencyPreferences
 import com.example.financeflow.locale.rememberCurrencyFormat
@@ -49,7 +50,7 @@ import com.example.financeflow.viewmodel.rememberTransactionViewModel
 
 @Composable
 fun HomeScreen(
-    onAddTransaction: () -> Unit,
+    onAddTransaction: (TransactionType?) -> Unit,
     onEditTransaction: (Long) -> Unit,
     transactionViewModel: TransactionViewModel = rememberTransactionViewModel(),
     categoryViewModel: CategoryViewModel = rememberCategoryViewModel()
@@ -71,7 +72,7 @@ fun HomeScreen(
 
     Scaffold(
         floatingActionButton = {
-            GlassFab(onClick = onAddTransaction, contentDescription = stringResource(R.string.home_add_transaction_content_description)) {
+            GlassFab(onClick = { onAddTransaction(typeFilter) }, contentDescription = stringResource(R.string.home_add_transaction_content_description)) {
                 Icon(PhosphorIcons.Regular.Plus, contentDescription = null)
             }
         }

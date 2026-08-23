@@ -47,6 +47,7 @@ import com.example.financeflow.R
 import com.example.financeflow.data.AppDatabase
 import com.example.financeflow.data.Category
 import com.example.financeflow.data.ExchangeRateCache
+import com.example.financeflow.data.TransactionType
 import com.example.financeflow.data.categoryTypeFor
 import com.example.financeflow.data.repository.ExchangeRateRepository
 import com.example.financeflow.locale.CurrencyPreferences
@@ -70,7 +71,7 @@ import java.time.ZoneOffset
 @Composable
 fun TransactionsScreen(
     onEditTransaction: (Long) -> Unit,
-    onAddTransaction: () -> Unit,
+    onAddTransaction: (TransactionType?) -> Unit,
     transactionViewModel: TransactionViewModel = rememberTransactionViewModel(),
     categoryViewModel: CategoryViewModel = rememberCategoryViewModel()
 ) {
@@ -90,7 +91,7 @@ fun TransactionsScreen(
 
     Scaffold(
         floatingActionButton = {
-            GlassFab(onClick = onAddTransaction, contentDescription = stringResource(R.string.home_add_transaction_content_description)) {
+            GlassFab(onClick = { onAddTransaction(filter.type) }, contentDescription = stringResource(R.string.home_add_transaction_content_description)) {
                 Icon(PhosphorIcons.Regular.Plus, contentDescription = null)
             }
         }

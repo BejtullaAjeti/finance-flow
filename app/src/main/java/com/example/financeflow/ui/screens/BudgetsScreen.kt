@@ -248,7 +248,7 @@ private fun SetBudgetDialog(
 ) {
     var selected by remember { mutableStateOf(fixedCategory) }
     var amountText by remember { mutableStateOf(fixedCategory?.budgetLimit?.toString().orEmpty()) }
-    var currency by remember { mutableStateOf(fixedCategory?.budgetLimitCurrency ?: Currency.MKD) }
+    var currency by remember { mutableStateOf(fixedCategory?.budgetLimitCurrency ?: Currency.EUR) }
 
     val canSave = selected != null && amountText.toDoubleOrNull()?.let { it > 0 } == true
 
