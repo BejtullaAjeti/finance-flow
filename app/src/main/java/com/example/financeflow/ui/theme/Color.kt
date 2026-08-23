@@ -28,3 +28,8 @@ val GlassGlow = Color(0x33FFFFFF)
 val GlassBorderTop = Color(0x5CFFFFFF)
 val GlassBorderBottom = Color(0x0DFFFFFF)
 val GlassShadow = Color(0x73000000)
+
+// Budget warning tier — distinct from Accent (gold) and Expense (terracotta)
+val Warning = Color(0xFFD9A441)
+val WarningContainer = Color(0xFF362B18)
+val OnWarning = Color(0xFF1B140A)
