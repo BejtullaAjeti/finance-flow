@@ -20,7 +20,6 @@
     <string name="categories_budget_suffix">Budget %1$s/mo</string>
     <string name="categories_empty">No categories yet. Tap + to add one.</string>
     <string name="categories_picker_empty">No categories for this type yet. Add one from Settings → Categories.</string>
-    <string name="categories_delete_content_description">Delete %1$s</string>
     <string name="categories_delete_blocked">"%1$s" is used by existing transactions and can\'t be deleted.</string>
     <string name="categories_delete_blocked_last">"%1$s" is the only category left for this type and can\'t be deleted.</string>
     <string name="categories_add_content_description">Add category</string>
@@ -120,7 +119,8 @@
     <string name="recurring_add_content_description">Add recurring rule</string>
     <string name="recurring_empty">No recurring rules for this filter yet. Tap + to add one.</string>
     <string name="hint_recurring_empty">Recurring rules auto-generate transactions like rent or salary each period</string>
-    <string name="recurring_row_summary">%1$s · %2$s · Next %3$s</string>
+    <string name="recurring_row_category_frequency">%1$s · %2$s</string>
+    <string name="recurring_row_next_due">Next %1$s</string>
     <string name="frequency_every_n_days">Every %1$d days</string>
     <string name="recurring_every_n_days_field_label">Every N days</string>
     <string name="recurring_next_due_date_label">Next due date</string>

@@ -223,15 +223,14 @@ private fun SwipeToDeleteCategoryRow(
             }
         }
     ) {
-        CategoryRow(category = category, onClick = onClick, onDelete = onDelete)
+        CategoryRow(category = category, onClick = onClick)
     }
 }
 
 @Composable
 private fun CategoryRow(
     category: Category,
-    onClick: () -> Unit,
-    onDelete: () -> Unit
+    onClick: () -> Unit
 ) {
     val currencyFormat = rememberCurrencyFormat(category.budgetLimitCurrency)
     val swatch = category.color.toCategoryColor()
@@ -241,37 +240,28 @@ private fun CategoryRow(
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(swatch.copy(alpha = GlassAlpha.containerTint), CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(CategoryIcons.resolve(category.icon), contentDescription = null, tint = swatch)
-                }
-                Spacer(Modifier.width(12.dp))
-                Column {
-                    Text(text = category.name, style = MaterialTheme.typography.bodyLarge)
-                    Text(
-                        text = buildString {
-                            append(categoryTypeLabel(category.type))
-                            category.budgetLimit?.let {
-                                append(" · ")
-                                append(stringResource(R.string.categories_budget_suffix, currencyFormat.format(it)))
-                            }
-                        },
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(swatch.copy(alpha = GlassAlpha.containerTint), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(CategoryIcons.resolve(category.icon), contentDescription = null, tint = swatch)
             }
-            IconButton(onClick = onDelete) {
-                Icon(
-                    PhosphorIcons.Regular.Trash,
-                    contentDescription = stringResource(R.string.categories_delete_content_description, category.name)
+            Spacer(Modifier.width(12.dp))
+            Column {
+                Text(text = category.name, style = MaterialTheme.typography.bodyLarge)
+                Text(
+                    text = buildString {
+                        append(categoryTypeLabel(category.type))
+                        category.budgetLimit?.let {
+                            append(" · ")
+                            append(stringResource(R.string.categories_budget_suffix, currencyFormat.format(it)))
+                        }
+                    },
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
