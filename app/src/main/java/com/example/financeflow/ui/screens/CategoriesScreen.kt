@@ -1,7 +1,6 @@
 package com.example.financeflow.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,19 +18,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.Delete
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.ArrowLeft
+import com.adamglin.phosphoricons.regular.Plus
+import com.adamglin.phosphoricons.regular.Trash
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -50,6 +46,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -64,9 +61,15 @@ import com.example.financeflow.ui.components.CategoryIcons
 import com.example.financeflow.ui.components.GlassCard
 import com.example.financeflow.ui.components.GlassDialog
 import com.example.financeflow.ui.components.GlassFab
+import com.example.financeflow.ui.components.GlassRow
+import com.example.financeflow.ui.components.GlassSegmentedControl
+import com.example.financeflow.ui.components.GlassTextField
 import com.example.financeflow.ui.components.categoryTypeLabel
+import com.example.financeflow.ui.components.selectionRing
 import com.example.financeflow.ui.components.toCategoryColor
 import com.example.financeflow.ui.theme.Expense
+import com.example.financeflow.ui.theme.GlassAlpha
+import com.example.financeflow.ui.theme.GlassTier
 import com.example.financeflow.viewmodel.CategoryDeleteBlockReason
 import com.example.financeflow.viewmodel.CategoryViewModel
 import com.example.financeflow.viewmodel.rememberCategoryViewModel
@@ -95,18 +98,33 @@ fun CategoriesScreen(
                 title = { Text(stringResource(R.string.settings_categories)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Rounded.ArrowBack, contentDescription = null)
+                        Icon(PhosphorIcons.Regular.ArrowLeft, contentDescription = null)
                     }
                 }
             )
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        snackbarHost = {
+            SnackbarHost(snackbarHostState) { data ->
+                GlassCard(tier = GlassTier.Overlay, contentPadding = 16.dp) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(data.visuals.message)
+                        data.visuals.actionLabel?.let { actionLabel ->
+                            TextButton(onClick = { data.performAction() }) { Text(actionLabel) }
+                        }
+                    }
+                }
+            }
+        },
         floatingActionButton = {
             GlassFab(
                 onClick = { editingCategory = null; showDialog = true },
                 contentDescription = stringResource(R.string.categories_add_content_description)
             ) {
-                Icon(Icons.Rounded.Add, contentDescription = null)
+                Icon(PhosphorIcons.Regular.Plus, contentDescription = null)
             }
         }
     ) { innerPadding ->
@@ -197,11 +215,11 @@ private fun SwipeToDeleteCategoryRow(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Expense.copy(alpha = 0.25f), MaterialTheme.shapes.small)
+                    .background(Expense.copy(alpha = GlassAlpha.destructiveTint), MaterialTheme.shapes.small)
                     .padding(horizontal = 20.dp),
                 contentAlignment = Alignment.CenterEnd
             ) {
-                Icon(Icons.Rounded.Delete, contentDescription = null, tint = Expense)
+                Icon(PhosphorIcons.Regular.Trash, contentDescription = null, tint = Expense)
             }
         }
     ) {
@@ -217,43 +235,45 @@ private fun CategoryRow(
 ) {
     val currencyFormat = rememberCurrencyFormat(category.budgetLimitCurrency)
     val swatch = category.color.toCategoryColor()
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+    GlassRow(
+        modifier = Modifier.fillMaxWidth(),
+        onClick = onClick
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(swatch.copy(alpha = 0.22f), CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(CategoryIcons.resolve(category.icon), contentDescription = null, tint = swatch)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .background(swatch.copy(alpha = GlassAlpha.containerTint), CircleShape),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(CategoryIcons.resolve(category.icon), contentDescription = null, tint = swatch)
+                }
+                Spacer(Modifier.width(12.dp))
+                Column {
+                    Text(text = category.name, style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        text = buildString {
+                            append(categoryTypeLabel(category.type))
+                            category.budgetLimit?.let {
+                                append(" · ")
+                                append(stringResource(R.string.categories_budget_suffix, currencyFormat.format(it)))
+                            }
+                        },
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             }
-            Spacer(Modifier.width(12.dp))
-            Column {
-                Text(text = category.name, style = MaterialTheme.typography.bodyLarge)
-                Text(
-                    text = buildString {
-                        append(categoryTypeLabel(category.type))
-                        category.budgetLimit?.let {
-                            append(" · ")
-                            append(stringResource(R.string.categories_budget_suffix, currencyFormat.format(it)))
-                        }
-                    },
-                    style = MaterialTheme.typography.bodyMedium
+            IconButton(onClick = onDelete) {
+                Icon(
+                    PhosphorIcons.Regular.Trash,
+                    contentDescription = stringResource(R.string.categories_delete_content_description, category.name)
                 )
             }
-        }
-        IconButton(onClick = onDelete) {
-            Icon(
-                Icons.Rounded.Delete,
-                contentDescription = stringResource(R.string.categories_delete_content_description, category.name)
-            )
         }
     }
 }
@@ -271,6 +291,7 @@ private fun AddEditCategoryDialog(
     var color by remember { mutableStateOf(editing?.color ?: CategoryColorPalette.first()) }
     var budgetText by remember { mutableStateOf(editing?.budgetLimit?.toString().orEmpty()) }
     var budgetCurrency by remember { mutableStateOf(editing?.budgetLimitCurrency ?: Currency.MKD) }
+    val categoryTypeLabels = CategoryType.entries.associateWith { categoryTypeLabel(it) }
 
     GlassDialog(
         onDismissRequest = onDismiss,
@@ -283,28 +304,22 @@ private fun AddEditCategoryDialog(
         },
         text = {
             Column {
-                OutlinedTextField(
+                GlassTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = { Text(stringResource(R.string.categories_name_label)) },
+                    label = stringResource(R.string.categories_name_label),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(Modifier.height(12.dp))
 
-                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                    CategoryType.entries.forEachIndexed { index, option ->
-                        SegmentedButton(
-                            icon = {},
-                            selected = type == option,
-                            onClick = { type = option },
-                            shape = SegmentedButtonDefaults.itemShape(index, CategoryType.entries.size)
-                        ) {
-                            Text(categoryTypeLabel(option))
-                        }
-                    }
-                }
+                GlassSegmentedControl(
+                    options = CategoryType.entries,
+                    selected = type,
+                    onSelect = { type = it },
+                    label = { categoryTypeLabels[it] ?: "" }
+                )
 
                 Spacer(Modifier.height(16.dp))
 
@@ -316,10 +331,9 @@ private fun AddEditCategoryDialog(
                         Box(
                             modifier = Modifier
                                 .size(40.dp)
-                                .background(
-                                    if (selected) color.toCategoryColor().copy(alpha = 0.3f) else Color.Transparent,
-                                    CircleShape
-                                )
+                                .selectionRing(selected = selected, shape = CircleShape, color = color.toCategoryColor())
+                                .clip(CircleShape)
+                                .background(if (selected) color.toCategoryColor().copy(alpha = GlassAlpha.selectedTint) else Color.Transparent)
                                 .clickable { icon = key },
                             contentAlignment = Alignment.Center
                         ) {
@@ -339,12 +353,14 @@ private fun AddEditCategoryDialog(
                             Box(
                                 modifier = Modifier
                                     .size(32.dp)
-                                    .background(swatchColor, CircleShape)
-                                    .border(
-                                        width = if (color == hex) 3.dp else 0.dp,
+                                    .selectionRing(
+                                        selected = color == hex,
+                                        shape = CircleShape,
                                         color = MaterialTheme.colorScheme.onSurface,
-                                        shape = CircleShape
+                                        width = 3.dp
                                     )
+                                    .clip(CircleShape)
+                                    .background(swatchColor, CircleShape)
                                     .clickable { color = hex }
                             )
                         }
@@ -353,14 +369,14 @@ private fun AddEditCategoryDialog(
 
                 Spacer(Modifier.height(16.dp))
 
-                OutlinedTextField(
+                GlassTextField(
                     value = budgetText,
                     onValueChange = { input ->
                         if (input.isEmpty() || input.matches(Regex("^\\d*\\.?\\d{0,2}$"))) {
                             budgetText = input
                         }
                     },
-                    label = { Text(stringResource(R.string.categories_budget_label)) },
+                    label = stringResource(R.string.categories_budget_label),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
@@ -368,16 +384,12 @@ private fun AddEditCategoryDialog(
 
                 Spacer(Modifier.height(8.dp))
 
-                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                    Currency.entries.forEachIndexed { index, option ->
-                        SegmentedButton(
-                            icon = {},
-                            selected = budgetCurrency == option,
-                            onClick = { budgetCurrency = option },
-                            shape = SegmentedButtonDefaults.itemShape(index, Currency.entries.size)
-                        ) { Text(option.name) }
-                    }
-                }
+                GlassSegmentedControl(
+                    options = Currency.entries,
+                    selected = budgetCurrency,
+                    onSelect = { budgetCurrency = it },
+                    label = { it.name }
+                )
             }
         },
         confirmButton = {
