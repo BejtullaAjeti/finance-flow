@@ -11,14 +11,14 @@
     <string name="categories_edit_title">Redakto Kategorinë</string>
     <string name="categories_name_label">Emri</string>
     <string name="type_personal">Personale</string>
-    <string name="type_business">Biznesi</string>
+    <string name="type_business">Biznesore</string>
     <string name="type_both">Të dyja</string>
     <string name="type_combined">Kombinuar</string>
     <string name="categories_icon_label">Ikona</string>
     <string name="categories_color_label">Ngjyra</string>
     <string name="categories_budget_label">Buxheti mujor (opsional)</string>
     <string name="categories_budget_suffix">Buxheti %1$s/muaj</string>
-    <string name="categories_empty">Nuk ka kategori ende. Prek + për të shtuar një.</string>
+    <string name="categories_empty">Nuk ka kategori ende. Shto një me butonin +.</string>
     <string name="categories_picker_empty">Nuk ka kategori për këtë lloj ende. Shto një nga Cilësimet → Kategoritë.</string>
     <string name="categories_delete_blocked">"%1$s" përdoret nga transaksione ekzistuese dhe nuk mund të fshihet.</string>
     <string name="categories_delete_blocked_last">"%1$s" është kategoria e vetme e këtij lloji dhe nuk mund të fshihet.</string>
@@ -27,7 +27,7 @@
     <string name="categories_delete_success">"%1$s" u fshi.</string>
     <string name="action_undo">Zhbëj</string>
     <string name="action_dismiss_hint">Mbyll</string>
-    <string name="hint_category_picker">Prek + për të shtuar një kategori të re</string>
+    <string name="hint_category_picker">Shto një kategori të re me butonin +</string>
 
     <string name="category_default_food">Ushqim</string>
     <string name="category_default_transport">Transporti</string>
@@ -51,7 +51,7 @@
     <string name="backup_import_confirm_body">Importimi do të zëvendësojë të gjitha transaksionet, kategoritë dhe rregullat e përsëritura me përmbajtjen e këtij skedari. Kjo nuk mund të zhbëhet.</string>
     <string name="backup_import_confirm_action">Zëvendëso</string>
 
-    <string name="settings_currency_title">Monedha e shfaqjes</string>
+    <string name="settings_currency_title">Monedha kryesore</string>
     <string name="settings_currency_last_updated">Përditësuar më %1$s</string>
     <string name="settings_currency_never_updated">Ende pa u përditësuar</string>
     <string name="settings_currency_refresh">Rifresko kurset</string>
@@ -76,7 +76,7 @@
 
     <string name="report_tab_overview">Përmbledhje</string>
     <string name="report_tab_budgets">Buxhetet</string>
-    <string name="settings_recurring">Të Përsëritura</string>
+    <string name="settings_recurring">Përsëritjet</string>
 
     <string name="home_add_transaction_content_description">Shto transaksion</string>
     <string name="home_this_month_title">Këtë Muaj</string>
@@ -89,19 +89,19 @@
     <string name="date_range_label">Intervali i datave</string>
     <string name="date_range_all">Të gjitha datat</string>
     <string name="date_range_from">Nga %1$s</string>
-    <string name="date_range_until">Deri %1$s</string>
+    <string name="date_range_until">Deri më %1$s</string>
     <string name="date_range_between">%1$s – %2$s</string>
     <string name="date_range_change_content_description">Zgjidh intervalin e datave</string>
 
     <string name="budgets_empty">Nuk ka kategori për këtë filtër ende.</string>
     <string name="budget_spent_of_limit">%1$s nga %2$s</string>
     <string name="budget_over_amount">%1$s mbi buxhet</string>
-    <string name="budget_not_set">Prek për të caktuar një buxhet</string>
+    <string name="budget_not_set">Cakto një buxhet</string>
     <string name="budget_spent_no_limit">%1$s shpenzuar deri tani</string>
     <string name="budget_amount_label">Shuma e buxhetit mujor</string>
     <string name="budget_add_content_description">Shto buxhet</string>
     <string name="budget_pick_category_title">Zgjidh një kategori</string>
-    <string name="hint_budgets_empty">Prek një kategori për të caktuar buxhetin e saj</string>
+    <string name="hint_budgets_empty">Zgjidh një kategori për të caktuar buxhetin e saj</string>
 
     <string name="label_daily">Ditore</string>
     <string name="label_weekly">Javore</string>
@@ -117,7 +117,7 @@
     <string name="transaction_add_title">Shto Transaksion</string>
 
     <string name="recurring_add_content_description">Shto rregull të përsëritur</string>
-    <string name="recurring_empty">Nuk ka rregulla të përsëritura për këtë filtër ende. Prek + për të shtuar një.</string>
+    <string name="recurring_empty">Nuk ka rregulla të përsëritura për këtë filtër ende. Shto një me butonin +.</string>
     <string name="hint_recurring_empty">Rregullat e përsëritura krijojnë vetë transaksione si qiraja apo paga në çdo periudhë</string>
     <string name="recurring_row_category_frequency">%1$s · %2$s</string>
     <string name="recurring_row_next_due">Data tjetër %1$s</string>
