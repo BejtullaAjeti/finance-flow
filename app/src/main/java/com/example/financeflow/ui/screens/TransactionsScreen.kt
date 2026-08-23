@@ -13,11 +13,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.DateRange
-import androidx.compose.material.icons.rounded.Search
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.CalendarBlank
+import com.adamglin.phosphoricons.regular.MagnifyingGlass
+import com.adamglin.phosphoricons.regular.Plus
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -27,9 +27,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDateRangePickerState
@@ -56,8 +54,10 @@ import com.example.financeflow.locale.rememberCurrencyFormat
 import com.example.financeflow.locale.rememberDateFormat
 import com.example.financeflow.ui.components.GlassCard
 import com.example.financeflow.ui.components.GlassFab
+import com.example.financeflow.ui.components.GlassTextField
 import com.example.financeflow.ui.components.TransactionRow
 import com.example.financeflow.ui.components.TransactionTypeToggle
+import com.example.financeflow.ui.theme.GlassTier
 import com.example.financeflow.viewmodel.CategoryViewModel
 import com.example.financeflow.viewmodel.TransactionViewModel
 import com.example.financeflow.viewmodel.rememberCategoryViewModel
@@ -91,18 +91,18 @@ fun TransactionsScreen(
     Scaffold(
         floatingActionButton = {
             GlassFab(onClick = onAddTransaction, contentDescription = stringResource(R.string.home_add_transaction_content_description)) {
-                Icon(Icons.Rounded.Add, contentDescription = null)
+                Icon(PhosphorIcons.Regular.Plus, contentDescription = null)
             }
         }
     ) { innerPadding ->
     Column(modifier = Modifier.fillMaxSize().padding(innerPadding).padding(16.dp)) {
-        OutlinedTextField(
+        GlassTextField(
             value = filter.searchQuery,
             onValueChange = { query ->
                 transactionViewModel.updateListFilter { it.copy(searchQuery = query) }
             },
-            leadingIcon = { Icon(Icons.Rounded.Search, contentDescription = null) },
-            label = { Text(stringResource(R.string.search_notes_label)) },
+            leadingIcon = { Icon(PhosphorIcons.Regular.MagnifyingGlass, contentDescription = null) },
+            label = stringResource(R.string.search_notes_label),
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
@@ -185,11 +185,11 @@ private fun CategoryDropdown(
     val selectedName = categories.find { it.id == selectedCategoryId }?.name ?: allCategoriesLabel
 
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
-        OutlinedTextField(
+        GlassTextField(
             value = selectedName,
             onValueChange = {},
             readOnly = true,
-            label = { Text(stringResource(R.string.field_category_label)) },
+            label = stringResource(R.string.field_category_label),
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable, true)
         )
@@ -230,7 +230,7 @@ private fun DateRangeField(start: LocalDate?, end: LocalDate?, onClick: () -> Un
                 Text(text = stringResource(R.string.date_range_label), style = MaterialTheme.typography.labelSmall)
                 Text(text = label, style = MaterialTheme.typography.bodyLarge)
             }
-            Icon(Icons.Rounded.DateRange, contentDescription = stringResource(R.string.date_range_change_content_description))
+            Icon(PhosphorIcons.Regular.CalendarBlank, contentDescription = stringResource(R.string.date_range_change_content_description))
         }
     }
 }
@@ -249,28 +249,27 @@ private fun DateRangePickerDialog(
     )
 
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
-        Surface(
-            shape = RoundedCornerShape(16.dp),
+        GlassCard(
+            tier = GlassTier.Overlay,
+            contentPadding = 0.dp,
             modifier = Modifier.fillMaxWidth().fillMaxHeight(0.9f).padding(16.dp)
         ) {
-            Column {
-                DateRangePicker(state = state, modifier = Modifier.weight(1f))
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(8.dp),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    TextButton(onClick = { onConfirm(null, null) }) { Text(stringResource(R.string.action_clear)) }
-                    TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
-                    TextButton(onClick = {
-                        val start = state.selectedStartDateMillis?.let {
-                            Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate()
-                        }
-                        val end = state.selectedEndDateMillis?.let {
-                            Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate()
-                        }
-                        onConfirm(start, end)
-                    }) { Text(stringResource(R.string.action_apply)) }
-                }
+            DateRangePicker(state = state, modifier = Modifier.weight(1f))
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(8.dp),
+                horizontalArrangement = Arrangement.End
+            ) {
+                TextButton(onClick = { onConfirm(null, null) }) { Text(stringResource(R.string.action_clear)) }
+                TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+                TextButton(onClick = {
+                    val start = state.selectedStartDateMillis?.let {
+                        Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate()
+                    }
+                    val end = state.selectedEndDateMillis?.let {
+                        Instant.ofEpochMilli(it).atZone(ZoneOffset.UTC).toLocalDate()
+                    }
+                    onConfirm(start, end)
+                }) { Text(stringResource(R.string.action_apply)) }
             }
         }
     }
