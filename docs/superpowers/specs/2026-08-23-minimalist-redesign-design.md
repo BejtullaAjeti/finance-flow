@@ -183,12 +183,47 @@ rewrites than incremental edits.
 
 Unchanged from the prior pass: no `adb`/emulator available — verification per task is
 `gradlew compileDebugKotlin` plus unit tests where there's pure logic (contrast/color math isn't
-independently unit-testable in a meaningful way, but the calendar's month-grid date logic and the
-`ConfirmButton`'s enabled/disabled branching are). You'll need to eyeball each screen on-device
+independently unit-testable in a meaningful way, but the calendar's month-grid date logic, the
+`ConfirmButton`'s enabled/disabled branching, and `FinanceFlowDestination.matchesCurrentRoute`
+(§11) all are). You'll need to eyeball each screen on-device
 between check-ins, same as before — light AND dark mode this time, since both are now real,
 distinct themes rather than dark-only with a placeholder light fallback.
 
-## 11. Risks
+## 11. Bottom navigation active-state
+
+Two distinct problems, both fixed in `ui/navigation/FinanceFlowApp.kt`/`FinanceFlowDestination.kt`:
+
+**Weak selected-state styling.** Today's `NavigationBarItem` calls rely on M3's unconfigured
+defaults, which map to color-scheme roles never tuned for this — the Fill/Regular icon-weight
+swap from the icon migration is the only deliberate signal, and it's subtle alone. Add an explicit
+`NavigationBarItemDefaults.colors(...)`: `indicatorColor = Primary` (M3's built-in pill indicator,
+already stadium-shaped — no custom shape needed, it matches §7's pill language for free),
+`selectedIconColor = OnPrimary`, `selectedTextColor = Primary`, `unselectedIconColor =
+OnSurfaceMuted`, `unselectedTextColor = OnSurfaceMuted`. This reuses exactly the same "Primary =
+selected" grammar already applied to chips and segmented controls elsewhere (§6) — one consistent
+selected-state language app-wide. Keep the existing Fill/Regular icon distinction as a second,
+reinforcing signal on top of the color change.
+
+**No tab highlights on Settings' sub-screens.** `FinanceFlowBottomBar`'s selection check is
+`currentRoute == destination.route` — an exact string match against each of the 4 top-level
+routes. `CategoriesScreen` and `RecurringRulesScreen` are separate `NavHost` routes reached only
+from within Settings (`CATEGORIES_ROUTE`, `RECURRING_ROUTE`), so navigating into either currently
+matches *no* destination — the bottom nav shows nothing selected at all, not just a subtly-styled
+Settings tab. Fix: a new pure function in `FinanceFlowDestination.kt`,
+
+```kotlin
+fun FinanceFlowDestination.matchesCurrentRoute(currentRoute: String?): Boolean = when (this) {
+    Settings -> currentRoute == route || currentRoute == CATEGORIES_ROUTE || currentRoute == RECURRING_ROUTE
+    else -> currentRoute == route
+}
+```
+
+used in place of the inline equality check, so Settings stays visually active for its two
+sub-screens. Scoped exactly to what was reported — Add/Edit Transaction and Add/Edit Recurring
+Rule (reachable from Home *or* Transactions) are left showing no active tab, which is standard
+behavior for a modal-like form flow and wasn't flagged as a problem.
+
+## 12. Risks
 
 - **Confirm-button text color is mode-dependent, not a constant** — easy to get backwards
   (white-on-light-fill or black-on-dark-fill) if implemented as a single fixed color; must be
