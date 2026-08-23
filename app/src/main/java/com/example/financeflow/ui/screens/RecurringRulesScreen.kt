@@ -1,6 +1,5 @@
 package com.example.financeflow.ui.screens
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,12 +11,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.Plus
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -35,9 +36,12 @@ import com.example.financeflow.data.RecurringRule
 import com.example.financeflow.locale.rememberCurrencyFormat
 import com.example.financeflow.locale.rememberDateFormat
 import com.example.financeflow.ui.components.GlassFab
+import com.example.financeflow.ui.components.GlassRow
 import com.example.financeflow.ui.components.InlineHint
+import com.example.financeflow.ui.components.LocalSnackbarController
 import com.example.financeflow.ui.components.TransactionTypeToggle
 import com.example.financeflow.ui.theme.Expense
+import com.example.financeflow.ui.theme.GlassAlpha
 import com.example.financeflow.ui.theme.Income
 import com.example.financeflow.ui.theme.MoneyFigure
 import com.example.financeflow.viewmodel.CategoryViewModel
@@ -60,11 +64,14 @@ fun RecurringRulesScreen(
     val dateFormat = rememberDateFormat("MMM d, yyyy")
     val uncategorized = stringResource(R.string.category_uncategorized)
     var showRecurringHint by remember { mutableStateOf(true) }
+    val snackbarController = LocalSnackbarController.current
+    val pausedMessage = stringResource(R.string.recurring_paused)
+    val resumedMessage = stringResource(R.string.recurring_resumed)
 
     Scaffold(
         floatingActionButton = {
             GlassFab(onClick = onAddRule, contentDescription = stringResource(R.string.recurring_add_content_description)) {
-                Icon(Icons.Rounded.Add, contentDescription = null)
+                Icon(PhosphorIcons.Regular.Plus, contentDescription = null)
             }
         }
     ) { innerPadding ->
@@ -104,6 +111,7 @@ fun RecurringRulesScreen(
                             onClick = { onEditRule(rule.id) },
                             onToggleActive = { active ->
                                 recurringRuleViewModel.updateRule(rule.copy(active = active))
+                                snackbarController.show(if (active) resumedMessage else pausedMessage)
                             }
                         )
                     }
@@ -122,29 +130,38 @@ private fun RecurringRuleRow(
     onToggleActive: (Boolean) -> Unit
 ) {
     val currencyFormat = rememberCurrencyFormat(rule.currency)
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
-            .padding(vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+    GlassRow(
+        modifier = Modifier.fillMaxWidth(),
+        onClick = onClick
     ) {
-        Column {
-            Text(text = rule.label, style = MaterialTheme.typography.bodyLarge)
-            Text(
-                text = stringResource(R.string.recurring_row_summary, categoryName, frequencyLabel(rule), rule.nextDueDate.format(dateFormat)),
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            val sign = if (rule.isIncome) "+" else "-"
-            Text(
-                text = "$sign${currencyFormat.format(rule.amount)}",
-                style = MoneyFigure,
-                color = if (rule.isIncome) Income else Expense
-            )
-            Switch(checked = rule.active, onCheckedChange = onToggleActive)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column {
+                Text(text = rule.label, style = MaterialTheme.typography.bodyLarge)
+                Text(
+                    text = stringResource(R.string.recurring_row_summary, categoryName, frequencyLabel(rule), rule.nextDueDate.format(dateFormat)),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                val sign = if (rule.isIncome) "+" else "-"
+                Text(
+                    text = "$sign${currencyFormat.format(rule.amount)}",
+                    style = MoneyFigure,
+                    color = if (rule.isIncome) Income else Expense
+                )
+                Switch(
+                    checked = rule.active,
+                    onCheckedChange = onToggleActive,
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = MaterialTheme.colorScheme.primary,
+                        checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = GlassAlpha.selectedTint)
+                    )
+                )
+            }
         }
     }
 }

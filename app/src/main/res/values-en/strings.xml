@@ -128,6 +128,8 @@
     <string name="recurring_add_title">Add Recurring Rule</string>
     <string name="recurring_label_field">Label</string>
     <string name="recurring_frequency_title">Frequency</string>
+    <string name="recurring_paused">Rule paused</string>
+    <string name="recurring_resumed">Rule resumed</string>
 
     <string name="date_field_change_content_description">Change %1$s</string>
 </resources>
