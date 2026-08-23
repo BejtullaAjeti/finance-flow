@@ -28,7 +28,7 @@
     <string name="categories_delete_blocked">"%1$s" is used by existing transactions and can\'t be deleted.</string>
     <string name="categories_delete_blocked_last">"%1$s" is the only category left for this type and can\'t be deleted.</string>
     <string name="categories_add_content_description">Add category</string>
-    <string name="categories_add_new_chip">+ New category</string>
+    <string name="categories_add_new_chip">New category</string>
     <string name="categories_delete_success">"%1$s" deleted.</string>
     <string name="action_undo">Undo</string>
     <string name="action_dismiss_hint">Dismiss</string>

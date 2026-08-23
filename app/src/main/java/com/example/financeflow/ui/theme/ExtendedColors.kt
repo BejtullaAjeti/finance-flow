@@ -13,6 +13,11 @@ import androidx.compose.ui.graphics.Color
  */
 data class ExtendedColors(
     val accent: Color,
+    // Selected/active fill for interactive surfaces (filter chips, the inline "add category"
+    // button) — the app's real per-mode accent (#BDB2FF light / #DFD0B8 dark), distinct from
+    // [accent] above (which is the featured-card fill) and from Primary (fixed across modes,
+    // used by buttons/FAB/segmented controls).
+    val selectedFill: Color,
     val warning: Color,
     val warningContainer: Color,
     val onWarning: Color,
@@ -23,6 +28,7 @@ data class ExtendedColors(
 
 val LightExtendedColors = ExtendedColors(
     accent = SurfaceLight,
+    selectedFill = Primary,
     warning = WarningLight,
     warningContainer = WarningContainerLight,
     onWarning = OnWarningLight,
@@ -33,6 +39,7 @@ val LightExtendedColors = ExtendedColors(
 
 val DarkExtendedColors = ExtendedColors(
     accent = AccentDark,
+    selectedFill = AccentDark,
     warning = WarningDark,
     warningContainer = WarningContainerDark,
     onWarning = OnWarningDark,

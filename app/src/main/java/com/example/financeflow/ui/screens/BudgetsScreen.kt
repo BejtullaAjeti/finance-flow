@@ -46,6 +46,7 @@ import com.example.financeflow.data.ReportPeriod
 import com.example.financeflow.data.categoryTypeFor
 import com.example.financeflow.locale.CurrencyPreferences
 import com.example.financeflow.locale.rememberCurrencyFormat
+import com.example.financeflow.ui.components.AddCategoryButton
 import com.example.financeflow.ui.components.CategoryIcons
 import com.example.financeflow.ui.components.CancelButton
 import com.example.financeflow.ui.components.ConfirmButton
@@ -292,7 +293,7 @@ private fun SetBudgetDialog(
         text = {
             Column {
                 if (fixedCategory == null) {
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         pickableCategories.forEach { category ->
                             GlassFilterChip(
                                 selected = selected?.id == category.id,
@@ -300,11 +301,7 @@ private fun SetBudgetDialog(
                                 label = { Text(category.name) }
                             )
                         }
-                        GlassFilterChip(
-                            selected = false,
-                            onClick = { showQuickAddCategory = true },
-                            label = { Text(stringResource(R.string.categories_add_new_chip)) }
-                        )
+                        AddCategoryButton(onClick = { showQuickAddCategory = true })
                     }
                     Spacer(Modifier.height(16.dp))
                 }

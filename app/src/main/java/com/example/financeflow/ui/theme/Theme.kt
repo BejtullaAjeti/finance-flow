@@ -35,6 +35,10 @@ private val FinanceFlowLightScheme = lightColorScheme(
     onSurface = OnBackgroundLight,
     surfaceVariant = SurfaceLight,
     onSurfaceVariant = OnSurfaceMutedLight,
+    // Unset, this falls back to M3's baseline outline swatch — a generic purple-grey never
+    // chosen for this palette — so every bordered input (GlassTextField, GlassFilterChip) was
+    // quietly drawing a border color outside the design system.
+    outline = OnSurfaceMutedLight,
     error = ExpenseLight,
     onError = Color.White
 )
@@ -54,6 +58,7 @@ private val FinanceFlowDarkScheme = darkColorScheme(
     onSurface = OnBackgroundDark,
     surfaceVariant = SurfaceDark,
     onSurfaceVariant = OnSurfaceMutedDark,
+    outline = OnSurfaceMutedDark,
     error = ExpenseDark,
     onError = OnPrimaryColor
 )

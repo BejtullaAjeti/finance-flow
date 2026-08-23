@@ -45,6 +45,7 @@ import com.example.financeflow.data.categoryTypeFor
 import com.example.financeflow.locale.CurrencyPreferences
 import com.example.financeflow.locale.HintPreferences
 import com.example.financeflow.locale.LastUsedTypePreferences
+import com.example.financeflow.ui.components.AddCategoryButton
 import com.example.financeflow.ui.components.ConfirmButton
 import com.example.financeflow.ui.components.DateField
 import com.example.financeflow.ui.components.GlassFilterChip
@@ -224,7 +225,7 @@ fun AddEditTransactionScreen(
 
             Text(text = stringResource(R.string.field_category_label), style = MaterialTheme.typography.titleLarge)
             Spacer(Modifier.height(8.dp))
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 filteredCategories.forEach { category ->
                     GlassFilterChip(
                         selected = selectedCategory?.id == category.id,
@@ -232,11 +233,7 @@ fun AddEditTransactionScreen(
                         label = { Text(category.name) }
                     )
                 }
-                GlassFilterChip(
-                    selected = false,
-                    onClick = { showQuickAddCategory = true },
-                    label = { Text(stringResource(R.string.categories_add_new_chip)) }
-                )
+                AddCategoryButton(onClick = { showQuickAddCategory = true })
             }
 
             if (showCategoryHint) {

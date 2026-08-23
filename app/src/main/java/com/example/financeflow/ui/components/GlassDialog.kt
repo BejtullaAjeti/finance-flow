@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -51,7 +52,16 @@ fun OpaqueDialogSurface(
     val lightBackdrop = MaterialTheme.colorScheme.background.luminance() > 0.5f
     Dialog(
         onDismissRequest = onDismissRequest,
-        properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnClickOutside = false)
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnClickOutside = false,
+            // The host Activity draws edge-to-edge (enableEdgeToEdge()); without this the dialog
+            // window defaults to shrinking around the IME instead, so the opaque backdrop below
+            // only covers the shrunk window and the screen behind shows through under the
+            // keyboard. imePadding() on the card (not the backdrop) below restores the "card
+            // stays above the keyboard" behavior this used to get for free.
+            decorFitsSystemWindows = false
+        )
     ) {
         val view = LocalView.current
         val window = (view.parent as? DialogWindowProvider)?.window
@@ -99,6 +109,7 @@ fun GlassDialog(
             modifier = modifier
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp)
+                .imePadding()
                 .clip(RoundedCornerShape(Radius.large))
                 .background(MaterialTheme.colorScheme.surface)
                 .clickable(

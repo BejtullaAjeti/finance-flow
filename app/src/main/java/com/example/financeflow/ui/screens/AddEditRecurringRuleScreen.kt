@@ -16,9 +16,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -44,6 +41,7 @@ import com.example.financeflow.locale.CurrencyPreferences
 import com.example.financeflow.ui.components.ConfirmButton
 import com.example.financeflow.ui.components.DateField
 import com.example.financeflow.ui.components.GlassFilterChip
+import com.example.financeflow.ui.components.GlassSegmentedControl
 import com.example.financeflow.viewmodel.CategoryViewModel
 import com.example.financeflow.viewmodel.RecurringRuleViewModel
 import com.example.financeflow.viewmodel.rememberCategoryViewModel
@@ -130,6 +128,14 @@ fun AddEditRecurringRuleScreen(
         onDone()
     }
 
+    val expenseLabel = stringResource(R.string.toggle_expense)
+    val incomeLabel = stringResource(R.string.toggle_income)
+    val personalLabel = stringResource(R.string.type_personal)
+    val businessLabel = stringResource(R.string.type_business)
+    val weeklyLabel = stringResource(R.string.label_weekly)
+    val monthlyLabel = stringResource(R.string.label_monthly)
+    val customLabel = stringResource(R.string.label_custom)
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -180,50 +186,30 @@ fun AddEditRecurringRuleScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                SegmentedButton(
-                    icon = {},
-                    selected = !isIncome,
-                    onClick = { isIncome = false },
-                    shape = SegmentedButtonDefaults.itemShape(0, 2)
-                ) { Text(stringResource(R.string.toggle_expense)) }
-                SegmentedButton(
-                    icon = {},
-                    selected = isIncome,
-                    onClick = { isIncome = true },
-                    shape = SegmentedButtonDefaults.itemShape(1, 2)
-                ) { Text(stringResource(R.string.toggle_income)) }
-            }
+            GlassSegmentedControl(
+                options = listOf(false, true),
+                selected = isIncome,
+                onSelect = { isIncome = it },
+                label = { if (it) incomeLabel else expenseLabel }
+            )
 
             Spacer(Modifier.height(12.dp))
 
-            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                SegmentedButton(
-                    icon = {},
-                    selected = type == TransactionType.PERSONAL,
-                    onClick = { type = TransactionType.PERSONAL; selectedCategory = null },
-                    shape = SegmentedButtonDefaults.itemShape(0, 2)
-                ) { Text(stringResource(R.string.type_personal)) }
-                SegmentedButton(
-                    icon = {},
-                    selected = type == TransactionType.BUSINESS,
-                    onClick = { type = TransactionType.BUSINESS; selectedCategory = null },
-                    shape = SegmentedButtonDefaults.itemShape(1, 2)
-                ) { Text(stringResource(R.string.type_business)) }
-            }
+            GlassSegmentedControl(
+                options = listOf(TransactionType.PERSONAL, TransactionType.BUSINESS),
+                selected = type,
+                onSelect = { type = it; selectedCategory = null },
+                label = { if (it == TransactionType.PERSONAL) personalLabel else businessLabel }
+            )
 
             Spacer(Modifier.height(12.dp))
 
-            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                Currency.entries.forEachIndexed { index, option ->
-                    SegmentedButton(
-                        icon = {},
-                        selected = currency == option,
-                        onClick = { currency = option },
-                        shape = SegmentedButtonDefaults.itemShape(index, Currency.entries.size)
-                    ) { Text(option.name) }
-                }
-            }
+            GlassSegmentedControl(
+                options = Currency.entries,
+                selected = currency,
+                onSelect = { currency = it },
+                label = { it.name }
+            )
 
             Spacer(Modifier.height(20.dp))
 
@@ -232,7 +218,7 @@ fun AddEditRecurringRuleScreen(
             if (filteredCategories.isEmpty()) {
                 Text(text = stringResource(R.string.categories_picker_empty), style = MaterialTheme.typography.bodyMedium)
             } else {
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     filteredCategories.forEach { category ->
                         GlassFilterChip(
                             selected = selectedCategory?.id == category.id,
@@ -247,24 +233,18 @@ fun AddEditRecurringRuleScreen(
 
             Text(text = stringResource(R.string.recurring_frequency_title), style = MaterialTheme.typography.titleLarge)
             Spacer(Modifier.height(8.dp))
-            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                Frequency.entries.forEachIndexed { index, option ->
-                    SegmentedButton(
-                        icon = {},
-                        selected = frequency == option,
-                        onClick = { frequency = option },
-                        shape = SegmentedButtonDefaults.itemShape(index, Frequency.entries.size)
-                    ) {
-                        Text(
-                            when (option) {
-                                Frequency.WEEKLY -> stringResource(R.string.label_weekly)
-                                Frequency.MONTHLY -> stringResource(R.string.label_monthly)
-                                Frequency.CUSTOM -> stringResource(R.string.label_custom)
-                            }
-                        )
+            GlassSegmentedControl(
+                options = Frequency.entries,
+                selected = frequency,
+                onSelect = { frequency = it },
+                label = {
+                    when (it) {
+                        Frequency.WEEKLY -> weeklyLabel
+                        Frequency.MONTHLY -> monthlyLabel
+                        Frequency.CUSTOM -> customLabel
                     }
                 }
-            }
+            )
 
             if (frequency == Frequency.CUSTOM) {
                 Spacer(Modifier.height(12.dp))

@@ -28,7 +28,7 @@
     <string name="categories_delete_blocked">"%1$s" përdoret nga transaksione ekzistuese dhe nuk mund të fshihet.</string>
     <string name="categories_delete_blocked_last">"%1$s" është kategoria e vetme e këtij lloji dhe nuk mund të fshihet.</string>
     <string name="categories_add_content_description">Shto kategori</string>
-    <string name="categories_add_new_chip">+ Kategori e re</string>
+    <string name="categories_add_new_chip">Kategori e re</string>
     <string name="categories_delete_success">"%1$s" u fshi.</string>
     <string name="action_undo">Zhbëj</string>
     <string name="action_dismiss_hint">Mbyll</string>

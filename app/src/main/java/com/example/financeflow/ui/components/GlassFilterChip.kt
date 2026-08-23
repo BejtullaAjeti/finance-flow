@@ -1,6 +1,7 @@
 package com.example.financeflow.ui.components
 
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
@@ -9,10 +10,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.financeflow.ui.theme.Radius
+import com.example.financeflow.ui.theme.extendedColors
 
 /**
  * Flat drop-in for M3's FilterChip — unselected is border-only (no fill), selected is a solid
- * Primary fill with no border, per the minimalist policy's chip rules (spec §6).
+ * accent fill (extendedColors.selectedFill, not a generic M3 highlight) with no border, per the
+ * minimalist policy's chip rules (spec §6). Corner radius pinned to the shared Radius scale
+ * rather than M3's default chip shape token.
  */
 @Composable
 fun GlassFilterChip(
@@ -28,10 +33,11 @@ fun GlassFilterChip(
         label = label,
         modifier = modifier.pressScale(interactionSource),
         interactionSource = interactionSource,
+        shape = RoundedCornerShape(Radius.small),
         colors = FilterChipDefaults.filterChipColors(
             containerColor = Color.Transparent,
             labelColor = MaterialTheme.colorScheme.onSurface,
-            selectedContainerColor = MaterialTheme.colorScheme.primary,
+            selectedContainerColor = MaterialTheme.extendedColors.selectedFill,
             selectedLabelColor = MaterialTheme.colorScheme.onPrimary
         ),
         border = FilterChipDefaults.filterChipBorder(

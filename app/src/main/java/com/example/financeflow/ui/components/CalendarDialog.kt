@@ -2,6 +2,7 @@ package com.example.financeflow.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,7 +31,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.CaretLeft
@@ -38,6 +38,7 @@ import com.adamglin.phosphoricons.regular.CaretRight
 import com.example.financeflow.R
 import com.example.financeflow.locale.currentAppLocale
 import com.example.financeflow.ui.theme.Radius
+import com.example.financeflow.ui.theme.extendedColors
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
@@ -54,7 +55,9 @@ fun calendarGridStart(month: YearMonth, firstDayOfWeek: DayOfWeek): LocalDate {
 /**
  * Flat, app-styled replacement for M3's stock DatePickerDialog — java.time + Compose primitives
  * only, no new dependency (spec §8). Container follows the same policy as every other dialog:
- * Surface background, Radius.large corners, no border, no shadow.
+ * Surface background, Radius.large corners, no border, no shadow, and the same fully-opaque
+ * backdrop (via [OpaqueDialogSurface]) as every other dialog in the app instead of the platform's
+ * translucent dim scrim.
  */
 @Composable
 fun CalendarDialog(
@@ -67,12 +70,18 @@ fun CalendarDialog(
     var selectedDate by remember { mutableStateOf(initialDate) }
     val firstDayOfWeek = remember(locale) { WeekFields.of(locale).firstDayOfWeek }
 
-    Dialog(onDismissRequest = onDismiss) {
+    OpaqueDialogSurface(onDismissRequest = onDismiss) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(horizontal = 24.dp)
                 .clip(RoundedCornerShape(Radius.large))
                 .background(MaterialTheme.colorScheme.surface)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = {}
+                )
                 .padding(20.dp)
         ) {
             Row(
@@ -124,7 +133,7 @@ fun CalendarDialog(
                                 .aspectRatio(1f)
                                 .padding(2.dp)
                                 .clip(CircleShape)
-                                .background(if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent)
+                                .background(if (isSelected) MaterialTheme.extendedColors.selectedFill else Color.Transparent)
                                 .clickable {
                                     selectedDate = day
                                     if (!inMonth) displayedMonth = YearMonth.from(day)
@@ -135,7 +144,7 @@ fun CalendarDialog(
                                 text = day.dayOfMonth.toString(),
                                 color = when {
                                     isSelected -> MaterialTheme.colorScheme.onPrimary
-                                    isToday -> MaterialTheme.colorScheme.primary
+                                    isToday -> MaterialTheme.extendedColors.selectedFill
                                     !inMonth -> MaterialTheme.colorScheme.onSurfaceVariant
                                     else -> MaterialTheme.colorScheme.onSurface
                                 }

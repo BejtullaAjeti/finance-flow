@@ -1,9 +1,11 @@
 package com.example.financeflow.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -68,5 +70,31 @@ fun CancelButton(
         colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.onSurface)
     ) {
         Text(stringResource(R.string.action_cancel))
+    }
+}
+
+/**
+ * Pill-shaped "add category" action, styled like [ConfirmButton]/[CancelButton] (same shape,
+ * icon + text) instead of a plain unselected filter chip — the accent fill
+ * (extendedColors.selectedFill) marks it as a distinct action, not another selectable option in
+ * the chip row it sits in.
+ */
+@Composable
+fun AddCategoryButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier,
+        shape = RoundedCornerShape(percent = 50),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.extendedColors.selectedFill,
+            contentColor = MaterialTheme.colorScheme.onPrimary
+        )
+    ) {
+        Icon(Icons.Rounded.Add, contentDescription = null, modifier = Modifier.padding(end = 4.dp))
+        Text(stringResource(R.string.categories_add_new_chip))
     }
 }

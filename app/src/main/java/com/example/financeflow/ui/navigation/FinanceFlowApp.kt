@@ -1,8 +1,6 @@
 package com.example.financeflow.ui.navigation
 
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -18,7 +16,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -34,7 +31,7 @@ import com.example.financeflow.ui.components.GlassCard
 import com.example.financeflow.ui.components.LocalSnackbarController
 import com.example.financeflow.ui.components.SnackbarController
 import com.example.financeflow.ui.theme.GlassTier
-import com.example.financeflow.ui.theme.Radius
+import com.example.financeflow.ui.theme.extendedColors
 import com.example.financeflow.ui.screens.AddEditRecurringRuleScreen
 import com.example.financeflow.ui.screens.AddEditTransactionScreen
 import com.example.financeflow.ui.screens.BudgetsScreen
@@ -127,51 +124,52 @@ fun FinanceFlowApp(navController: NavHostController = rememberNavController()) {
     }
 }
 
-// Glass-styled per CLAUDE.md's Design & Styling section, which names the bottom nav bar
-// alongside the dashboard summary and budget cards as an intended frosted-glass surface.
+// Flat Surface bar, no elevation/shadow, per the minimalist design system — the rounded
+// "floating glass pill" treatment this used to have predates that system and had no current
+// spec backing it, so it's gone; this now reads as flush chrome like TopAppBar everywhere else.
 @Composable
 private fun FinanceFlowBottomBar(navController: NavHostController) {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
 
-    GlassCard(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(topStart = Radius.medium, topEnd = Radius.medium),
-        contentPadding = 0.dp
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.surface,
+        tonalElevation = 0.dp
     ) {
-        NavigationBar(
-            modifier = Modifier.fillMaxWidth(),
-            containerColor = Color.Transparent,
-            tonalElevation = 0.dp
-        ) {
-            FinanceFlowDestination.entries.forEach { destination ->
-                val label = stringResource(destination.labelRes)
-                val isSelected = destination.matchesCurrentRoute(currentRoute)
-                NavigationBarItem(
-                    selected = isSelected,
-                    onClick = {
-                        navController.navigate(destination.route) {
-                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    },
-                    icon = {
-                        Icon(
-                            if (isSelected) destination.filledIcon else destination.icon,
-                            contentDescription = label
-                        )
-                    },
-                    label = { Text(label) },
-                    colors = NavigationBarItemDefaults.colors(
-                        indicatorColor = MaterialTheme.colorScheme.primary,
-                        selectedIconColor = MaterialTheme.colorScheme.onPrimary,
-                        selectedTextColor = MaterialTheme.colorScheme.primary,
-                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+        FinanceFlowDestination.entries.forEach { destination ->
+            val label = stringResource(destination.labelRes)
+            val isSelected = destination.matchesCurrentRoute(currentRoute)
+            NavigationBarItem(
+                selected = isSelected,
+                onClick = {
+                    navController.navigate(destination.route) {
+                        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                icon = {
+                    Icon(
+                        if (isSelected) destination.filledIcon else destination.icon,
+                        contentDescription = label
                     )
+                },
+                label = { Text(label) },
+                colors = NavigationBarItemDefaults.colors(
+                    // Same per-mode accent as selected filter chips (#BDB2FF light / #DFD0B8
+                    // dark) rather than Primary, which is fixed lavender in both modes and
+                    // wouldn't read as "current tokens" against the dark palette.
+                    indicatorColor = MaterialTheme.extendedColors.selectedFill,
+                    selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                    // onSurface, not the accent color, for the label: the accent is a pale
+                    // pastel and reads as barely-there text directly on the Surface background
+                    // (no filled backdrop here to give it contrast, unlike the icon's indicator
+                    // pill) — the filled pill + this bold label is the "clear, simple" indicator.
+                    selectedTextColor = MaterialTheme.colorScheme.onSurface,
+                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-            }
+            )
         }
     }
 }
