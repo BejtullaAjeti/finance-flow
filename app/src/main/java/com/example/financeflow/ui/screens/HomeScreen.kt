@@ -1,5 +1,6 @@
 package com.example.financeflow.ui.screens
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,8 +12,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.Plus
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -70,7 +72,7 @@ fun HomeScreen(
     Scaffold(
         floatingActionButton = {
             GlassFab(onClick = onAddTransaction, contentDescription = stringResource(R.string.home_add_transaction_content_description)) {
-                Icon(Icons.Rounded.Add, contentDescription = null)
+                Icon(PhosphorIcons.Regular.Plus, contentDescription = null)
             }
         }
     ) { innerPadding ->
@@ -87,46 +89,50 @@ fun HomeScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            GlassCard(modifier = Modifier.fillMaxWidth()) {
-                Text(text = stringResource(R.string.home_this_month_title), style = MaterialTheme.typography.titleLarge)
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(text = stringResource(R.string.toggle_income), style = MaterialTheme.typography.bodyMedium)
-                    Text(text = currencyFormat.format(summary.income), style = MoneyFigure, color = Income)
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(text = stringResource(R.string.home_expenses_label), style = MaterialTheme.typography.bodyMedium)
-                    Text(text = currencyFormat.format(summary.expense), style = MoneyFigure, color = Expense)
-                }
-            }
+            Crossfade(targetState = typeFilter, label = "homeTypeFilterContent") { _ ->
+                Column {
+                    GlassCard(modifier = Modifier.fillMaxWidth()) {
+                        Text(text = stringResource(R.string.home_this_month_title), style = MaterialTheme.typography.titleLarge)
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(text = stringResource(R.string.toggle_income), style = MaterialTheme.typography.bodyMedium)
+                            Text(text = currencyFormat.format(summary.income), style = MoneyFigure, color = Income)
+                        }
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(text = stringResource(R.string.home_expenses_label), style = MaterialTheme.typography.bodyMedium)
+                            Text(text = currencyFormat.format(summary.expense), style = MoneyFigure, color = Expense)
+                        }
+                    }
 
-            Spacer(Modifier.height(24.dp))
+                    Spacer(Modifier.height(24.dp))
 
-            Text(text = stringResource(R.string.home_recent_transactions_title), style = MaterialTheme.typography.titleLarge)
+                    Text(text = stringResource(R.string.home_recent_transactions_title), style = MaterialTheme.typography.titleLarge)
 
-            Spacer(Modifier.height(8.dp))
+                    Spacer(Modifier.height(8.dp))
 
-            if (transactions.isEmpty()) {
-                Box(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp), contentAlignment = Alignment.Center) {
-                    Text(text = stringResource(R.string.transactions_empty), style = MaterialTheme.typography.bodyMedium)
-                }
-            } else {
-                LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                    items(transactions.take(5), key = { it.id }) { transaction ->
-                        TransactionRow(
-                            transaction = transaction,
-                            categoryName = categoryNames[transaction.categoryId] ?: uncategorized,
-                            displayAmount = ExchangeRateRepository.convert(transaction.amount, transaction.currency, displayCurrency, rates),
-                            currencyFormat = currencyFormat,
-                            dateFormat = dateFormat,
-                            displayCurrency = displayCurrency,
-                            onClick = { onEditTransaction(transaction.id) }
-                        )
+                    if (transactions.isEmpty()) {
+                        Box(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp), contentAlignment = Alignment.Center) {
+                            Text(text = stringResource(R.string.transactions_empty), style = MaterialTheme.typography.bodyMedium)
+                        }
+                    } else {
+                        LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                            items(transactions.take(5), key = { it.id }) { transaction ->
+                                TransactionRow(
+                                    transaction = transaction,
+                                    categoryName = categoryNames[transaction.categoryId] ?: uncategorized,
+                                    displayAmount = ExchangeRateRepository.convert(transaction.amount, transaction.currency, displayCurrency, rates),
+                                    currencyFormat = currencyFormat,
+                                    dateFormat = dateFormat,
+                                    displayCurrency = displayCurrency,
+                                    onClick = { onEditTransaction(transaction.id) }
+                                )
+                            }
+                        }
                     }
                 }
             }
