@@ -71,6 +71,7 @@ import com.patrykandpatrick.vico.core.cartesian.axis.VerticalAxis
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianValueFormatter
 import com.patrykandpatrick.vico.core.cartesian.data.columnSeries
+import com.patrykandpatrick.vico.core.common.data.ExtraStore
 import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.YearMonth
@@ -201,6 +202,15 @@ private fun DailyReportList(
     }
 }
 
+// Bucket labels ride along in the model's own ExtraStore (set in the same runTransaction as the
+// series data below) instead of being read from a Composable-scope `labels` list. `runTransaction`
+// runs on a background dispatcher, so the axis can still be rendering the *previous* model (e.g.
+// Yearly's 12 buckets) for a frame or two after `labels` has already recomposed to the *new,
+// shorter* list (e.g. Weekly's 7) — indexing that mismatched list is what produced the empty
+// strings Vico rejects. Reading `context.model.extraStore` instead ties each label set to the
+// exact model version being drawn, so there's no window where they can disagree.
+private val reportBarChartLabelsKey = ExtraStore.Key<List<String>>()
+
 @Composable
 private fun ReportBarChart(data: List<PeriodTotal>, period: ReportPeriod, locale: Locale) {
     if (data.isEmpty()) {
@@ -212,9 +222,10 @@ private fun ReportBarChart(data: List<PeriodTotal>, period: ReportPeriod, locale
     val expenseValues = remember(data) { data.map { it.expense } }
     val labels = remember(data, period, locale) { data.map { bucketLabel(it.bucket, period, locale) } }
 
-    LaunchedEffect(expenseValues) {
+    LaunchedEffect(expenseValues, labels) {
         modelProducer.runTransaction {
             columnSeries { series(expenseValues) }
+            extras { it[reportBarChartLabelsKey] = labels }
         }
     }
 
@@ -228,13 +239,25 @@ private fun ReportBarChart(data: List<PeriodTotal>, period: ReportPeriod, locale
                 rememberColumnCartesianLayer(),
                 startAxis = VerticalAxis.rememberStart(),
                 bottomAxis = HorizontalAxis.rememberBottom(
-                    valueFormatter = CartesianValueFormatter { _, value, _ -> labels.getOrNull(value.toInt()).orEmpty() }
+                    valueFormatter = CartesianValueFormatter { context, value, _ ->
+                        resolveBucketLabel(context.model.extraStore.getOrNull(reportBarChartLabelsKey), value)
+                    }
                 )
             ),
             modelProducer = modelProducer,
             modifier = Modifier.fillMaxWidth().height(220.dp)
         )
     }
+}
+
+// Pure and defensive on top of the ExtraStore fix above: even if this is ever asked for an index
+// outside the current label set (a measurement pass, a boundary rounding), it must still return a
+// non-empty string — Vico throws on "" (see CartesianValueFormatter.formatForAxis). Falls back to
+// the nearest real label rather than a placeholder, since every index in range always has one.
+internal fun resolveBucketLabel(labels: List<String>?, value: Double): String {
+    if (labels.isNullOrEmpty()) return " "
+    val index = value.toInt().coerceIn(0, labels.size - 1)
+    return labels[index]
 }
 
 private fun bucketLabel(bucket: String, period: ReportPeriod, locale: Locale): String = when (period) {
