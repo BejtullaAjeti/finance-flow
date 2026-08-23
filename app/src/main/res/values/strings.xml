@@ -16,8 +16,8 @@
     <string name="type_combined">Kombinuar</string>
     <string name="categories_icon_label">Ikona</string>
     <string name="categories_color_label">Ngjyra</string>
-    <string name="categories_budget_label">Buxheti mujor (opsional)</string>
-    <string name="categories_budget_suffix">Buxheti %1$s/muaj</string>
+    <string name="categories_budget_label">Buxheti (opsional)</string>
+    <string name="categories_budget_suffix">Buxheti %1$s · %2$s</string>
     <string name="categories_empty">Nuk ka kategori ende. Shto një me butonin +.</string>
     <string name="categories_picker_empty">Nuk ka kategori për këtë lloj ende. Shto një nga Cilësimet → Kategoritë.</string>
     <string name="categories_delete_blocked">"%1$s" përdoret nga transaksione ekzistuese dhe nuk mund të fshihet.</string>
@@ -98,7 +98,7 @@
     <string name="budget_over_amount">%1$s mbi buxhet</string>
     <string name="budget_not_set">Cakto një buxhet</string>
     <string name="budget_spent_no_limit">%1$s shpenzuar deri tani</string>
-    <string name="budget_amount_label">Shuma e buxhetit mujor</string>
+    <string name="budget_amount_label">Shuma e buxhetit</string>
     <string name="budget_add_content_description">Shto buxhet</string>
     <string name="budget_pick_category_title">Zgjidh një kategori</string>
     <string name="hint_budgets_empty">Zgjidh një kategori për të caktuar buxhetin e saj</string>

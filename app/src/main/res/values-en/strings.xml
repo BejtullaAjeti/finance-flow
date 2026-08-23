@@ -16,8 +16,8 @@
     <string name="type_combined">Combined</string>
     <string name="categories_icon_label">Icon</string>
     <string name="categories_color_label">Color</string>
-    <string name="categories_budget_label">Monthly budget (optional)</string>
-    <string name="categories_budget_suffix">Budget %1$s/mo</string>
+    <string name="categories_budget_label">Budget (optional)</string>
+    <string name="categories_budget_suffix">Budget %1$s · %2$s</string>
     <string name="categories_empty">No categories yet. Tap + to add one.</string>
     <string name="categories_picker_empty">No categories for this type yet. Add one from Settings → Categories.</string>
     <string name="categories_delete_blocked">"%1$s" is used by existing transactions and can\'t be deleted.</string>
@@ -98,7 +98,7 @@
     <string name="budget_over_amount">%1$s over budget</string>
     <string name="budget_not_set">Tap to set a budget</string>
     <string name="budget_spent_no_limit">%1$s spent so far</string>
-    <string name="budget_amount_label">Monthly budget amount</string>
+    <string name="budget_amount_label">Budget amount</string>
     <string name="budget_add_content_description">Add budget</string>
     <string name="budget_pick_category_title">Choose a category</string>
     <string name="hint_budgets_empty">Tap a category to set its budget</string>

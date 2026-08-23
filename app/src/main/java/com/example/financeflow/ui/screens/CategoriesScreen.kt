@@ -57,6 +57,7 @@ import com.example.financeflow.R
 import com.example.financeflow.data.Category
 import com.example.financeflow.data.CategoryType
 import com.example.financeflow.data.Currency
+import com.example.financeflow.data.ReportPeriod
 import com.example.financeflow.locale.rememberCurrencyFormat
 import com.example.financeflow.ui.components.CategoryColorPalette
 import com.example.financeflow.ui.components.CategoryIcons
@@ -67,6 +68,7 @@ import com.example.financeflow.ui.components.GlassRow
 import com.example.financeflow.ui.components.GlassSegmentedControl
 import com.example.financeflow.ui.components.GlassTextField
 import com.example.financeflow.ui.components.categoryTypeLabel
+import com.example.financeflow.ui.components.periodLabel
 import com.example.financeflow.ui.components.selectionRing
 import com.example.financeflow.ui.components.toCategoryColor
 import com.example.financeflow.ui.theme.Expense
@@ -260,7 +262,13 @@ private fun CategoryRow(
                         append(categoryTypeLabel(category.type))
                         category.budgetLimit?.let {
                             append(" · ")
-                            append(stringResource(R.string.categories_budget_suffix, currencyFormat.format(it)))
+                            append(
+                                stringResource(
+                                    R.string.categories_budget_suffix,
+                                    currencyFormat.format(it),
+                                    periodLabel(category.budgetPeriod)
+                                )
+                            )
                         }
                     },
                     style = MaterialTheme.typography.bodyMedium
@@ -402,6 +410,10 @@ private fun AddEditCategoryDialog(
                             type = type,
                             budgetLimit = budgetText.toDoubleOrNull(),
                             budgetLimitCurrency = budgetCurrency,
+                            // This dialog has no period selector of its own (that lives in
+                            // Budgets' SetBudgetDialog) - preserve whatever period the category
+                            // already had rather than silently resetting it to Monthly.
+                            budgetPeriod = editing?.budgetPeriod ?: ReportPeriod.MONTH,
                             icon = icon,
                             color = color
                         )
