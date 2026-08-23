@@ -26,7 +26,6 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -48,6 +47,7 @@ import com.example.financeflow.data.categoryTypeFor
 import com.example.financeflow.locale.CurrencyPreferences
 import com.example.financeflow.locale.rememberCurrencyFormat
 import com.example.financeflow.ui.components.CategoryIcons
+import com.example.financeflow.ui.components.CancelButton
 import com.example.financeflow.ui.components.ConfirmButton
 import com.example.financeflow.ui.components.GlassCard
 import com.example.financeflow.ui.components.GlassDialog
@@ -58,6 +58,8 @@ import com.example.financeflow.ui.components.GlassTextField
 import com.example.financeflow.ui.components.InlineHint
 import com.example.financeflow.ui.components.QuickAddCategoryDialog
 import com.example.financeflow.ui.components.TransactionTypeToggle
+import com.example.financeflow.ui.components.TypeIndicatorIcon
+import com.example.financeflow.ui.components.indicatorIcon
 import com.example.financeflow.ui.components.periodLabel
 import com.example.financeflow.ui.components.toCategoryColor
 import com.example.financeflow.ui.theme.extendedColors
@@ -97,41 +99,43 @@ fun BudgetsScreen(
             }
         }
     ) { innerPadding ->
-        Column(modifier = Modifier.fillMaxSize().padding(innerPadding).padding(16.dp)) {
-            TransactionTypeToggle(
-                selected = typeFilter,
-                onSelect = budgetViewModel::setTypeFilter
-            )
-
-            Spacer(Modifier.height(16.dp))
+        LazyColumn(
+            modifier = Modifier.fillMaxSize().padding(innerPadding).padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            item {
+                TransactionTypeToggle(
+                    selected = typeFilter,
+                    onSelect = budgetViewModel::setTypeFilter
+                )
+            }
 
             if (noneHaveBudgets && showBudgetHint) {
-                InlineHint(
-                    text = stringResource(R.string.hint_budgets_empty),
-                    onDismiss = { showBudgetHint = false }
-                )
-                Spacer(Modifier.height(8.dp))
+                item {
+                    InlineHint(
+                        text = stringResource(R.string.hint_budgets_empty),
+                        onDismiss = { showBudgetHint = false }
+                    )
+                }
             }
 
             if (budgets.isEmpty()) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(
-                        text = stringResource(R.string.budgets_empty),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(budgets, key = { it.category.id }) { budget ->
-                        BudgetCard(
-                            budget = budget,
-                            currencyFormat = currencyFormat,
-                            onClick = { editingCategory = budget.category }
+                item {
+                    Box(modifier = Modifier.fillMaxWidth().padding(top = 32.dp), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = stringResource(R.string.budgets_empty),
+                            style = MaterialTheme.typography.bodyMedium
                         )
                     }
+                }
+            } else {
+                items(budgets, key = { it.category.id }) { budget ->
+                    BudgetCard(
+                        budget = budget,
+                        currencyFormat = currencyFormat,
+                        onClick = { editingCategory = budget.category },
+                        isCombinedView = typeFilter == null
+                    )
                 }
             }
         }
@@ -169,7 +173,7 @@ fun BudgetsScreen(
 }
 
 @Composable
-private fun BudgetCard(budget: CategoryBudget, currencyFormat: NumberFormat, onClick: () -> Unit) {
+private fun BudgetCard(budget: CategoryBudget, currencyFormat: NumberFormat, onClick: () -> Unit, isCombinedView: Boolean) {
     val limit = budget.limit
     val swatch = budget.category.color.toCategoryColor()
 
@@ -185,6 +189,11 @@ private fun BudgetCard(budget: CategoryBudget, currencyFormat: NumberFormat, onC
             )
             Spacer(Modifier.width(8.dp))
             Text(text = budget.category.name, style = MaterialTheme.typography.titleLarge)
+            val icon = if (isCombinedView) budget.category.type.indicatorIcon() else null
+            if (icon != null) {
+                Spacer(Modifier.width(6.dp))
+                TypeIndicatorIcon(icon)
+            }
         }
 
         Spacer(Modifier.height(12.dp))
@@ -343,7 +352,7 @@ private fun SetBudgetDialog(
             )
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+            CancelButton(onClick = onDismiss)
         }
     )
 

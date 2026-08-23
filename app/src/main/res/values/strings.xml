@@ -7,6 +7,11 @@
     <string name="language_albanian">Shqip</string>
     <string name="language_english">Anglisht</string>
 
+    <string name="settings_theme">Pamja</string>
+    <string name="theme_system">Sistemi</string>
+    <string name="theme_light">E çelët</string>
+    <string name="theme_dark">E errët</string>
+
     <string name="categories_add_title">Shto Kategori</string>
     <string name="categories_edit_title">Redakto Kategorinë</string>
     <string name="categories_name_label">Emri</string>
@@ -28,6 +33,7 @@
     <string name="action_undo">Zhbëj</string>
     <string name="action_dismiss_hint">Mbyll</string>
     <string name="hint_category_picker">Shto një kategori të re me butonin +</string>
+    <string name="hint_categories_swipe_delete">Rrëshqit majtas mbi një kategori për ta fshirë</string>
 
     <string name="category_default_food">Ushqim</string>
     <string name="category_default_transport">Transporti</string>
@@ -84,6 +90,9 @@
     <string name="home_this_month_title">Këtë Muaj</string>
     <string name="home_expenses_label">Shpenzimet</string>
     <string name="home_recent_transactions_title">Transaksionet e Fundit</string>
+    <string name="home_upcoming_title">Së Shpejti</string>
+    <string name="home_upcoming_due_today">Sot</string>
+    <string name="home_upcoming_due_in_days">Për %1$d ditë</string>
 
     <string name="search_notes_label">Kërko shënime</string>
     <string name="transactions_empty">Asnjë transaksion nuk përputhet me këto filtra.</string>

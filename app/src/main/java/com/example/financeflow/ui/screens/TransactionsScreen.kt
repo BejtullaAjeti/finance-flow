@@ -156,7 +156,8 @@ fun TransactionsScreen(
                         currencyFormat = currencyFormat,
                         dateFormat = dateFormat,
                         displayCurrency = displayCurrency,
-                        onClick = { onEditTransaction(transaction.id) }
+                        onClick = { onEditTransaction(transaction.id) },
+                        showTypeIndicator = filter.type == null
                     )
                 }
             }

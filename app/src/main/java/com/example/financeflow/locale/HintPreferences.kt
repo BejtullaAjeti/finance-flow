@@ -5,6 +5,7 @@ import androidx.core.content.edit
 
 private const val PREFS_NAME = "settings"
 private const val KEY_CATEGORY_PICKER_HINT_DISMISSED = "hint_category_picker_dismissed"
+private const val KEY_CATEGORY_SWIPE_HINT_DISMISSED = "hint_category_swipe_dismissed"
 
 /**
  * First-use hints (as opposed to empty-state hints, which just re-derive from the list being
@@ -19,6 +20,16 @@ object HintPreferences {
     fun dismissCategoryPickerHint(context: Context) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit {
             putBoolean(KEY_CATEGORY_PICKER_HINT_DISMISSED, true)
+        }
+    }
+
+    fun isCategorySwipeHintDismissed(context: Context): Boolean =
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getBoolean(KEY_CATEGORY_SWIPE_HINT_DISMISSED, false)
+
+    fun dismissCategorySwipeHint(context: Context) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit {
+            putBoolean(KEY_CATEGORY_SWIPE_HINT_DISMISSED, true)
         }
     }
 }

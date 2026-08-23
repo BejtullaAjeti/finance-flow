@@ -1,5 +1,6 @@
 package com.example.financeflow.ui.screens
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
@@ -49,8 +51,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -59,7 +63,9 @@ import com.example.financeflow.data.Category
 import com.example.financeflow.data.CategoryType
 import com.example.financeflow.data.Currency
 import com.example.financeflow.data.ReportPeriod
+import com.example.financeflow.locale.HintPreferences
 import com.example.financeflow.locale.rememberCurrencyFormat
+import com.example.financeflow.ui.components.CancelButton
 import com.example.financeflow.ui.components.CategoryColorPalette
 import com.example.financeflow.ui.components.CategoryIcons
 import com.example.financeflow.ui.components.ConfirmButton
@@ -69,11 +75,13 @@ import com.example.financeflow.ui.components.GlassFab
 import com.example.financeflow.ui.components.GlassRow
 import com.example.financeflow.ui.components.GlassSegmentedControl
 import com.example.financeflow.ui.components.GlassTextField
+import com.example.financeflow.ui.components.InlineHint
 import com.example.financeflow.ui.components.categoryTypeLabel
 import com.example.financeflow.ui.components.periodLabel
 import com.example.financeflow.ui.components.selectionRing
 import com.example.financeflow.ui.components.toCategoryColor
 import com.example.financeflow.ui.theme.GlassTier
+import com.example.financeflow.ui.theme.Radius
 import com.example.financeflow.viewmodel.CategoryDeleteBlockReason
 import com.example.financeflow.viewmodel.CategoryViewModel
 import com.example.financeflow.viewmodel.rememberCategoryViewModel
@@ -88,9 +96,11 @@ fun CategoriesScreen(
     val categories by categoryViewModel.categories.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     var showDialog by remember { mutableStateOf(false) }
     var editingCategory by remember { mutableStateOf<Category?>(null) }
+    var showSwipeHint by remember { mutableStateOf(!HintPreferences.isCategorySwipeHintDismissed(context)) }
     val inUseMessage = stringResource(R.string.categories_delete_blocked)
     val lastOfTypeMessage = stringResource(R.string.categories_delete_blocked_last)
     val deletedMessage = stringResource(R.string.categories_delete_success)
@@ -146,6 +156,17 @@ fun CategoriesScreen(
                     .padding(innerPadding)
                     .padding(horizontal = 16.dp)
             ) {
+                if (showSwipeHint) {
+                    item {
+                        InlineHint(
+                            text = stringResource(R.string.hint_categories_swipe_delete),
+                            onDismiss = {
+                                HintPreferences.dismissCategorySwipeHint(context)
+                                showSwipeHint = false
+                            }
+                        )
+                    }
+                }
                 items(categories, key = { it.id }) { category ->
                     SwipeToDeleteCategoryRow(
                         category = category,
@@ -213,17 +234,32 @@ private fun SwipeToDeleteCategoryRow(
         }
     )
 
+    // Swipe-left only: the reveal icon is docked to the end, so a right-swipe reveal (which
+    // would appear on the opposite side) would leave the icon looking stranded until the drag
+    // reaches the far edge. One direction matches the "swipe left to delete" hint text too.
+    val iconScale by animateFloatAsState(
+        targetValue = if (dismissState.targetValue == SwipeToDismissBoxValue.Settled) 0.7f else 1f,
+        label = "categoryDeleteIconScale"
+    )
+
     SwipeToDismissBox(
         state = dismissState,
+        enableDismissFromStartToEnd = false,
         backgroundContent = {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.tertiaryContainer, MaterialTheme.shapes.small)
+                    .clip(RoundedCornerShape(Radius.extraSmall))
+                    .background(MaterialTheme.colorScheme.tertiaryContainer)
                     .padding(horizontal = 20.dp),
                 contentAlignment = Alignment.CenterEnd
             ) {
-                Icon(PhosphorIcons.Regular.Trash, contentDescription = null, tint = MaterialTheme.colorScheme.tertiary)
+                Icon(
+                    PhosphorIcons.Regular.Trash,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.tertiary,
+                    modifier = Modifier.scale(iconScale)
+                )
             }
         }
     ) {
@@ -423,7 +459,7 @@ private fun AddEditCategoryDialog(
             )
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
+            CancelButton(onClick = onDismiss)
         }
     )
 }

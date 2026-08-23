@@ -17,13 +17,19 @@ import com.adamglin.phosphoricons.regular.PawPrint
 import com.adamglin.phosphoricons.regular.Receipt
 import com.adamglin.phosphoricons.regular.ShoppingCart
 import com.adamglin.phosphoricons.regular.Tag
+import com.adamglin.phosphoricons.regular.User
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.example.financeflow.R
 import com.example.financeflow.data.CategoryType
+import com.example.financeflow.data.TransactionType
 
 object CategoryIcons {
     val Catalog: List<Pair<String, ImageVector>> = listOf(
@@ -70,4 +76,28 @@ fun categoryTypeLabel(type: CategoryType): String = when (type) {
     CategoryType.PERSONAL -> stringResource(R.string.type_personal)
     CategoryType.BUSINESS -> stringResource(R.string.type_business)
     CategoryType.BOTH -> stringResource(R.string.type_both)
+}
+
+// Same Personal/Business icons as TransactionTypeToggle, reused here as a small in-Combined-mode
+// marker on category cards and transaction rows. Null for BOTH categories — they aren't one or
+// the other, so no single icon would be accurate.
+fun CategoryType.indicatorIcon(): ImageVector? = when (this) {
+    CategoryType.PERSONAL -> PhosphorIcons.Regular.User
+    CategoryType.BUSINESS -> PhosphorIcons.Regular.Briefcase
+    CategoryType.BOTH -> null
+}
+
+fun TransactionType.indicatorIcon(): ImageVector = when (this) {
+    TransactionType.PERSONAL -> PhosphorIcons.Regular.User
+    TransactionType.BUSINESS -> PhosphorIcons.Regular.Briefcase
+}
+
+@Composable
+fun TypeIndicatorIcon(icon: ImageVector, modifier: Modifier = Modifier) {
+    Icon(
+        imageVector = icon,
+        contentDescription = null,
+        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = modifier.size(14.dp)
+    )
 }

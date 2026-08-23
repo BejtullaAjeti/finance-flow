@@ -1,5 +1,6 @@
 package com.example.financeflow.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -8,6 +9,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -44,5 +46,27 @@ fun ConfirmButton(
             Icon(Icons.Rounded.Check, contentDescription = null, modifier = Modifier.padding(end = 4.dp))
         }
         Text(stringResource(R.string.action_confirm))
+    }
+}
+
+/**
+ * Shared secondary/dismiss action for every dialog and form — same pill shape and size as
+ * [ConfirmButton], border-only (no fill) per the minimalist policy's "background XOR border"
+ * component rule, so it reads as a matched pair instead of one prominent button next to an
+ * easy-to-miss text link.
+ */
+@Composable
+fun CancelButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    OutlinedButton(
+        onClick = onClick,
+        modifier = modifier,
+        shape = RoundedCornerShape(percent = 50),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.onSurface)
+    ) {
+        Text(stringResource(R.string.action_cancel))
     }
 }

@@ -5,6 +5,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.lifecycle.lifecycleScope
 import com.example.financeflow.data.AppDatabase
 import com.example.financeflow.data.Category
@@ -15,6 +18,8 @@ import com.example.financeflow.locale.LocalePreferences
 import com.example.financeflow.recurring.RecurringRuleProcessor
 import com.example.financeflow.ui.navigation.FinanceFlowApp
 import com.example.financeflow.ui.theme.FinanceFlowTheme
+import com.example.financeflow.ui.theme.ThemeMode
+import com.example.financeflow.ui.theme.ThemePreferences
 import com.example.financeflow.work.RecurringRuleWorker
 import kotlinx.coroutines.launch
 
@@ -36,7 +41,13 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            FinanceFlowTheme {
+            val themeMode by ThemePreferences.flow(applicationContext).collectAsState()
+            val darkTheme = when (themeMode) {
+                ThemeMode.LIGHT -> false
+                ThemeMode.DARK -> true
+                ThemeMode.SYSTEM -> isSystemInDarkTheme()
+            }
+            FinanceFlowTheme(darkTheme = darkTheme) {
                 FinanceFlowApp()
             }
         }

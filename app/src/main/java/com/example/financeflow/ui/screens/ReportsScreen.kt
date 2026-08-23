@@ -53,6 +53,8 @@ import com.example.financeflow.locale.CurrencyPreferences
 import com.example.financeflow.locale.currentAppLocale
 import com.example.financeflow.locale.rememberCurrencyFormat
 import com.example.financeflow.ui.components.TransactionTypeToggle
+import com.example.financeflow.ui.components.TypeIndicatorIcon
+import com.example.financeflow.ui.components.indicatorIcon
 import com.example.financeflow.ui.components.toCategoryColor
 import com.example.financeflow.ui.theme.MoneyFigure
 import com.example.financeflow.viewmodel.CategoryViewModel
@@ -129,7 +131,7 @@ fun ReportsScreen(
                 Spacer(Modifier.height(20.dp))
 
                 if (period == ReportPeriod.DAY) {
-                    DailyReportList(dailyTransactions, categoryNames, uncategorized, currencyFormat, displayCurrency, rates)
+                    DailyReportList(dailyTransactions, categoryNames, uncategorized, currencyFormat, displayCurrency, rates, isCombinedView = type == null)
                 } else {
                     ReportBarChart(barChartData, period, locale)
                 }
@@ -138,7 +140,7 @@ fun ReportsScreen(
 
                 Text(text = stringResource(R.string.report_by_category_title), style = MaterialTheme.typography.titleLarge)
                 Spacer(Modifier.height(8.dp))
-                CategoryPieChart(categoryBreakdown, currencyFormat)
+                CategoryPieChart(categoryBreakdown, currencyFormat, isCombinedView = type == null)
             }
         } else {
             BudgetsScreen()
@@ -153,7 +155,8 @@ private fun DailyReportList(
     uncategorized: String,
     currencyFormat: NumberFormat,
     displayCurrency: Currency,
-    rates: ExchangeRateCache
+    rates: ExchangeRateCache,
+    isCombinedView: Boolean
 ) {
     if (transactions.isEmpty()) {
         Text(text = stringResource(R.string.report_no_transactions_today), style = MaterialTheme.typography.bodyMedium)
@@ -173,7 +176,13 @@ private fun DailyReportList(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Column {
-                        Text(text = categoryNames[transaction.categoryId] ?: uncategorized, style = MaterialTheme.typography.bodyLarge)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = categoryNames[transaction.categoryId] ?: uncategorized, style = MaterialTheme.typography.bodyLarge)
+                            if (isCombinedView) {
+                                Spacer(Modifier.width(6.dp))
+                                TypeIndicatorIcon(transaction.type.indicatorIcon())
+                            }
+                        }
                         transaction.note?.let { Text(text = it, style = MaterialTheme.typography.bodyMedium) }
                     }
                     Column(horizontalAlignment = Alignment.End) {
@@ -263,7 +272,7 @@ private fun bucketLabel(bucket: String, period: ReportPeriod, locale: Locale): S
 // ponytail: Vico (2.1.3) only ships Cartesian layers (column/line/candlestick) — no pie/donut —
 // so the category slice is a plain Canvas arc chart instead of a Vico component.
 @Composable
-private fun CategoryPieChart(slices: List<CategorySlice>, currencyFormat: NumberFormat) {
+private fun CategoryPieChart(slices: List<CategorySlice>, currencyFormat: NumberFormat, isCombinedView: Boolean) {
     val total = slices.sumOf { it.total }
     if (total <= 0.0) {
         Text(text = stringResource(R.string.report_no_spending_period), style = MaterialTheme.typography.bodyMedium)
@@ -312,6 +321,11 @@ private fun CategoryPieChart(slices: List<CategorySlice>, currencyFormat: Number
                         text = "${slice.category.name} · ${currencyFormat.format(slice.total)}",
                         style = MaterialTheme.typography.bodyMedium
                     )
+                    val icon = if (isCombinedView) slice.category.type.indicatorIcon() else null
+                    if (icon != null) {
+                        Spacer(Modifier.width(6.dp))
+                        TypeIndicatorIcon(icon)
+                    }
                 }
             }
         }

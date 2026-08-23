@@ -50,6 +50,8 @@ import com.example.financeflow.ui.components.GlassButton
 import com.example.financeflow.ui.components.GlassCard
 import com.example.financeflow.ui.components.GlassDialog
 import com.example.financeflow.ui.components.GlassSegmentedControl
+import com.example.financeflow.ui.theme.ThemeMode
+import com.example.financeflow.ui.theme.ThemePreferences
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
@@ -71,6 +73,7 @@ fun SettingsScreen(onNavigateToCategories: () -> Unit, onNavigateToRecurring: ()
     val exchangeRateRepository = remember { ExchangeRateRepository(AppDatabase.getInstance(context).exchangeRateDao(), context) }
     val rates by exchangeRateRepository.rates.collectAsState(initial = ExchangeRateCache())
     val displayCurrency by CurrencyPreferences.flow(context).collectAsState()
+    val themeMode by ThemePreferences.flow(context).collectAsState()
     var isRefreshingRates by remember { mutableStateOf(false) }
     val currencyDateFormat = rememberDateFormat("MMM d, yyyy")
     val uriHandler = LocalUriHandler.current
@@ -140,6 +143,27 @@ fun SettingsScreen(onNavigateToCategories: () -> Unit, onNavigateToRecurring: ()
                 (context as? Activity)?.recreate()
             },
             label = { if (it == "sq") albanianLabel else englishLabel }
+        )
+
+        Spacer(Modifier.height(24.dp))
+
+        Text(text = stringResource(R.string.settings_theme), style = MaterialTheme.typography.titleLarge)
+        Spacer(Modifier.height(8.dp))
+
+        val systemThemeLabel = stringResource(R.string.theme_system)
+        val lightThemeLabel = stringResource(R.string.theme_light)
+        val darkThemeLabel = stringResource(R.string.theme_dark)
+        GlassSegmentedControl(
+            options = listOf(ThemeMode.SYSTEM, ThemeMode.LIGHT, ThemeMode.DARK),
+            selected = themeMode,
+            onSelect = { ThemePreferences.set(context, it) },
+            label = {
+                when (it) {
+                    ThemeMode.SYSTEM -> systemThemeLabel
+                    ThemeMode.LIGHT -> lightThemeLabel
+                    ThemeMode.DARK -> darkThemeLabel
+                }
+            }
         )
 
         Spacer(Modifier.height(24.dp))

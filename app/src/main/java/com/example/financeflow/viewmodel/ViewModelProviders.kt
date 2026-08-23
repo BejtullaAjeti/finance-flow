@@ -12,6 +12,7 @@ import com.example.financeflow.data.repository.ExchangeRateRepository
 import com.example.financeflow.data.repository.RecurringRuleRepository
 import com.example.financeflow.data.repository.TransactionRepository
 import com.example.financeflow.locale.CurrencyPreferences
+import com.example.financeflow.recurring.RecurringRuleProcessor
 
 @Composable
 fun rememberTransactionViewModel(): TransactionViewModel {
@@ -43,8 +44,10 @@ fun rememberBudgetViewModel(): BudgetViewModel {
 @Composable
 fun rememberRecurringRuleViewModel(): RecurringRuleViewModel {
     val context = LocalContext.current.applicationContext
-    val repository = remember { RecurringRuleRepository(AppDatabase.getInstance(context).recurringRuleDao()) }
-    return viewModel(factory = viewModelFactory { initializer { RecurringRuleViewModel(repository) } })
+    val db = remember { AppDatabase.getInstance(context) }
+    val repository = remember { RecurringRuleRepository(db.recurringRuleDao()) }
+    val processor = remember { RecurringRuleProcessor(db) }
+    return viewModel(factory = viewModelFactory { initializer { RecurringRuleViewModel(repository, processor) } })
 }
 
 @Composable
