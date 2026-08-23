@@ -14,14 +14,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ChevronRight
+import com.adamglin.PhosphorIcons
+import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.CaretRight
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -50,6 +48,7 @@ import com.example.financeflow.locale.rememberDateFormat
 import com.example.financeflow.ui.components.GlassButton
 import com.example.financeflow.ui.components.GlassCard
 import com.example.financeflow.ui.components.GlassDialog
+import com.example.financeflow.ui.components.GlassSegmentedControl
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
@@ -108,7 +107,7 @@ fun SettingsScreen(onNavigateToCategories: () -> Unit, onNavigateToRecurring: ()
         ) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(text = stringResource(R.string.settings_categories), style = MaterialTheme.typography.bodyLarge)
-                Icon(Icons.Rounded.ChevronRight, contentDescription = null)
+                Icon(PhosphorIcons.Regular.CaretRight, contentDescription = null)
             }
         }
 
@@ -120,7 +119,7 @@ fun SettingsScreen(onNavigateToCategories: () -> Unit, onNavigateToRecurring: ()
         ) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text(text = stringResource(R.string.settings_recurring), style = MaterialTheme.typography.bodyLarge)
-                Icon(Icons.Rounded.ChevronRight, contentDescription = null)
+                Icon(PhosphorIcons.Regular.CaretRight, contentDescription = null)
             }
         }
 
@@ -129,28 +128,18 @@ fun SettingsScreen(onNavigateToCategories: () -> Unit, onNavigateToRecurring: ()
         Text(text = stringResource(R.string.settings_language), style = MaterialTheme.typography.titleLarge)
         Spacer(Modifier.height(8.dp))
 
-        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-            SegmentedButton(
-                icon = {},
-                selected = languageCode == "sq",
-                onClick = {
-                    LocalePreferences.set(context, "sq")
-                    languageCode = "sq"
-                    (context as? Activity)?.recreate()
-                },
-                shape = SegmentedButtonDefaults.itemShape(0, 2)
-            ) { Text(stringResource(R.string.language_albanian)) }
-            SegmentedButton(
-                icon = {},
-                selected = languageCode == "en",
-                onClick = {
-                    LocalePreferences.set(context, "en")
-                    languageCode = "en"
-                    (context as? Activity)?.recreate()
-                },
-                shape = SegmentedButtonDefaults.itemShape(1, 2)
-            ) { Text(stringResource(R.string.language_english)) }
-        }
+        val albanianLabel = stringResource(R.string.language_albanian)
+        val englishLabel = stringResource(R.string.language_english)
+        GlassSegmentedControl(
+            options = listOf("sq", "en"),
+            selected = languageCode,
+            onSelect = { code ->
+                LocalePreferences.set(context, code)
+                languageCode = code
+                (context as? Activity)?.recreate()
+            },
+            label = { if (it == "sq") albanianLabel else englishLabel }
+        )
 
         Spacer(Modifier.height(24.dp))
 
@@ -174,16 +163,12 @@ fun SettingsScreen(onNavigateToCategories: () -> Unit, onNavigateToRecurring: ()
         Text(text = stringResource(R.string.settings_currency_title), style = MaterialTheme.typography.titleLarge)
         Spacer(Modifier.height(8.dp))
 
-        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-            Currency.entries.forEachIndexed { index, option ->
-                SegmentedButton(
-                    icon = {},
-                    selected = displayCurrency == option,
-                    onClick = { CurrencyPreferences.set(context, option) },
-                    shape = SegmentedButtonDefaults.itemShape(index, Currency.entries.size)
-                ) { Text(option.name) }
-            }
-        }
+        GlassSegmentedControl(
+            options = Currency.entries,
+            selected = displayCurrency,
+            onSelect = { CurrencyPreferences.set(context, it) },
+            label = { it.name }
+        )
 
         Spacer(Modifier.height(8.dp))
 
