@@ -33,4 +33,10 @@ class Converters {
 
     @TypeConverter
     fun toCurrency(currency: Currency?): String? = currency?.name
+
+    @TypeConverter
+    fun fromReportPeriod(value: String?): ReportPeriod? = value?.let { ReportPeriod.valueOf(it) }
+
+    @TypeConverter
+    fun toReportPeriod(period: ReportPeriod?): String? = period?.name
 }

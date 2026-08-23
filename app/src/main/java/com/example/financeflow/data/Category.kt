@@ -12,6 +12,7 @@ data class Category(
     val type: CategoryType,
     val budgetLimit: Double? = null,
     val budgetLimitCurrency: Currency = Currency.EUR,
+    val budgetPeriod: ReportPeriod = ReportPeriod.MONTH,
     val icon: String? = null,
     val color: String? = null
 )

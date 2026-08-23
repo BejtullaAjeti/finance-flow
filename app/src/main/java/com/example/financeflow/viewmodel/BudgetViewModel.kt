@@ -5,9 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.financeflow.data.Category
 import com.example.financeflow.data.Currency
 import com.example.financeflow.data.ExchangeRateCache
+import com.example.financeflow.data.ReportPeriod
 import com.example.financeflow.data.Transaction
 import com.example.financeflow.data.TransactionType
 import com.example.financeflow.data.categoryTypeFor
+import com.example.financeflow.data.dateRangeFor
 import com.example.financeflow.data.repository.CategoryRepository
 import com.example.financeflow.data.repository.ExchangeRateRepository
 import com.example.financeflow.data.repository.TransactionRepository
@@ -24,7 +26,8 @@ import java.time.LocalDate
 data class CategoryBudget(
     val category: Category,
     val spent: Double,
-    val limit: Double?
+    val limit: Double?,
+    val period: ReportPeriod
 )
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -41,21 +44,24 @@ class BudgetViewModel(
 
     private val currencyContext = combine(displayCurrency, exchangeRateRepository.rates) { display, rates -> display to rates }
 
+    // Each category can have its own budget period now, so there's no single shared date range
+    // to query by — fetch every (type-filtered) transaction once and let each category pick its
+    // own window from dateRangeFor(), same range logic Reports already uses.
     val budgets: StateFlow<List<CategoryBudget>> = combine(typeFilter, currencyContext) { type, currencyPair -> type to currencyPair }
         .flatMapLatest { (type, currencyPair) ->
             val (display, rates) = currencyPair
-            val monthStart = LocalDate.now().withDayOfMonth(1)
-            val monthEnd = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth())
             combine(
                 categoryRepository.getByType(type?.let(::categoryTypeFor)),
-                transactionRepository.getByTypeAndDateRange(type, monthStart, monthEnd)
+                transactionRepository.getByType(type)
             ) { categories, transactions ->
-                val spent = spentByCategory(transactions, display, rates)
+                val today = LocalDate.now()
                 categories.map { category ->
+                    val range = dateRangeFor(category.budgetPeriod, today)
+                    val spent = spentForCategory(transactions, category.id, range, display, rates)
                     val convertedLimit = category.budgetLimit?.let { limit ->
                         ExchangeRateRepository.convert(limit, category.budgetLimitCurrency, display, rates)
                     }
-                    CategoryBudget(category, spent[category.id] ?: 0.0, convertedLimit)
+                    CategoryBudget(category, spent, convertedLimit, category.budgetPeriod)
                 }
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
@@ -71,5 +77,19 @@ class BudgetViewModel(
                 .filter { !it.isIncome }
                 .groupBy { it.categoryId }
                 .mapValues { (_, txns) -> txns.sumOf { ExchangeRateRepository.convert(it.amount, it.currency, display, rates) } }
+
+        // Per-category equivalent of spentByCategory, for when categories don't share one date
+        // range (each budget period picks its own window via dateRangeFor before calling this).
+        fun spentForCategory(
+            transactions: List<Transaction>,
+            categoryId: Long,
+            dateRange: Pair<LocalDate, LocalDate>,
+            display: Currency,
+            rates: ExchangeRateCache
+        ): Double =
+            transactions
+                .asSequence()
+                .filter { it.categoryId == categoryId && !it.isIncome && it.date in dateRange.first..dateRange.second }
+                .sumOf { ExchangeRateRepository.convert(it.amount, it.currency, display, rates) }
     }
 }

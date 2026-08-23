@@ -41,7 +41,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.financeflow.R
 import com.example.financeflow.data.Category
+import com.example.financeflow.data.CategoryType
 import com.example.financeflow.data.Currency
+import com.example.financeflow.data.ReportPeriod
+import com.example.financeflow.data.categoryTypeFor
 import com.example.financeflow.locale.CurrencyPreferences
 import com.example.financeflow.locale.rememberCurrencyFormat
 import com.example.financeflow.ui.components.CategoryIcons
@@ -52,7 +55,9 @@ import com.example.financeflow.ui.components.GlassFilterChip
 import com.example.financeflow.ui.components.GlassSegmentedControl
 import com.example.financeflow.ui.components.GlassTextField
 import com.example.financeflow.ui.components.InlineHint
+import com.example.financeflow.ui.components.QuickAddCategoryDialog
 import com.example.financeflow.ui.components.TransactionTypeToggle
+import com.example.financeflow.ui.components.periodLabel
 import com.example.financeflow.ui.components.toCategoryColor
 import com.example.financeflow.ui.theme.Expense
 import com.example.financeflow.ui.theme.GlassAlpha
@@ -134,13 +139,17 @@ fun BudgetsScreen(
         }
     }
 
+    val defaultCategoryType = typeFilter?.let(::categoryTypeFor) ?: CategoryType.BOTH
+
     editingCategory?.let { category ->
         SetBudgetDialog(
             fixedCategory = category,
             pickableCategories = emptyList(),
+            defaultCategoryType = defaultCategoryType,
+            categoryViewModel = categoryViewModel,
             onDismiss = { editingCategory = null },
-            onSave = { selected, amount, currency ->
-                categoryViewModel.updateCategory(selected.copy(budgetLimit = amount, budgetLimitCurrency = currency))
+            onSave = { selected, amount, currency, period ->
+                categoryViewModel.updateCategory(selected.copy(budgetLimit = amount, budgetLimitCurrency = currency, budgetPeriod = period))
                 editingCategory = null
             }
         )
@@ -150,9 +159,11 @@ fun BudgetsScreen(
         SetBudgetDialog(
             fixedCategory = null,
             pickableCategories = unbudgeted,
+            defaultCategoryType = defaultCategoryType,
+            categoryViewModel = categoryViewModel,
             onDismiss = { pickingCategory = false },
-            onSave = { selected, amount, currency ->
-                categoryViewModel.updateCategory(selected.copy(budgetLimit = amount, budgetLimitCurrency = currency))
+            onSave = { selected, amount, currency, period ->
+                categoryViewModel.updateCategory(selected.copy(budgetLimit = amount, budgetLimitCurrency = currency, budgetPeriod = period))
                 pickingCategory = false
             }
         )
@@ -211,7 +222,8 @@ private fun BudgetCard(budget: CategoryBudget, currencyFormat: NumberFormat, onC
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = stringResource(R.string.budget_spent_of_limit, currencyFormat.format(budget.spent), currencyFormat.format(limit)),
+                    text = stringResource(R.string.budget_spent_of_limit, currencyFormat.format(budget.spent), currencyFormat.format(limit)) +
+                        " · " + periodLabel(budget.period),
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Text(
@@ -243,14 +255,19 @@ private fun BudgetCard(budget: CategoryBudget, currencyFormat: NumberFormat, onC
 private fun SetBudgetDialog(
     fixedCategory: Category?,
     pickableCategories: List<Category>,
+    defaultCategoryType: CategoryType,
+    categoryViewModel: CategoryViewModel,
     onDismiss: () -> Unit,
-    onSave: (Category, Double, Currency) -> Unit
+    onSave: (Category, Double, Currency, ReportPeriod) -> Unit
 ) {
     var selected by remember { mutableStateOf(fixedCategory) }
     var amountText by remember { mutableStateOf(fixedCategory?.budgetLimit?.toString().orEmpty()) }
     var currency by remember { mutableStateOf(fixedCategory?.budgetLimitCurrency ?: Currency.EUR) }
+    var period by remember { mutableStateOf(fixedCategory?.budgetPeriod ?: ReportPeriod.MONTH) }
+    var showQuickAddCategory by remember { mutableStateOf(false) }
 
     val canSave = selected != null && amountText.toDoubleOrNull()?.let { it > 0 } == true
+    val periodLabels = ReportPeriod.entries.associateWith { periodLabel(it) }
 
     GlassDialog(
         onDismissRequest = onDismiss,
@@ -266,6 +283,11 @@ private fun SetBudgetDialog(
                                 label = { Text(category.name) }
                             )
                         }
+                        GlassFilterChip(
+                            selected = false,
+                            onClick = { showQuickAddCategory = true },
+                            label = { Text(stringResource(R.string.categories_add_new_chip)) }
+                        )
                     }
                     Spacer(Modifier.height(16.dp))
                 }
@@ -291,6 +313,15 @@ private fun SetBudgetDialog(
                     onSelect = { currency = it },
                     label = { it.name }
                 )
+
+                Spacer(Modifier.height(8.dp))
+
+                GlassSegmentedControl(
+                    options = ReportPeriod.entries,
+                    selected = period,
+                    onSelect = { period = it },
+                    label = { periodLabels[it] ?: "" }
+                )
             }
         },
         confirmButton = {
@@ -299,7 +330,7 @@ private fun SetBudgetDialog(
                 onClick = {
                     val category = selected ?: return@TextButton
                     val amount = amountText.toDoubleOrNull() ?: return@TextButton
-                    onSave(category, amount, currency)
+                    onSave(category, amount, currency, period)
                 }
             ) { Text(stringResource(R.string.action_save)) }
         },
@@ -307,4 +338,17 @@ private fun SetBudgetDialog(
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }
         }
     )
+
+    if (showQuickAddCategory) {
+        QuickAddCategoryDialog(
+            defaultType = defaultCategoryType,
+            onDismiss = { showQuickAddCategory = false },
+            onSave = { category ->
+                categoryViewModel.addCategory(category) { id ->
+                    selected = category.copy(id = id)
+                }
+                showQuickAddCategory = false
+            }
+        )
+    }
 }

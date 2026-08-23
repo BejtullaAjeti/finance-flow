@@ -39,6 +39,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.financeflow.ui.components.GlassRow
 import com.example.financeflow.ui.components.GlassSegmentedControl
+import com.example.financeflow.ui.components.periodLabel
 import com.example.financeflow.ui.theme.Spacing
 import com.example.financeflow.R
 import com.example.financeflow.data.AppDatabase
@@ -77,16 +78,6 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.util.Locale
-
-// ponytail: resolved via a @Composable function (not a top-level val map) so the labels
-// re-resolve on recomposition instead of being frozen in whatever locale was active at class-load.
-@Composable
-private fun periodLabel(period: ReportPeriod): String = when (period) {
-    ReportPeriod.DAY -> stringResource(R.string.label_daily)
-    ReportPeriod.WEEK -> stringResource(R.string.label_weekly)
-    ReportPeriod.MONTH -> stringResource(R.string.label_monthly)
-    ReportPeriod.YEAR -> stringResource(R.string.label_yearly)
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
