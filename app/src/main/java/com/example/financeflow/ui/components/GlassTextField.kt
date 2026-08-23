@@ -7,15 +7,9 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.example.financeflow.ui.theme.GlassTier
-import com.example.financeflow.ui.theme.spec
 
-/**
- * Glass-tinted drop-in for M3's OutlinedTextField. M3's `OutlinedTextFieldDefaults.colors` only
- * accepts solid border colors (not the app's gradient glass borders), so the focused/unfocused
- * border falls back to the theme's primary/outline colors — the container fill still carries the
- * tier's glass look.
- */
+/** Thin drop-in for M3's OutlinedTextField — border-only per the minimalist policy (spec §6),
+ * kept as a named wrapper so call sites don't need to change. */
 @Composable
 fun GlassTextField(
     value: String,
@@ -26,10 +20,8 @@ fun GlassTextField(
     trailingIcon: (@Composable () -> Unit)? = null,
     singleLine: Boolean = true,
     readOnly: Boolean = false,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    tier: GlassTier = GlassTier.Card
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 ) {
-    val spec = tier.spec()
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
@@ -41,11 +33,6 @@ fun GlassTextField(
         readOnly = readOnly,
         keyboardOptions = keyboardOptions,
         shape = MaterialTheme.shapes.medium,
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedContainerColor = spec.fill,
-            unfocusedContainerColor = spec.fill,
-            focusedBorderColor = MaterialTheme.colorScheme.primary,
-            unfocusedBorderColor = MaterialTheme.colorScheme.outline
-        )
+        colors = OutlinedTextFieldDefaults.colors()
     )
 }

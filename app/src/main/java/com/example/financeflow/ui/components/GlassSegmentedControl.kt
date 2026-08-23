@@ -20,16 +20,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
-import com.example.financeflow.ui.theme.GlassTier
 import com.example.financeflow.ui.theme.Radius
 import com.example.financeflow.ui.theme.Spacing
-import com.example.financeflow.ui.theme.spec
 
-/**
- * Animated glass-tinted replacement for M3's SingleChoiceSegmentedButtonRow/SegmentedButton —
- * used for every segmented control in the app (type toggles, tabs, period pickers, settings
- * rows) so selection reads as a smooth crossfade instead of an instant swap.
- */
+/** Flat Surface-background segmented control — selected segment is a solid Primary fill. Used
+ * for every segmented control in the app (type toggles, tabs, period pickers, settings rows). */
 @Composable
 fun <T> GlassSegmentedControl(
     options: List<T>,
@@ -39,18 +34,17 @@ fun <T> GlassSegmentedControl(
     modifier: Modifier = Modifier,
     icon: ((T) -> ImageVector?)? = null
 ) {
-    val outerSpec = GlassTier.Row.spec()
     Row(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(Radius.small))
-            .background(outerSpec.fill)
+            .background(MaterialTheme.colorScheme.surface)
             .padding(Spacing.xs)
     ) {
         options.forEach { option ->
             val isSelected = option == selected
             val segmentColor by animateColorAsState(
-                targetValue = if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.9f) else Color.Transparent,
+                targetValue = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
                 animationSpec = tween(180),
                 label = "segmentBackground"
             )

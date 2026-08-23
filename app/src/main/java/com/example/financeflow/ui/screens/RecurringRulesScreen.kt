@@ -19,7 +19,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -42,9 +41,6 @@ import com.example.financeflow.ui.components.GlassRow
 import com.example.financeflow.ui.components.InlineHint
 import com.example.financeflow.ui.components.LocalSnackbarController
 import com.example.financeflow.ui.components.TransactionTypeToggle
-import com.example.financeflow.ui.theme.Expense
-import com.example.financeflow.ui.theme.GlassAlpha
-import com.example.financeflow.ui.theme.Income
 import com.example.financeflow.ui.theme.MoneyFigure
 import com.example.financeflow.viewmodel.CategoryViewModel
 import com.example.financeflow.viewmodel.RecurringRuleViewModel
@@ -150,13 +146,14 @@ private fun RecurringRuleRow(
                 )
                 Text(
                     text = stringResource(R.string.recurring_row_category_frequency, categoryName, frequencyLabel(rule)),
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = stringResource(R.string.recurring_row_next_due, rule.nextDueDate.format(dateFormat)),
-                    style = MaterialTheme.typography.labelSmall,
+                    style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -168,15 +165,11 @@ private fun RecurringRuleRow(
                 Text(
                     text = "$sign${currencyFormat.format(rule.amount)}",
                     style = MoneyFigure,
-                    color = if (rule.isIncome) Income else Expense
+                    color = if (rule.isIncome) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.tertiary
                 )
                 Switch(
                     checked = rule.active,
-                    onCheckedChange = onToggleActive,
-                    colors = SwitchDefaults.colors(
-                        checkedThumbColor = MaterialTheme.colorScheme.primary,
-                        checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = GlassAlpha.selectedTint)
-                    )
+                    onCheckedChange = onToggleActive
                 )
             }
         }

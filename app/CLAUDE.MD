@@ -112,15 +112,25 @@ This single-table-with-a-type-tag design is what lets you view personal-only, bu
 - Keep the "add transaction" flow to 2 taps max — this is what makes logging actually stick
 - Consistent icon per category so lists are scannable without reading text
 
-**Glassmorphism (modern frosted-glass look):**
-- Achieved via a 4-tier elevation system (`GlassTier` in `ui/theme/GlassTier.kt`): `Row` (list
-  rows — faint fill, no blur/shadow, tuned low specifically so financial figures stay scannable),
-  `Card` (summary/budget cards, settings rows), `Interactive` (buttons, chips, FAB — brighter, to
-  cue tappability), `Overlay` (dialogs — boldest). Nothing in the UI is flat except the base
-  background.
-- Legibility is still the hard constraint on dense lists — that's *why* `Row` is the most
-  restrained tier, not a reason to avoid glass there entirely.
-- Pair with a dark or muted background so the frosted cards have contrast to "float" against
+**Minimalist flat design (as of the 2026-08-23 pass):**
+- Solid colors only — no transparency, no blur, no shadows anywhere in the UI.
+- Light/dark palette follows the system setting (`isSystemInDarkTheme()`); see
+  `ui/theme/Color.kt`/`ui/theme/Theme.kt`/`ui/theme/ExtendedColors.kt` for both palettes.
+- Component policy is "background XOR border, zero shadow" — which one applies is decided by
+  component *type*: list rows and dialogs get a Surface fill and no border; buttons/FAB/selected
+  chips/selected segments get a solid Primary fill and no border; unselected chips and text
+  fields are border-only, no fill. Featured cards (Home's summary, Budgets' cards) get an Accent
+  fill instead of Surface — everything else that used to read as "glass" now reads as flat
+  Surface.
+- `GlassCard`/`GlassRow`/`GlassButton`/`GlassTextField`/`GlassSegmentedControl`/`GlassDialog`/
+  `GlassFilterChip`/`GlassFab` keep their names from the prior glass-era pass (renaming them
+  would touch every call site for no behavioral benefit) but are now flat solid-color
+  implementations — none of them draw a gradient border, blur, or shadow.
+- `ConfirmButton` (`ui/components/ConfirmButton.kt`) is the one shared primary/affirmative action
+  for every dialog and form — always labeled "Confirm", a pill shape, Income-green when enabled.
+- `CalendarDialog` (`ui/components/CalendarDialog.kt`) replaces M3's stock `DatePickerDialog` for
+  single-date fields (`DateField`); the Transactions screen's date *range* picker still uses M3's
+  stock `DateRangePicker`, which has no flat custom replacement in this codebase.
 
 ---
 

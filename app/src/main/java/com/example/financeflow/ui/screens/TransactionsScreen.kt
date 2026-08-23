@@ -1,5 +1,6 @@
 package com.example.financeflow.ui.screens
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.CalendarBlank
@@ -59,6 +61,7 @@ import com.example.financeflow.ui.components.GlassTextField
 import com.example.financeflow.ui.components.TransactionRow
 import com.example.financeflow.ui.components.TransactionTypeToggle
 import com.example.financeflow.ui.theme.GlassTier
+import com.example.financeflow.ui.theme.Radius
 import com.example.financeflow.viewmodel.CategoryViewModel
 import com.example.financeflow.viewmodel.TransactionViewModel
 import com.example.financeflow.viewmodel.rememberCategoryViewModel
@@ -219,20 +222,19 @@ private fun DateRangeField(start: LocalDate?, end: LocalDate?, onClick: () -> Un
         else -> stringResource(R.string.date_range_until, end!!.format(formatter))
     }
 
-    GlassCard(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
-        contentPadding = 16.dp
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(Radius.extraSmall))
+            .clickable(onClick = onClick)
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column {
-                Text(text = stringResource(R.string.date_range_label), style = MaterialTheme.typography.labelSmall)
-                Text(text = label, style = MaterialTheme.typography.bodyLarge)
-            }
-            Icon(PhosphorIcons.Regular.CalendarBlank, contentDescription = stringResource(R.string.date_range_change_content_description))
+        Column {
+            Text(text = stringResource(R.string.date_range_label), style = MaterialTheme.typography.labelSmall)
+            Text(text = label, style = MaterialTheme.typography.bodyLarge)
         }
+        Icon(PhosphorIcons.Regular.CalendarBlank, contentDescription = stringResource(R.string.date_range_change_content_description))
     }
 }
 

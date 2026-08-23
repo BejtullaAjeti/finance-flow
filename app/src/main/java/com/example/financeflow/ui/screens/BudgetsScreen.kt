@@ -48,6 +48,7 @@ import com.example.financeflow.data.categoryTypeFor
 import com.example.financeflow.locale.CurrencyPreferences
 import com.example.financeflow.locale.rememberCurrencyFormat
 import com.example.financeflow.ui.components.CategoryIcons
+import com.example.financeflow.ui.components.ConfirmButton
 import com.example.financeflow.ui.components.GlassCard
 import com.example.financeflow.ui.components.GlassDialog
 import com.example.financeflow.ui.components.GlassFab
@@ -59,10 +60,7 @@ import com.example.financeflow.ui.components.QuickAddCategoryDialog
 import com.example.financeflow.ui.components.TransactionTypeToggle
 import com.example.financeflow.ui.components.periodLabel
 import com.example.financeflow.ui.components.toCategoryColor
-import com.example.financeflow.ui.theme.Expense
-import com.example.financeflow.ui.theme.GlassAlpha
-import com.example.financeflow.ui.theme.Income
-import com.example.financeflow.ui.theme.Warning
+import com.example.financeflow.ui.theme.extendedColors
 import com.example.financeflow.viewmodel.BudgetViewModel
 import com.example.financeflow.viewmodel.CategoryBudget
 import com.example.financeflow.viewmodel.CategoryViewModel
@@ -175,7 +173,10 @@ private fun BudgetCard(budget: CategoryBudget, currencyFormat: NumberFormat, onC
     val limit = budget.limit
     val swatch = budget.category.color.toCategoryColor()
 
-    GlassCard(modifier = Modifier.fillMaxWidth().clickable(onClick = onClick)) {
+    GlassCard(
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
+        containerColor = MaterialTheme.extendedColors.accent
+    ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 CategoryIcons.resolve(budget.category.icon),
@@ -191,28 +192,34 @@ private fun BudgetCard(budget: CategoryBudget, currencyFormat: NumberFormat, onC
         if (limit == null) {
             Text(
                 text = stringResource(R.string.budget_spent_no_limit, currencyFormat.format(budget.spent)),
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(Modifier.height(4.dp))
             Text(
                 text = stringResource(R.string.budget_not_set),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.primary
             )
         } else {
             val fraction = if (limit > 0) (budget.spent / limit).toFloat() else 0f
             val isOverBudget = budget.spent > limit
             val statusColor = when {
-                fraction >= 1f -> Expense
-                fraction >= 0.8f -> Warning
-                else -> Income
+                fraction >= 1f -> MaterialTheme.colorScheme.tertiary
+                fraction >= 0.8f -> MaterialTheme.extendedColors.warning
+                else -> MaterialTheme.colorScheme.secondary
+            }
+            val statusContainerColor = when {
+                fraction >= 1f -> MaterialTheme.colorScheme.tertiaryContainer
+                fraction >= 0.8f -> MaterialTheme.extendedColors.warningContainer
+                else -> MaterialTheme.colorScheme.secondaryContainer
             }
 
             LinearProgressIndicator(
                 progress = { fraction.coerceIn(0f, 1f) },
                 modifier = Modifier.fillMaxWidth().height(8.dp),
                 color = statusColor,
-                trackColor = statusColor.copy(alpha = GlassAlpha.trackTint)
+                trackColor = statusContainerColor
             )
 
             Spacer(Modifier.height(8.dp))
@@ -224,7 +231,8 @@ private fun BudgetCard(budget: CategoryBudget, currencyFormat: NumberFormat, onC
                 Text(
                     text = stringResource(R.string.budget_spent_of_limit, currencyFormat.format(budget.spent), currencyFormat.format(limit)) +
                         " · " + periodLabel(budget.period),
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
                     text = "${(fraction * 100).roundToInt()}%",
@@ -236,12 +244,12 @@ private fun BudgetCard(budget: CategoryBudget, currencyFormat: NumberFormat, onC
             if (isOverBudget) {
                 Spacer(Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(PhosphorIcons.Fill.WarningCircle, contentDescription = null, tint = Expense)
+                    Icon(PhosphorIcons.Fill.WarningCircle, contentDescription = null, tint = MaterialTheme.colorScheme.tertiary)
                     Spacer(Modifier.width(4.dp))
                     Text(
                         text = stringResource(R.string.budget_over_amount, currencyFormat.format(budget.spent - limit)),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Expense
+                        color = MaterialTheme.colorScheme.tertiary
                     )
                 }
             }
@@ -325,14 +333,14 @@ private fun SetBudgetDialog(
             }
         },
         confirmButton = {
-            TextButton(
+            ConfirmButton(
                 enabled = canSave,
                 onClick = {
-                    val category = selected ?: return@TextButton
-                    val amount = amountText.toDoubleOrNull() ?: return@TextButton
+                    val category = selected ?: return@ConfirmButton
+                    val amount = amountText.toDoubleOrNull() ?: return@ConfirmButton
                     onSave(category, amount, currency, period)
                 }
-            ) { Text(stringResource(R.string.action_save)) }
+            )
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }

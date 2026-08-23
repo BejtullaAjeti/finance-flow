@@ -50,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -61,6 +62,7 @@ import com.example.financeflow.data.ReportPeriod
 import com.example.financeflow.locale.rememberCurrencyFormat
 import com.example.financeflow.ui.components.CategoryColorPalette
 import com.example.financeflow.ui.components.CategoryIcons
+import com.example.financeflow.ui.components.ConfirmButton
 import com.example.financeflow.ui.components.GlassCard
 import com.example.financeflow.ui.components.GlassDialog
 import com.example.financeflow.ui.components.GlassFab
@@ -71,8 +73,6 @@ import com.example.financeflow.ui.components.categoryTypeLabel
 import com.example.financeflow.ui.components.periodLabel
 import com.example.financeflow.ui.components.selectionRing
 import com.example.financeflow.ui.components.toCategoryColor
-import com.example.financeflow.ui.theme.Expense
-import com.example.financeflow.ui.theme.GlassAlpha
 import com.example.financeflow.ui.theme.GlassTier
 import com.example.financeflow.viewmodel.CategoryDeleteBlockReason
 import com.example.financeflow.viewmodel.CategoryViewModel
@@ -219,11 +219,11 @@ private fun SwipeToDeleteCategoryRow(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Expense.copy(alpha = GlassAlpha.destructiveTint), MaterialTheme.shapes.small)
+                    .background(MaterialTheme.colorScheme.tertiaryContainer, MaterialTheme.shapes.small)
                     .padding(horizontal = 20.dp),
                 contentAlignment = Alignment.CenterEnd
             ) {
-                Icon(PhosphorIcons.Regular.Trash, contentDescription = null, tint = Expense)
+                Icon(PhosphorIcons.Regular.Trash, contentDescription = null, tint = MaterialTheme.colorScheme.tertiary)
             }
         }
     ) {
@@ -249,10 +249,14 @@ private fun CategoryRow(
             Box(
                 modifier = Modifier
                     .size(40.dp)
-                    .background(swatch.copy(alpha = GlassAlpha.containerTint), CircleShape),
+                    .background(swatch, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(CategoryIcons.resolve(category.icon), contentDescription = null, tint = swatch)
+                Icon(
+                    CategoryIcons.resolve(category.icon),
+                    contentDescription = null,
+                    tint = if (swatch.luminance() > 0.5f) Color.Black else Color.White
+                )
             }
             Spacer(Modifier.width(12.dp))
             Column {
@@ -340,7 +344,6 @@ private fun AddEditCategoryDialog(
                                 .size(40.dp)
                                 .selectionRing(selected = selected, shape = CircleShape, color = color.toCategoryColor())
                                 .clip(CircleShape)
-                                .background(if (selected) color.toCategoryColor().copy(alpha = GlassAlpha.selectedTint) else Color.Transparent)
                                 .clickable { icon = key },
                             contentAlignment = Alignment.Center
                         ) {
@@ -353,24 +356,22 @@ private fun AddEditCategoryDialog(
 
                 Text(stringResource(R.string.categories_color_label), style = MaterialTheme.typography.labelSmall)
                 Spacer(Modifier.height(4.dp))
-                GlassCard(modifier = Modifier.fillMaxWidth(), contentPadding = 12.dp) {
-                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        CategoryColorPalette.forEach { hex ->
-                            val swatchColor = hex.toCategoryColor()
-                            Box(
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .selectionRing(
-                                        selected = color == hex,
-                                        shape = CircleShape,
-                                        color = MaterialTheme.colorScheme.onSurface,
-                                        width = 3.dp
-                                    )
-                                    .clip(CircleShape)
-                                    .background(swatchColor, CircleShape)
-                                    .clickable { color = hex }
-                            )
-                        }
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    CategoryColorPalette.forEach { hex ->
+                        val swatchColor = hex.toCategoryColor()
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .selectionRing(
+                                    selected = color == hex,
+                                    shape = CircleShape,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    width = 3.dp
+                                )
+                                .clip(CircleShape)
+                                .background(swatchColor, CircleShape)
+                                .clickable { color = hex }
+                        )
                     }
                 }
 
@@ -400,7 +401,7 @@ private fun AddEditCategoryDialog(
             }
         },
         confirmButton = {
-            TextButton(
+            ConfirmButton(
                 enabled = name.isNotBlank(),
                 onClick = {
                     onSave(
@@ -419,7 +420,7 @@ private fun AddEditCategoryDialog(
                         )
                     )
                 }
-            ) { Text(stringResource(R.string.action_save)) }
+            )
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }

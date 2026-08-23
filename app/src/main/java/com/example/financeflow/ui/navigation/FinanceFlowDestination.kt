@@ -53,3 +53,8 @@ private const val ADD_EDIT_RECURRING_RULE_BASE_ROUTE = "recurring_rule"
 const val ADD_EDIT_RECURRING_RULE_ROUTE = "$ADD_EDIT_RECURRING_RULE_BASE_ROUTE?ruleId={ruleId}"
 
 fun editRecurringRuleRoute(ruleId: Long) = "$ADD_EDIT_RECURRING_RULE_BASE_ROUTE?ruleId=$ruleId"
+
+fun FinanceFlowDestination.matchesCurrentRoute(currentRoute: String?): Boolean = when (this) {
+    FinanceFlowDestination.Settings -> currentRoute == route || currentRoute == CATEGORIES_ROUTE || currentRoute == RECURRING_ROUTE
+    else -> currentRoute == route
+}

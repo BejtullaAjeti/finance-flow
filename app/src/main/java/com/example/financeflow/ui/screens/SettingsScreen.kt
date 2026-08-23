@@ -45,6 +45,7 @@ import com.example.financeflow.data.repository.ExchangeRateRepository
 import com.example.financeflow.locale.CurrencyPreferences
 import com.example.financeflow.locale.LocalePreferences
 import com.example.financeflow.locale.rememberDateFormat
+import com.example.financeflow.ui.components.ConfirmButton
 import com.example.financeflow.ui.components.GlassButton
 import com.example.financeflow.ui.components.GlassCard
 import com.example.financeflow.ui.components.GlassDialog
@@ -205,7 +206,7 @@ fun SettingsScreen(onNavigateToCategories: () -> Unit, onNavigateToRecurring: ()
             title = { Text(stringResource(R.string.backup_import_confirm_title)) },
             text = { Text(stringResource(R.string.backup_import_confirm_body)) },
             confirmButton = {
-                TextButton(onClick = {
+                ConfirmButton(enabled = true, onClick = {
                     pendingImportUri = null
                     scope.launch {
                         statusMessage = try {
@@ -217,7 +218,7 @@ fun SettingsScreen(onNavigateToCategories: () -> Unit, onNavigateToRecurring: ()
                             importFailedMessage
                         }
                     }
-                }) { Text(stringResource(R.string.backup_import_confirm_action)) }
+                })
             },
             dismissButton = {
                 TextButton(onClick = { pendingImportUri = null }) { Text(stringResource(R.string.action_cancel)) }

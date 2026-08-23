@@ -40,9 +40,8 @@ import com.example.financeflow.ui.components.GlassCard
 import com.example.financeflow.ui.components.GlassFab
 import com.example.financeflow.ui.components.TransactionRow
 import com.example.financeflow.ui.components.TransactionTypeToggle
-import com.example.financeflow.ui.theme.Expense
-import com.example.financeflow.ui.theme.Income
-import com.example.financeflow.ui.theme.MoneyFigure
+import com.example.financeflow.ui.theme.MoneyFigureLarge
+import com.example.financeflow.ui.theme.extendedColors
 import com.example.financeflow.viewmodel.CategoryViewModel
 import com.example.financeflow.viewmodel.TransactionViewModel
 import com.example.financeflow.viewmodel.rememberCategoryViewModel
@@ -92,21 +91,21 @@ fun HomeScreen(
 
             Crossfade(targetState = typeFilter, label = "homeTypeFilterContent") { _ ->
                 Column {
-                    GlassCard(modifier = Modifier.fillMaxWidth()) {
+                    GlassCard(modifier = Modifier.fillMaxWidth(), containerColor = MaterialTheme.extendedColors.accent) {
                         Text(text = stringResource(R.string.home_this_month_title), style = MaterialTheme.typography.titleLarge)
                         Row(
                             modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(text = stringResource(R.string.toggle_income), style = MaterialTheme.typography.bodyMedium)
-                            Text(text = currencyFormat.format(summary.income), style = MoneyFigure, color = Income)
+                            Text(text = currencyFormat.format(summary.income), style = MoneyFigureLarge, color = MaterialTheme.colorScheme.secondary)
                         }
                         Row(
                             modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(text = stringResource(R.string.home_expenses_label), style = MaterialTheme.typography.bodyMedium)
-                            Text(text = currencyFormat.format(summary.expense), style = MoneyFigure, color = Expense)
+                            Text(text = currencyFormat.format(summary.expense), style = MoneyFigureLarge, color = MaterialTheme.colorScheme.tertiary)
                         }
                     }
 

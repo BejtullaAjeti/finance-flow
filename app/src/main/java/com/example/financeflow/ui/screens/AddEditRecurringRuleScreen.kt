@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,6 +41,7 @@ import com.example.financeflow.data.RecurringRule
 import com.example.financeflow.data.TransactionType
 import com.example.financeflow.data.categoryTypeFor
 import com.example.financeflow.locale.CurrencyPreferences
+import com.example.financeflow.ui.components.ConfirmButton
 import com.example.financeflow.ui.components.DateField
 import com.example.financeflow.ui.components.GlassFilterChip
 import com.example.financeflow.viewmodel.CategoryViewModel
@@ -138,12 +138,14 @@ fun AddEditRecurringRuleScreen(
                     IconButton(onClick = onDone) {
                         Icon(Icons.Rounded.ArrowBack, contentDescription = stringResource(R.string.action_cancel))
                     }
-                },
-                actions = {
-                    IconButton(onClick = ::save, enabled = canSave) {
-                        Icon(Icons.Rounded.Check, contentDescription = stringResource(R.string.action_save))
-                    }
                 }
+            )
+        },
+        bottomBar = {
+            ConfirmButton(
+                enabled = canSave,
+                onClick = ::save,
+                modifier = Modifier.fillMaxWidth().padding(16.dp)
             )
         }
     ) { innerPadding ->

@@ -1,6 +1,5 @@
 package com.example.financeflow.ui.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import com.example.financeflow.R
 import com.example.financeflow.data.Category
 import com.example.financeflow.data.CategoryType
-import com.example.financeflow.ui.theme.GlassAlpha
 
 // Lightweight: name + type + icon only, unlike the full category management dialog in
 // CategoriesScreen which also handles color and budget — those stay reachable from Settings.
@@ -85,9 +83,6 @@ fun QuickAddCategoryDialog(
                                     color = MaterialTheme.colorScheme.primary
                                 )
                                 .clip(CircleShape)
-                                .background(
-                                    if (selected) MaterialTheme.colorScheme.primary.copy(alpha = GlassAlpha.selectedTint) else Color.Transparent
-                                )
                                 .clickable { icon = key },
                             contentAlignment = Alignment.Center
                         ) {
@@ -98,10 +93,10 @@ fun QuickAddCategoryDialog(
             }
         },
         confirmButton = {
-            TextButton(
+            ConfirmButton(
                 enabled = name.isNotBlank(),
                 onClick = { onSave(Category(name = name.trim(), type = type, icon = icon)) }
-            ) { Text(stringResource(R.string.action_save)) }
+            )
         },
         dismissButton = {
             TextButton(onClick = onDismiss) { Text(stringResource(R.string.action_cancel)) }

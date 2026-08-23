@@ -54,8 +54,6 @@ import com.example.financeflow.locale.currentAppLocale
 import com.example.financeflow.locale.rememberCurrencyFormat
 import com.example.financeflow.ui.components.TransactionTypeToggle
 import com.example.financeflow.ui.components.toCategoryColor
-import com.example.financeflow.ui.theme.Expense
-import com.example.financeflow.ui.theme.Income
 import com.example.financeflow.ui.theme.MoneyFigure
 import com.example.financeflow.viewmodel.CategoryViewModel
 import com.example.financeflow.viewmodel.CategorySlice
@@ -183,9 +181,13 @@ private fun DailyReportList(
                         Text(
                             text = "$sign${currencyFormat.format(convertedAmount)}",
                             style = MoneyFigure,
-                            color = if (transaction.isIncome) Income else Expense
+                            color = if (transaction.isIncome) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.tertiary
                         )
-                        Text(text = stringResource(R.string.report_running_total, currencyFormat.format(running)), style = MaterialTheme.typography.bodyMedium)
+                        Text(
+                            text = stringResource(R.string.report_running_total, currencyFormat.format(running)),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
             }
@@ -274,17 +276,19 @@ private fun CategoryPieChart(slices: List<CategorySlice>, currencyFormat: Number
         progress.animateTo(1f, animationSpec = tween(durationMillis = 700))
     }
 
+    val sliceColors = slices.map { it.category.color.toCategoryColor() }
+
     Row(verticalAlignment = Alignment.CenterVertically) {
         Canvas(modifier = Modifier.size(140.dp)) {
             var startAngle = -90f
             var cumulativeDegrees = 0f
             val animatedTotalDegrees = 360f * progress.value
-            slices.forEach { slice ->
+            slices.forEachIndexed { index, slice ->
                 val fullSweep = (slice.total / total * 360.0).toFloat()
                 val drawnSweep = (animatedTotalDegrees - cumulativeDegrees).coerceIn(0f, fullSweep)
                 if (drawnSweep > 0f) {
                     drawArc(
-                        color = slice.category.color.toCategoryColor(),
+                        color = sliceColors[index],
                         startAngle = startAngle,
                         sweepAngle = drawnSweep,
                         useCenter = true
@@ -296,12 +300,12 @@ private fun CategoryPieChart(slices: List<CategorySlice>, currencyFormat: Number
         }
         Spacer(Modifier.width(16.dp))
         Column {
-            slices.forEach { slice ->
+            slices.forEachIndexed { index, slice ->
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Box(
                         modifier = Modifier
                             .size(10.dp)
-                            .background(slice.category.color.toCategoryColor(), CircleShape)
+                            .background(sliceColors[index], CircleShape)
                     )
                     Spacer(Modifier.width(6.dp))
                     Text(

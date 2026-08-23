@@ -10,14 +10,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DateRange
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,12 +23,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.financeflow.R
 import com.example.financeflow.locale.rememberDateFormat
-import java.time.Instant
+import com.example.financeflow.ui.theme.Radius
 import java.time.LocalDate
-import java.time.ZoneOffset
 
-/** A tap-to-open single-date field: a bordered label+value row plus its Material3 [DatePickerDialog]. */
-@OptIn(ExperimentalMaterial3Api::class)
+/** A tap-to-open single-date field: a bordered label+value row plus [CalendarDialog]. */
 @Composable
 fun DateField(
     label: String,
@@ -47,7 +40,7 @@ fun DateField(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(4.dp))
+            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(Radius.extraSmall))
             .clickable { showPicker = true }
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween
@@ -60,24 +53,10 @@ fun DateField(
     }
 
     if (showPicker) {
-        val state = rememberDatePickerState(
-            initialSelectedDateMillis = date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+        CalendarDialog(
+            initialDate = date,
+            onConfirm = { onDateChange(it); showPicker = false },
+            onDismiss = { showPicker = false }
         )
-        DatePickerDialog(
-            onDismissRequest = { showPicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    state.selectedDateMillis?.let { millis ->
-                        onDateChange(Instant.ofEpochMilli(millis).atZone(ZoneOffset.UTC).toLocalDate())
-                    }
-                    showPicker = false
-                }) { Text(stringResource(R.string.action_ok)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showPicker = false }) { Text(stringResource(R.string.action_cancel)) }
-            }
-        ) {
-            DatePicker(state = state)
-        }
     }
 }

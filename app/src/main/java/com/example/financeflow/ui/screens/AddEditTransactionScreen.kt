@@ -12,7 +12,6 @@ import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.ArrowLeft
 import com.adamglin.phosphoricons.regular.Briefcase
-import com.adamglin.phosphoricons.regular.Check
 import com.adamglin.phosphoricons.regular.User
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -46,6 +45,7 @@ import com.example.financeflow.data.categoryTypeFor
 import com.example.financeflow.locale.CurrencyPreferences
 import com.example.financeflow.locale.HintPreferences
 import com.example.financeflow.locale.LastUsedTypePreferences
+import com.example.financeflow.ui.components.ConfirmButton
 import com.example.financeflow.ui.components.DateField
 import com.example.financeflow.ui.components.GlassFilterChip
 import com.example.financeflow.ui.components.GlassSegmentedControl
@@ -160,12 +160,14 @@ fun AddEditTransactionScreen(
                     IconButton(onClick = onDone) {
                         Icon(PhosphorIcons.Regular.ArrowLeft, contentDescription = stringResource(R.string.action_cancel))
                     }
-                },
-                actions = {
-                    IconButton(onClick = ::save, enabled = canSave) {
-                        Icon(PhosphorIcons.Regular.Check, contentDescription = stringResource(R.string.action_save))
-                    }
                 }
+            )
+        },
+        bottomBar = {
+            ConfirmButton(
+                enabled = canSave,
+                onClick = ::save,
+                modifier = Modifier.fillMaxWidth().padding(16.dp)
             )
         }
     ) { innerPadding ->

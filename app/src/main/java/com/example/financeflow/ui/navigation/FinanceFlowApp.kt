@@ -4,8 +4,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -32,6 +34,7 @@ import com.example.financeflow.ui.components.GlassCard
 import com.example.financeflow.ui.components.LocalSnackbarController
 import com.example.financeflow.ui.components.SnackbarController
 import com.example.financeflow.ui.theme.GlassTier
+import com.example.financeflow.ui.theme.Radius
 import com.example.financeflow.ui.screens.AddEditRecurringRuleScreen
 import com.example.financeflow.ui.screens.AddEditTransactionScreen
 import com.example.financeflow.ui.screens.BudgetsScreen
@@ -133,7 +136,7 @@ private fun FinanceFlowBottomBar(navController: NavHostController) {
 
     GlassCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+        shape = RoundedCornerShape(topStart = Radius.medium, topEnd = Radius.medium),
         contentPadding = 0.dp
     ) {
         NavigationBar(
@@ -143,7 +146,7 @@ private fun FinanceFlowBottomBar(navController: NavHostController) {
         ) {
             FinanceFlowDestination.entries.forEach { destination ->
                 val label = stringResource(destination.labelRes)
-                val isSelected = currentRoute == destination.route
+                val isSelected = destination.matchesCurrentRoute(currentRoute)
                 NavigationBarItem(
                     selected = isSelected,
                     onClick = {
@@ -159,7 +162,14 @@ private fun FinanceFlowBottomBar(navController: NavHostController) {
                             contentDescription = label
                         )
                     },
-                    label = { Text(label) }
+                    label = { Text(label) },
+                    colors = NavigationBarItemDefaults.colors(
+                        indicatorColor = MaterialTheme.colorScheme.primary,
+                        selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                        selectedTextColor = MaterialTheme.colorScheme.primary,
+                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 )
             }
         }

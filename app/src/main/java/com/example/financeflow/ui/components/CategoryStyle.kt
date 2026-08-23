@@ -17,13 +17,13 @@ import com.adamglin.phosphoricons.regular.PawPrint
 import com.adamglin.phosphoricons.regular.Receipt
 import com.adamglin.phosphoricons.regular.ShoppingCart
 import com.adamglin.phosphoricons.regular.Tag
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import com.example.financeflow.R
 import com.example.financeflow.data.CategoryType
-import com.example.financeflow.ui.theme.OnSurfaceMuted
 
 object CategoryIcons {
     val Catalog: List<Pair<String, ImageVector>> = listOf(
@@ -55,6 +55,7 @@ val CategoryColorPalette = listOf(
     "#C77B7B", "#8FA85F"
 )
 
+@Composable
 fun String?.toCategoryColor(): Color =
     this?.let {
         try {
@@ -62,7 +63,7 @@ fun String?.toCategoryColor(): Color =
         } catch (e: IllegalArgumentException) {
             null
         }
-    } ?: OnSurfaceMuted
+    } ?: MaterialTheme.colorScheme.onSurfaceVariant
 
 @Composable
 fun categoryTypeLabel(type: CategoryType): String = when (type) {
