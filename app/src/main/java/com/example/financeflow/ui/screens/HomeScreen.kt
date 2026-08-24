@@ -47,7 +47,7 @@ import com.example.financeflow.ui.components.TransactionRow
 import com.example.financeflow.ui.components.TransactionTypeToggle
 import com.example.financeflow.ui.theme.MoneyFigure
 import com.example.financeflow.ui.theme.MoneyFigureLarge
-import com.example.financeflow.ui.theme.extendedColors
+import com.example.financeflow.ui.theme.Spacing
 import com.example.financeflow.viewmodel.CategoryViewModel
 import com.example.financeflow.viewmodel.RecurringRuleViewModel
 import com.example.financeflow.viewmodel.TransactionViewModel
@@ -103,75 +103,144 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp)
+                .padding(horizontal = Spacing.lg)
         ) {
-            TransactionTypeToggle(
-                selected = typeFilter,
-                onSelect = transactionViewModel::setTypeFilter
+            Text(
+                text = stringResource(R.string.nav_home),
+                style = MaterialTheme.typography.headlineSmall,
+                modifier = Modifier.padding(top = Spacing.sm, bottom = Spacing.lg)
             )
 
-            Spacer(Modifier.height(16.dp))
+            TransactionTypeToggle(
+                selected = typeFilter,
+                onSelect = transactionViewModel::setTypeFilter,
+                pill = true
+            )
+
+            Spacer(Modifier.height(Spacing.lg))
 
             Crossfade(targetState = typeFilter, label = "homeTypeFilterContent") { _ ->
-                Column {
-                    GlassCard(modifier = Modifier.fillMaxWidth(), containerColor = MaterialTheme.extendedColors.accent) {
-                        Text(text = stringResource(R.string.home_this_month_title), style = MaterialTheme.typography.titleLarge)
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                // One LazyColumn for the whole page: the stack is now taller than a phone screen,
+                // and the previous nested LazyColumn-inside-Column could not scroll as a unit.
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(Spacing.md)
+                ) {
+                    item(key = "balance") {
+                        GlassCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentPadding = Spacing.xl
                         ) {
-                            Text(text = stringResource(R.string.toggle_income), style = MaterialTheme.typography.bodyMedium)
-                            Text(text = currencyFormat.format(summary.income), style = MoneyFigureLarge, color = MaterialTheme.colorScheme.secondary)
+                            Text(
+                                text = stringResource(R.string.home_net_this_month),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                            Spacer(Modifier.height(Spacing.xs))
+                            Text(
+                                text = currencyFormat.format(summary.income - summary.expense),
+                                style = MoneyFigureLarge,
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
                         }
+                    }
+
+                    item(key = "summary") {
                         Row(
-                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(Spacing.md)
                         ) {
-                            Text(text = stringResource(R.string.home_expenses_label), style = MaterialTheme.typography.bodyMedium)
-                            Text(text = currencyFormat.format(summary.expense), style = MoneyFigureLarge, color = MaterialTheme.colorScheme.tertiary)
+                            SummaryCard(
+                                label = stringResource(R.string.toggle_income),
+                                amount = "+" + currencyFormat.format(summary.income),
+                                amountColor = MaterialTheme.colorScheme.secondary,
+                                modifier = Modifier.weight(1f)
+                            )
+                            SummaryCard(
+                                label = stringResource(R.string.home_expenses_label),
+                                amount = "-" + currencyFormat.format(summary.expense),
+                                amountColor = MaterialTheme.colorScheme.tertiary,
+                                modifier = Modifier.weight(1f)
+                            )
                         }
                     }
 
                     if (upcomingRules.isNotEmpty()) {
-                        Spacer(Modifier.height(24.dp))
-                        Text(text = stringResource(R.string.home_upcoming_title), style = MaterialTheme.typography.titleLarge)
-                        Spacer(Modifier.height(8.dp))
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            upcomingRules.forEach { rule ->
-                                UpcomingRuleRow(rule = rule)
-                            }
+                        item(key = "upcomingHeader") {
+                            SectionHeader(stringResource(R.string.home_upcoming_title))
+                        }
+                        items(upcomingRules, key = { "rule-" + it.id }) { rule ->
+                            UpcomingRuleRow(rule = rule)
                         }
                     }
 
-                    Spacer(Modifier.height(24.dp))
-
-                    Text(text = stringResource(R.string.home_recent_transactions_title), style = MaterialTheme.typography.titleLarge)
-
-                    Spacer(Modifier.height(8.dp))
+                    item(key = "recentHeader") {
+                        SectionHeader(stringResource(R.string.home_recent_transactions_title))
+                    }
 
                     if (transactions.isEmpty()) {
-                        Box(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp), contentAlignment = Alignment.Center) {
-                            Text(text = stringResource(R.string.transactions_empty), style = MaterialTheme.typography.bodyMedium)
-                        }
-                    } else {
-                        LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                            items(transactions.take(5), key = { it.id }) { transaction ->
-                                TransactionRow(
-                                    transaction = transaction,
-                                    categoryName = categoryNames[transaction.categoryId] ?: uncategorized,
-                                    displayAmount = ExchangeRateRepository.convert(transaction.amount, transaction.currency, displayCurrency, rates),
-                                    currencyFormat = currencyFormat,
-                                    dateFormat = dateFormat,
-                                    displayCurrency = displayCurrency,
-                                    onClick = { onEditTransaction(transaction.id) }
-                                )
+                        item(key = "recentEmpty") {
+                            Box(modifier = Modifier.fillMaxWidth().padding(vertical = Spacing.sm), contentAlignment = Alignment.Center) {
+                                Text(text = stringResource(R.string.transactions_empty), style = MaterialTheme.typography.bodyMedium)
                             }
                         }
+                    } else {
+                        items(transactions.take(5), key = { "txn-" + it.id }) { transaction ->
+                            TransactionRow(
+                                transaction = transaction,
+                                categoryName = categoryNames[transaction.categoryId] ?: uncategorized,
+                                displayAmount = ExchangeRateRepository.convert(transaction.amount, transaction.currency, displayCurrency, rates),
+                                currencyFormat = currencyFormat,
+                                dateFormat = dateFormat,
+                                displayCurrency = displayCurrency,
+                                onClick = { onEditTransaction(transaction.id) }
+                            )
+                        }
                     }
+
+                    // Clears the FAB so the last row is never trapped underneath it.
+                    item(key = "fabSpacer") { Spacer(Modifier.height(Spacing.xxxl + Spacing.xxl)) }
                 }
             }
         }
     }
+}
+
+/** Income / Expenses tile — ordinary card fill, label above a single figure. */
+@Composable
+private fun SummaryCard(
+    label: String,
+    amount: String,
+    amountColor: androidx.compose.ui.graphics.Color,
+    modifier: Modifier = Modifier
+) {
+    GlassCard(modifier = modifier, contentPadding = Spacing.lg) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.height(Spacing.xs))
+        Text(
+            text = amount,
+            style = MoneyFigure,
+            color = amountColor,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+private fun SectionHeader(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.titleMedium,
+        modifier = Modifier.padding(top = Spacing.sm)
+    )
 }
 
 @Composable

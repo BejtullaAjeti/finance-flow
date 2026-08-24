@@ -43,7 +43,9 @@ fun GlassFilterChip(
         border = FilterChipDefaults.filterChipBorder(
             enabled = true,
             selected = selected,
-            borderColor = MaterialTheme.colorScheme.outline,
+            // Unselected chips have no fill, so this border is the entire control —
+            // borderStrong, not outline. selectedBorderColor is inert (0dp width below).
+            borderColor = MaterialTheme.extendedColors.borderStrong,
             selectedBorderColor = MaterialTheme.colorScheme.outline,
             borderWidth = 1.dp,
             selectedBorderWidth = 0.dp

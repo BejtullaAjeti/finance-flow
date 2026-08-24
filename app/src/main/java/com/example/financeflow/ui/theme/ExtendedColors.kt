@@ -14,10 +14,17 @@ import androidx.compose.ui.graphics.Color
 data class ExtendedColors(
     val accent: Color,
     // Selected/active fill for interactive surfaces (filter chips, the inline "add category"
-    // button) — the app's real per-mode accent (#BDB2FF light / #DFD0B8 dark), distinct from
-    // [accent] above (which is the featured-card fill) and from Primary (fixed across modes,
-    // used by buttons/FAB/segmented controls).
+    // button, the bottom-nav indicator, the selected calendar day). Tracks the primary slot in
+    // both modes: every one of those call sites pairs this fill with `onPrimary` as its content
+    // color, so the two must stay in step. (Dark mode previously used AccentDark here; once
+    // onPrimary became a light off-white, off-white-on-cream measured 1.32:1.) Distinct from
+    // [accent] below, which is the featured-card fill and is not paired with onPrimary.
     val selectedFill: Color,
+    // Border color for controls whose border carries the affordance (unselected filter chips,
+    // text-field and date-range outlines, the chart's axis line). M3's ColorScheme has no slot
+    // for it — `outlineVariant` is defined as *weaker* than outline, the opposite of what this
+    // is — so it lives here. See BorderStrongLight/Dark in Color.kt for the contrast targets.
+    val borderStrong: Color,
     val warning: Color,
     val warningContainer: Color,
     val onWarning: Color,
@@ -27,8 +34,12 @@ data class ExtendedColors(
 )
 
 val LightExtendedColors = ExtendedColors(
-    accent = SurfaceLight,
-    selectedFill = Primary,
+    // Not SurfaceLight: that role now equals `background`, which would leave featured cards
+    // invisible. SurfaceVariantLight preserves the original intent — spec §3 has the light
+    // featured card share the ordinary card fill; only dark mode gives it a distinct tone.
+    accent = SurfaceVariantLight,
+    selectedFill = PrimaryLight,
+    borderStrong = BorderStrongLight,
     warning = WarningLight,
     warningContainer = WarningContainerLight,
     onWarning = OnWarningLight,
@@ -39,7 +50,8 @@ val LightExtendedColors = ExtendedColors(
 
 val DarkExtendedColors = ExtendedColors(
     accent = AccentDark,
-    selectedFill = AccentDark,
+    selectedFill = PrimaryDark,
+    borderStrong = BorderStrongDark,
     warning = WarningDark,
     warningContainer = WarningContainerDark,
     onWarning = OnWarningDark,

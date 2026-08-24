@@ -38,6 +38,7 @@ import com.example.financeflow.locale.rememberCurrencyFormat
 import com.example.financeflow.locale.rememberDateFormat
 import com.example.financeflow.ui.components.GlassFab
 import com.example.financeflow.ui.components.GlassRow
+import com.example.financeflow.ui.theme.Spacing
 import com.example.financeflow.ui.components.InlineHint
 import com.example.financeflow.ui.components.LocalSnackbarController
 import com.example.financeflow.ui.components.TransactionTypeToggle
@@ -77,15 +78,16 @@ fun RecurringRulesScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = Spacing.lg)
         ) {
             TransactionTypeToggle(
                 selected = typeFilter,
                 onSelect = recurringRuleViewModel::setTypeFilter,
-                modifier = Modifier.padding(top = 16.dp)
+                modifier = Modifier.padding(top = Spacing.lg),
+                pill = true
             )
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(Spacing.lg))
 
             if (rules.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -100,7 +102,10 @@ fun RecurringRulesScreen(
                     }
                 }
             } else {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(Spacing.md)
+                ) {
                     items(rules, key = { it.id }) { rule ->
                         RecurringRuleRow(
                             rule = rule,
@@ -113,6 +118,8 @@ fun RecurringRulesScreen(
                             }
                         )
                     }
+                    // Clears the FAB so the last row is never trapped underneath it.
+                    item(key = "fabSpacer") { Spacer(Modifier.height(Spacing.xxxl + Spacing.xxl)) }
                 }
             }
         }
@@ -159,7 +166,7 @@ private fun RecurringRuleRow(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(Spacing.sm))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 val sign = if (rule.isIncome) "+" else "-"
                 Text(

@@ -52,6 +52,7 @@ import com.example.financeflow.ui.components.CancelButton
 import com.example.financeflow.ui.components.ConfirmButton
 import com.example.financeflow.ui.components.GlassCard
 import com.example.financeflow.ui.components.GlassDialog
+import com.example.financeflow.ui.theme.Spacing
 import com.example.financeflow.ui.components.GlassFab
 import com.example.financeflow.ui.components.GlassFilterChip
 import com.example.financeflow.ui.components.GlassSegmentedControl
@@ -101,13 +102,17 @@ fun BudgetsScreen(
         }
     ) { innerPadding ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(innerPadding).padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            // No horizontal padding of its own: the only live entry point is ReportsScreen's
+            // Budgets tab, whose Column already supplies the 16dp gutter — this screen was
+            // adding a second one on top, giving 32dp here and nowhere else in the app.
+            modifier = Modifier.fillMaxSize().padding(innerPadding).padding(vertical = Spacing.sm),
+            verticalArrangement = Arrangement.spacedBy(Spacing.md)
         ) {
             item {
                 TransactionTypeToggle(
                     selected = typeFilter,
-                    onSelect = budgetViewModel::setTypeFilter
+                    onSelect = budgetViewModel::setTypeFilter,
+                    pill = true
                 )
             }
 
@@ -122,7 +127,7 @@ fun BudgetsScreen(
 
             if (budgets.isEmpty()) {
                 item {
-                    Box(modifier = Modifier.fillMaxWidth().padding(top = 32.dp), contentAlignment = Alignment.Center) {
+                    Box(modifier = Modifier.fillMaxWidth().padding(top = Spacing.xxxl), contentAlignment = Alignment.Center) {
                         Text(
                             text = stringResource(R.string.budgets_empty),
                             style = MaterialTheme.typography.bodyMedium
@@ -138,6 +143,8 @@ fun BudgetsScreen(
                         isCombinedView = typeFilter == null
                     )
                 }
+                // Clears the FAB so the last card is never trapped underneath it.
+                item(key = "fabSpacer") { Spacer(Modifier.height(Spacing.xxxl + Spacing.xxl)) }
             }
         }
     }
@@ -178,9 +185,13 @@ private fun BudgetCard(budget: CategoryBudget, currencyFormat: NumberFormat, onC
     val limit = budget.limit
     val swatch = budget.category.color.toCategoryColor()
 
+    // Ordinary flat card fill (surfaceVariant, GlassCard's default) instead of the old
+    // extendedColors.accent, matching HomeScreen's cards. Radius is already Radius.medium via
+    // GlassCard. Every color role below — primary, secondary, tertiary, warning and the
+    // container tints — is unchanged.
     GlassCard(
         modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
-        containerColor = MaterialTheme.extendedColors.accent
+        contentPadding = Spacing.lg
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Icon(
@@ -188,16 +199,16 @@ private fun BudgetCard(budget: CategoryBudget, currencyFormat: NumberFormat, onC
                 contentDescription = null,
                 tint = swatch
             )
-            Spacer(Modifier.width(8.dp))
+            Spacer(Modifier.width(Spacing.sm))
             Text(text = budget.category.name, style = MaterialTheme.typography.titleLarge)
             val icon = if (isCombinedView) budget.category.type.indicatorIcon() else null
             if (icon != null) {
-                Spacer(Modifier.width(6.dp))
+                Spacer(Modifier.width(Spacing.xs))
                 TypeIndicatorIcon(icon)
             }
         }
 
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(Spacing.md))
 
         if (limit == null) {
             Text(
@@ -205,7 +216,7 @@ private fun BudgetCard(budget: CategoryBudget, currencyFormat: NumberFormat, onC
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(Spacing.xs))
             Text(
                 text = stringResource(R.string.budget_not_set),
                 style = MaterialTheme.typography.labelMedium,
@@ -232,7 +243,7 @@ private fun BudgetCard(budget: CategoryBudget, currencyFormat: NumberFormat, onC
                 trackColor = statusContainerColor
             )
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(Spacing.sm))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -252,10 +263,10 @@ private fun BudgetCard(budget: CategoryBudget, currencyFormat: NumberFormat, onC
             }
 
             if (isOverBudget) {
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(Spacing.xs))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(PhosphorIcons.Fill.WarningCircle, contentDescription = null, tint = MaterialTheme.colorScheme.tertiary)
-                    Spacer(Modifier.width(4.dp))
+                    Spacer(Modifier.width(Spacing.xs))
                     Text(
                         text = stringResource(R.string.budget_over_amount, currencyFormat.format(budget.spent - limit)),
                         style = MaterialTheme.typography.bodyMedium,

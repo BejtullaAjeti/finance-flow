@@ -3,6 +3,8 @@ package com.example.financeflow.ui.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -51,6 +53,7 @@ import com.example.financeflow.ui.components.DateField
 import com.example.financeflow.ui.components.GlassFilterChip
 import com.example.financeflow.ui.components.GlassSegmentedControl
 import com.example.financeflow.ui.components.GlassTextField
+import com.example.financeflow.ui.theme.Spacing
 import com.example.financeflow.ui.components.InlineHint
 import com.example.financeflow.ui.components.LocalSnackbarController
 import com.example.financeflow.ui.components.QuickAddCategoryDialog
@@ -168,7 +171,7 @@ fun AddEditTransactionScreen(
             ConfirmButton(
                 enabled = canSave,
                 onClick = ::save,
-                modifier = Modifier.fillMaxWidth().padding(16.dp)
+                modifier = Modifier.fillMaxWidth().padding(Spacing.lg)
             )
         }
     ) { innerPadding ->
@@ -176,7 +179,11 @@ fun AddEditTransactionScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(innerPadding)
-                .padding(16.dp)
+                // The form is taller than a phone screen once the category chips wrap; without
+                // this the note field at the bottom was unreachable.
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = Spacing.lg)
+                .padding(bottom = Spacing.lg)
         ) {
             GlassTextField(
                 value = amountText,
@@ -193,7 +200,7 @@ fun AddEditTransactionScreen(
                     .focusRequester(focusRequester)
             )
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(Spacing.lg))
 
             GlassSegmentedControl(
                 options = listOf(false, true),
@@ -202,7 +209,7 @@ fun AddEditTransactionScreen(
                 label = { if (it) incomeLabel else expenseLabel }
             )
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(Spacing.md))
 
             GlassSegmentedControl(
                 options = listOf(TransactionType.PERSONAL, TransactionType.BUSINESS),
@@ -212,7 +219,7 @@ fun AddEditTransactionScreen(
                 icon = { if (it == TransactionType.PERSONAL) PhosphorIcons.Regular.User else PhosphorIcons.Regular.Briefcase }
             )
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(Spacing.md))
 
             GlassSegmentedControl(
                 options = Currency.entries,
@@ -221,11 +228,12 @@ fun AddEditTransactionScreen(
                 label = { it.name }
             )
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(Spacing.xl))
 
-            Text(text = stringResource(R.string.field_category_label), style = MaterialTheme.typography.titleLarge)
-            Spacer(Modifier.height(8.dp))
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            // titleMedium to match HomeScreen's section headers (was titleLarge).
+            Text(text = stringResource(R.string.field_category_label), style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.height(Spacing.sm))
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(Spacing.sm), verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
                 filteredCategories.forEach { category ->
                     GlassFilterChip(
                         selected = selectedCategory?.id == category.id,
@@ -246,11 +254,11 @@ fun AddEditTransactionScreen(
                 )
             }
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(Spacing.xl))
 
             DateField(label = stringResource(R.string.field_date_label), date = date, onDateChange = { date = it })
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(Spacing.md))
 
             GlassTextField(
                 value = note,

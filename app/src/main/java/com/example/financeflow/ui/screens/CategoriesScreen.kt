@@ -82,6 +82,7 @@ import com.example.financeflow.ui.components.selectionRing
 import com.example.financeflow.ui.components.toCategoryColor
 import com.example.financeflow.ui.theme.GlassTier
 import com.example.financeflow.ui.theme.Radius
+import com.example.financeflow.ui.theme.Spacing
 import com.example.financeflow.viewmodel.CategoryDeleteBlockReason
 import com.example.financeflow.viewmodel.CategoryViewModel
 import com.example.financeflow.viewmodel.rememberCategoryViewModel
@@ -119,7 +120,7 @@ fun CategoriesScreen(
         },
         snackbarHost = {
             SnackbarHost(snackbarHostState) { data ->
-                GlassCard(tier = GlassTier.Overlay, contentPadding = 16.dp) {
+                GlassCard(tier = GlassTier.Overlay, contentPadding = Spacing.lg) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -154,7 +155,8 @@ fun CategoriesScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .padding(horizontal = 16.dp)
+                    .padding(horizontal = Spacing.lg),
+                verticalArrangement = Arrangement.spacedBy(Spacing.md)
             ) {
                 if (showSwipeHint) {
                     item {
@@ -196,6 +198,8 @@ fun CategoriesScreen(
                         }
                     )
                 }
+                // Clears the FAB so the last row is never trapped underneath it.
+                item(key = "fabSpacer") { Spacer(Modifier.height(Spacing.xxxl + Spacing.xxl)) }
             }
         }
     }
@@ -249,9 +253,11 @@ private fun SwipeToDeleteCategoryRow(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .clip(RoundedCornerShape(Radius.extraSmall))
+                    // Radius.medium to match GlassRow's new corner: at extraSmall the red
+                    // backdrop's square corners peeked out past the row sliding over it.
+                    .clip(RoundedCornerShape(Radius.medium))
                     .background(MaterialTheme.colorScheme.tertiaryContainer)
-                    .padding(horizontal = 20.dp),
+                    .padding(horizontal = Spacing.xl),
                 contentAlignment = Alignment.CenterEnd
             ) {
                 Icon(
@@ -294,7 +300,7 @@ private fun CategoryRow(
                     tint = if (swatch.luminance() > 0.5f) Color.Black else Color.White
                 )
             }
-            Spacer(Modifier.width(12.dp))
+            Spacer(Modifier.width(Spacing.md))
             Column {
                 Text(text = category.name, style = MaterialTheme.typography.bodyLarge)
                 Text(
@@ -311,7 +317,9 @@ private fun CategoryRow(
                             )
                         }
                     },
-                    style = MaterialTheme.typography.bodyMedium
+                    // labelMedium + onSurfaceVariant, matching TransactionRow's secondary line.
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }

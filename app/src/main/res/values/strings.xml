@@ -87,6 +87,7 @@
     <string name="settings_recurring">Përsëritjet</string>
 
     <string name="home_add_transaction_content_description">Shto transaksion</string>
+    <string name="home_net_this_month">Bilanci i muajit</string>
     <string name="home_this_month_title">Këtë Muaj</string>
     <string name="home_expenses_label">Shpenzimet</string>
     <string name="home_recent_transactions_title">Transaksionet e Fundit</string>

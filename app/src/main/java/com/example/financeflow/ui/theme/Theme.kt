@@ -21,10 +21,10 @@ private val FinanceFlowShapes = Shapes(
 )
 
 private val FinanceFlowLightScheme = lightColorScheme(
-    primary = Primary,
-    onPrimary = OnPrimaryColor,
+    primary = PrimaryLight,
+    onPrimary = OnPrimaryLight,
     secondary = IncomeLight,
-    onSecondary = OnPrimaryColor,
+    onSecondary = OnAccentInk,
     secondaryContainer = IncomeContainerLight,
     tertiary = ExpenseLight,
     onTertiary = Color.White,
@@ -33,34 +33,35 @@ private val FinanceFlowLightScheme = lightColorScheme(
     onBackground = OnBackgroundLight,
     surface = SurfaceLight,
     onSurface = OnBackgroundLight,
-    surfaceVariant = SurfaceLight,
+    // Was aliased to SurfaceLight; the new palette gives secondary cards their own stop, so this
+    // is now the only neutral fill that separates from `background`.
+    surfaceVariant = SurfaceVariantLight,
     onSurfaceVariant = OnSurfaceMutedLight,
-    // Unset, this falls back to M3's baseline outline swatch — a generic purple-grey never
-    // chosen for this palette — so every bordered input (GlassTextField, GlassFilterChip) was
-    // quietly drawing a border color outside the design system.
-    outline = OnSurfaceMutedLight,
+    // Was aliased to OnSurfaceMutedLight, which drew every border as dark as secondary text.
+    // The new palette gives dividers a dedicated, far lighter stop.
+    outline = OutlineLight,
     error = ExpenseLight,
     onError = Color.White
 )
 
 private val FinanceFlowDarkScheme = darkColorScheme(
-    primary = Primary,
-    onPrimary = OnPrimaryColor,
+    primary = PrimaryDark,
+    onPrimary = OnPrimaryDark,
     secondary = IncomeDark,
-    onSecondary = OnPrimaryColor,
+    onSecondary = OnAccentInk,
     secondaryContainer = IncomeContainerDark,
     tertiary = ExpenseDark,
-    onTertiary = OnPrimaryColor,
+    onTertiary = OnAccentInk,
     tertiaryContainer = ExpenseContainerDark,
     background = BackgroundDark,
     onBackground = OnBackgroundDark,
     surface = SurfaceDark,
     onSurface = OnBackgroundDark,
-    surfaceVariant = SurfaceDark,
+    surfaceVariant = SurfaceVariantDark,
     onSurfaceVariant = OnSurfaceMutedDark,
-    outline = OnSurfaceMutedDark,
+    outline = OutlineDark,
     error = ExpenseDark,
-    onError = OnPrimaryColor
+    onError = OnAccentInk
 )
 
 @Composable

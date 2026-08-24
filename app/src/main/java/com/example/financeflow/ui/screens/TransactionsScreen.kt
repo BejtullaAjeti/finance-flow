@@ -20,6 +20,7 @@ import com.adamglin.phosphoricons.Regular
 import com.adamglin.phosphoricons.regular.CalendarBlank
 import com.adamglin.phosphoricons.regular.MagnifyingGlass
 import com.adamglin.phosphoricons.regular.Plus
+import androidx.compose.material3.DatePickerDefaults
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -40,6 +41,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -62,6 +64,8 @@ import com.example.financeflow.ui.components.TransactionRow
 import com.example.financeflow.ui.components.TransactionTypeToggle
 import com.example.financeflow.ui.theme.GlassTier
 import com.example.financeflow.ui.theme.Radius
+import com.example.financeflow.ui.theme.Spacing
+import com.example.financeflow.ui.theme.extendedColors
 import com.example.financeflow.viewmodel.CategoryViewModel
 import com.example.financeflow.viewmodel.TransactionViewModel
 import com.example.financeflow.viewmodel.rememberCategoryViewModel
@@ -99,7 +103,18 @@ fun TransactionsScreen(
             }
         }
     ) { innerPadding ->
-    Column(modifier = Modifier.fillMaxSize().padding(innerPadding).padding(16.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding)
+            .padding(horizontal = Spacing.lg)
+    ) {
+        Text(
+            text = stringResource(R.string.nav_transactions),
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(top = Spacing.sm, bottom = Spacing.lg)
+        )
+
         GlassTextField(
             value = filter.searchQuery,
             onValueChange = { query ->
@@ -111,17 +126,18 @@ fun TransactionsScreen(
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(Spacing.md))
 
         TransactionTypeToggle(
             selected = filter.type,
             onSelect = { type ->
                 transactionViewModel.updateListFilter { it.copy(type = type, categoryId = null) }
                 categoryViewModel.setTypeFilter(type?.let(::categoryTypeFor))
-            }
+            },
+            pill = true
         )
 
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(Spacing.md))
 
         CategoryDropdown(
             categories = categories,
@@ -131,7 +147,7 @@ fun TransactionsScreen(
             }
         )
 
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(Spacing.md))
 
         DateRangeField(
             start = filter.startDate,
@@ -139,7 +155,7 @@ fun TransactionsScreen(
             onClick = { showDateRangePicker = true }
         )
 
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(Spacing.lg))
 
         if (transactions.isEmpty()) {
             Text(
@@ -147,7 +163,10 @@ fun TransactionsScreen(
                 style = MaterialTheme.typography.bodyMedium
             )
         } else {
-            LazyColumn(modifier = Modifier.fillMaxWidth()) {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(Spacing.md)
+            ) {
                 items(transactions, key = { it.id }) { transaction ->
                     TransactionRow(
                         transaction = transaction,
@@ -160,6 +179,8 @@ fun TransactionsScreen(
                         showTypeIndicator = filter.type == null
                     )
                 }
+                // Clears the FAB so the last row is never trapped underneath it.
+                item(key = "fabSpacer") { Spacer(Modifier.height(Spacing.xxxl + Spacing.xxl)) }
             }
         }
     }
@@ -198,7 +219,15 @@ private fun CategoryDropdown(
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable, true)
         )
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        // The popup defaulted to MenuDefaults.containerColor (colorScheme.surface), which equals
+        // background in this palette — it read as an unbounded sheet. surfaceVariant + the card
+        // radius makes it a flat card like every other elevated surface.
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            shape = RoundedCornerShape(Radius.medium),
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        ) {
             DropdownMenuItem(
                 text = { Text(allCategoriesLabel) },
                 onClick = { onSelect(null); expanded = false }
@@ -226,9 +255,10 @@ private fun DateRangeField(start: LocalDate?, end: LocalDate?, onClick: () -> Un
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(Radius.extraSmall))
+            .clip(RoundedCornerShape(Radius.medium))
+            .border(1.dp, MaterialTheme.extendedColors.borderStrong, RoundedCornerShape(Radius.medium))
             .clickable(onClick = onClick)
-            .padding(16.dp),
+            .padding(Spacing.lg),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Column {
@@ -256,11 +286,20 @@ private fun DateRangePickerDialog(
         GlassCard(
             tier = GlassTier.Overlay,
             contentPadding = 0.dp,
-            modifier = Modifier.fillMaxWidth().fillMaxHeight(0.9f).padding(16.dp)
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(0.9f).padding(Spacing.lg)
         ) {
-            DateRangePicker(state = state, modifier = Modifier.weight(1f))
+            // The M3 picker paints its own container (default colorScheme.surface = background),
+            // which would show as a lighter block inside the surfaceVariant card. Structure and
+            // behaviour are untouched — container color only.
+            DateRangePicker(
+                state = state,
+                modifier = Modifier.weight(1f),
+                colors = DatePickerDefaults.colors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            )
             Row(
-                modifier = Modifier.fillMaxWidth().padding(8.dp),
+                modifier = Modifier.fillMaxWidth().padding(Spacing.sm),
                 horizontalArrangement = Arrangement.End
             ) {
                 TextButton(onClick = { onConfirm(null, null) }) { Text(stringResource(R.string.action_clear)) }

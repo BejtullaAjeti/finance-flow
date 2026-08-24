@@ -17,19 +17,21 @@ import androidx.compose.ui.graphics.Shape
 import com.example.financeflow.ui.theme.Radius
 import com.example.financeflow.ui.theme.Spacing
 
-/** Flat Surface-background list row (transactions, categories, recurring rules) — no border. */
+/** Flat list row (transactions, categories, recurring rules) — no border. Fills with
+ * `surfaceVariant`; see [com.example.financeflow.ui.theme.spec] for why not `surface`. */
 @Composable
 fun GlassRow(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
-    shape: Shape = RoundedCornerShape(Radius.extraSmall),
+    // Radius.medium so rows share the 16dp card language (matches GlassCard).
+    shape: Shape = RoundedCornerShape(Radius.medium),
     contentPadding: PaddingValues = PaddingValues(horizontal = Spacing.lg, vertical = Spacing.md),
     content: @Composable RowScope.() -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     var base = modifier
         .clip(shape)
-        .background(MaterialTheme.colorScheme.surface)
+        .background(MaterialTheme.colorScheme.surfaceVariant)
     if (onClick != null) {
         base = base
             .clickable(interactionSource = interactionSource, indication = null, onClick = onClick)

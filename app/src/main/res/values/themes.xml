@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.FinanceFlow" parent="android:Theme.Material.Light.NoActionBar" />
+    <!--
+      Platform window theme, inflated before Compose runs. windowBackground must be kept in sync
+      with BackgroundLight in ui/theme/Color.kt by hand — the window is painted by the framework
+      on cold launch, so it cannot read the Compose color scheme. Without it the framework's own
+      default light background shows for the first frames.
+
+      The dark counterpart lives in values-night/themes.xml.
+    -->
+    <style name="Theme.FinanceFlow" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/window_background</item>
+    </style>
 </resources>
