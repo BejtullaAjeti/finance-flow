@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -14,7 +16,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -43,6 +44,8 @@ import com.example.financeflow.ui.components.DateField
 import com.example.financeflow.ui.components.displayName
 import com.example.financeflow.ui.components.GlassFilterChip
 import com.example.financeflow.ui.components.GlassSegmentedControl
+import com.example.financeflow.ui.components.GlassTextField
+import com.example.financeflow.ui.theme.Spacing
 import com.example.financeflow.viewmodel.CategoryViewModel
 import com.example.financeflow.viewmodel.RecurringRuleViewModel
 import com.example.financeflow.viewmodel.rememberCategoryViewModel
@@ -152,7 +155,7 @@ fun AddEditRecurringRuleScreen(
             ConfirmButton(
                 enabled = canSave,
                 onClick = ::save,
-                modifier = Modifier.fillMaxWidth().padding(16.dp)
+                modifier = Modifier.fillMaxWidth().padding(Spacing.lg)
             )
         }
     ) { innerPadding ->
@@ -160,32 +163,36 @@ fun AddEditRecurringRuleScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(innerPadding)
-                .padding(16.dp)
+                // Same fix as AddEditTransactionScreen: the form is taller than a phone screen
+                // once the category chips wrap, leaving the date field unreachable.
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = Spacing.lg)
+                .padding(bottom = Spacing.lg)
         ) {
-            OutlinedTextField(
+            GlassTextField(
                 value = label,
                 onValueChange = { label = it },
-                label = { Text(stringResource(R.string.recurring_label_field)) },
+                label = stringResource(R.string.recurring_label_field),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(Spacing.md))
 
-            OutlinedTextField(
+            GlassTextField(
                 value = amountText,
                 onValueChange = { input ->
                     if (input.isEmpty() || input.matches(Regex("^\\d*\\.?\\d{0,2}$"))) {
                         amountText = input
                     }
                 },
-                label = { Text(stringResource(R.string.field_amount_label)) },
+                label = stringResource(R.string.field_amount_label),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(Spacing.lg))
 
             GlassSegmentedControl(
                 options = listOf(false, true),
@@ -194,7 +201,7 @@ fun AddEditRecurringRuleScreen(
                 label = { if (it) incomeLabel else expenseLabel }
             )
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(Spacing.md))
 
             GlassSegmentedControl(
                 options = listOf(TransactionType.PERSONAL, TransactionType.BUSINESS),
@@ -203,7 +210,7 @@ fun AddEditRecurringRuleScreen(
                 label = { if (it == TransactionType.PERSONAL) personalLabel else businessLabel }
             )
 
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(Spacing.md))
 
             GlassSegmentedControl(
                 options = Currency.entries,
@@ -212,14 +219,14 @@ fun AddEditRecurringRuleScreen(
                 label = { it.name }
             )
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(Spacing.xl))
 
-            Text(text = stringResource(R.string.field_category_label), style = MaterialTheme.typography.titleLarge)
-            Spacer(Modifier.height(8.dp))
+            Text(text = stringResource(R.string.field_category_label), style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.height(Spacing.sm))
             if (filteredCategories.isEmpty()) {
                 Text(text = stringResource(R.string.categories_picker_empty), style = MaterialTheme.typography.bodyMedium)
             } else {
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(Spacing.sm), verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
                     filteredCategories.forEach { category ->
                         GlassFilterChip(
                             selected = selectedCategory?.id == category.id,
@@ -230,10 +237,10 @@ fun AddEditRecurringRuleScreen(
                 }
             }
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(Spacing.xl))
 
-            Text(text = stringResource(R.string.recurring_frequency_title), style = MaterialTheme.typography.titleLarge)
-            Spacer(Modifier.height(8.dp))
+            Text(text = stringResource(R.string.recurring_frequency_title), style = MaterialTheme.typography.titleMedium)
+            Spacer(Modifier.height(Spacing.sm))
             GlassSegmentedControl(
                 options = Frequency.entries,
                 selected = frequency,
@@ -248,22 +255,22 @@ fun AddEditRecurringRuleScreen(
             )
 
             if (frequency == Frequency.CUSTOM) {
-                Spacer(Modifier.height(12.dp))
-                OutlinedTextField(
+                Spacer(Modifier.height(Spacing.md))
+                GlassTextField(
                     value = customIntervalText,
                     onValueChange = { input ->
                         if (input.isEmpty() || input.matches(Regex("^\\d*$"))) {
                             customIntervalText = input
                         }
                     },
-                    label = { Text(stringResource(R.string.recurring_every_n_days_field_label)) },
+                    label = stringResource(R.string.recurring_every_n_days_field_label),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
 
-            Spacer(Modifier.height(20.dp))
+            Spacer(Modifier.height(Spacing.xl))
 
             DateField(label = stringResource(R.string.recurring_next_due_date_label), date = nextDueDate, onDateChange = { nextDueDate = it })
         }

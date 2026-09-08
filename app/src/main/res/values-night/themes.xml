@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--
+      Dark counterpart of values/themes.xml. Applies when the *system* is in dark mode, so the
+      platform window background matches Compose's dark scheme on cold launch instead of flashing
+      white. Note this tracks the system setting only: the in-app ThemeMode override
+      (ThemePreferences) is read asynchronously after the window is already drawn, so picking DARK
+      while the system is light still cold-launches on the light window background.
+    -->
+    <style name="Theme.FinanceFlow" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/window_background</item>
+    </style>
+</resources>

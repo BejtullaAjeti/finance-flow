@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -32,13 +33,19 @@ fun <T> GlassSegmentedControl(
     onSelect: (T) -> Unit,
     label: (T) -> String,
     modifier: Modifier = Modifier,
-    icon: ((T) -> ImageVector?)? = null
+    icon: ((T) -> ImageVector?)? = null,
+    /** Fully rounded track and segments. Opt-in so the existing squarer call sites are unchanged. */
+    pill: Boolean = false
 ) {
+    val trackShape = if (pill) CircleShape else RoundedCornerShape(Radius.small)
+    val segmentShape = if (pill) CircleShape else RoundedCornerShape(Radius.extraSmall)
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(Radius.small))
-            .background(MaterialTheme.colorScheme.surface)
+            .clip(trackShape)
+            // surfaceVariant, not surface: surface equals background in this palette, which
+            // would leave the track invisible behind the segments.
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(Spacing.xs)
     ) {
         options.forEach { option ->
@@ -56,7 +63,7 @@ fun <T> GlassSegmentedControl(
             Box(
                 modifier = Modifier
                     .weight(1f)
-                    .clip(RoundedCornerShape(Radius.extraSmall))
+                    .clip(segmentShape)
                     .background(segmentColor)
                     .clickable { onSelect(option) }
                     .padding(vertical = Spacing.sm),

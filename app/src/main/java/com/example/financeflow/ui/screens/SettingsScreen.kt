@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -29,6 +31,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
@@ -47,7 +50,8 @@ import com.example.financeflow.locale.LocalePreferences
 import com.example.financeflow.locale.rememberDateFormat
 import com.example.financeflow.ui.components.ConfirmButton
 import com.example.financeflow.ui.components.GlassButton
-import com.example.financeflow.ui.components.GlassCard
+import com.example.financeflow.ui.components.GlassRow
+import com.example.financeflow.ui.theme.Spacing
 import com.example.financeflow.ui.components.GlassDialog
 import com.example.financeflow.ui.components.GlassSegmentedControl
 import com.example.financeflow.ui.theme.ThemeMode
@@ -100,37 +104,49 @@ fun SettingsScreen(onNavigateToCategories: () -> Unit, onNavigateToRecurring: ()
         if (uri != null) pendingImportUri = uri
     }
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text(text = stringResource(R.string.settings_title), style = MaterialTheme.typography.headlineMedium)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            // Longest form in the app (five sections); it had no scroll at all, so the currency
+            // section and the attribution link were unreachable on a normal phone.
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = Spacing.lg)
+    ) {
+        // headlineSmall to match Home / Transactions / Reports (was headlineMedium).
+        Text(
+            text = stringResource(R.string.settings_title),
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(top = Spacing.sm, bottom = Spacing.lg)
+        )
 
-        Spacer(Modifier.height(24.dp))
-
-        GlassCard(
-            modifier = Modifier.fillMaxWidth().clickable(onClick = onNavigateToCategories),
-            contentPadding = 16.dp
-        ) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        GlassRow(modifier = Modifier.fillMaxWidth(), onClick = onNavigateToCategories) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(text = stringResource(R.string.settings_categories), style = MaterialTheme.typography.bodyLarge)
                 Icon(PhosphorIcons.Regular.CaretRight, contentDescription = null)
             }
         }
 
-        Spacer(Modifier.height(12.dp))
+        Spacer(Modifier.height(Spacing.md))
 
-        GlassCard(
-            modifier = Modifier.fillMaxWidth().clickable(onClick = onNavigateToRecurring),
-            contentPadding = 16.dp
-        ) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        GlassRow(modifier = Modifier.fillMaxWidth(), onClick = onNavigateToRecurring) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(text = stringResource(R.string.settings_recurring), style = MaterialTheme.typography.bodyLarge)
                 Icon(PhosphorIcons.Regular.CaretRight, contentDescription = null)
             }
         }
 
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(Spacing.xxl))
 
-        Text(text = stringResource(R.string.settings_language), style = MaterialTheme.typography.titleLarge)
-        Spacer(Modifier.height(8.dp))
+        Text(text = stringResource(R.string.settings_language), style = MaterialTheme.typography.titleMedium)
+        Spacer(Modifier.height(Spacing.sm))
 
         val albanianLabel = stringResource(R.string.language_albanian)
         val englishLabel = stringResource(R.string.language_english)
@@ -145,10 +161,10 @@ fun SettingsScreen(onNavigateToCategories: () -> Unit, onNavigateToRecurring: ()
             label = { if (it == "sq") albanianLabel else englishLabel }
         )
 
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(Spacing.xxl))
 
-        Text(text = stringResource(R.string.settings_theme), style = MaterialTheme.typography.titleLarge)
-        Spacer(Modifier.height(8.dp))
+        Text(text = stringResource(R.string.settings_theme), style = MaterialTheme.typography.titleMedium)
+        Spacer(Modifier.height(Spacing.sm))
 
         val systemThemeLabel = stringResource(R.string.theme_system)
         val lightThemeLabel = stringResource(R.string.theme_light)
@@ -166,11 +182,11 @@ fun SettingsScreen(onNavigateToCategories: () -> Unit, onNavigateToRecurring: ()
             }
         )
 
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(Spacing.xxl))
 
-        Text(text = stringResource(R.string.settings_backup), style = MaterialTheme.typography.titleLarge)
-        Spacer(Modifier.height(8.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text(text = stringResource(R.string.settings_backup), style = MaterialTheme.typography.titleMedium)
+        Spacer(Modifier.height(Spacing.sm))
+        Row(horizontalArrangement = Arrangement.spacedBy(Spacing.md)) {
             GlassButton(onClick = { exportLauncher.launch("financeflow-backup-${LocalDate.now()}.json") }) {
                 Text(stringResource(R.string.backup_export))
             }
@@ -179,14 +195,18 @@ fun SettingsScreen(onNavigateToCategories: () -> Unit, onNavigateToRecurring: ()
             }
         }
         statusMessage?.let { message ->
-            Spacer(Modifier.height(8.dp))
-            Text(text = message, style = MaterialTheme.typography.bodyMedium)
+            Spacer(Modifier.height(Spacing.sm))
+            Text(
+                text = message,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
 
-        Spacer(Modifier.height(24.dp))
+        Spacer(Modifier.height(Spacing.xxl))
 
-        Text(text = stringResource(R.string.settings_currency_title), style = MaterialTheme.typography.titleLarge)
-        Spacer(Modifier.height(8.dp))
+        Text(text = stringResource(R.string.settings_currency_title), style = MaterialTheme.typography.titleMedium)
+        Spacer(Modifier.height(Spacing.sm))
 
         GlassSegmentedControl(
             options = Currency.entries,
@@ -195,7 +215,7 @@ fun SettingsScreen(onNavigateToCategories: () -> Unit, onNavigateToRecurring: ()
             label = { it.name }
         )
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(Spacing.sm))
 
         val lastUpdatedText = rates.lastUpdatedEpochMillis?.let { millis ->
             val date = Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalDate()
@@ -204,7 +224,7 @@ fun SettingsScreen(onNavigateToCategories: () -> Unit, onNavigateToRecurring: ()
 
         Text(text = lastUpdatedText, style = MaterialTheme.typography.bodySmall)
 
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(Spacing.xs))
 
         TextButton(
             enabled = !isRefreshingRates,
@@ -222,6 +242,8 @@ fun SettingsScreen(onNavigateToCategories: () -> Unit, onNavigateToRecurring: ()
             style = MaterialTheme.typography.labelSmall,
             modifier = Modifier.clickable { uriHandler.openUri("https://www.exchangerate-api.com") }
         )
+
+        Spacer(Modifier.height(Spacing.xxl))
     }
 
     pendingImportUri?.let { uri ->

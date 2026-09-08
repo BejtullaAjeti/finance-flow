@@ -7,6 +7,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.example.financeflow.ui.theme.extendedColors
 
 /** Thin drop-in for M3's OutlinedTextField — border-only per the minimalist policy (spec §6),
  * kept as a named wrapper so call sites don't need to change. */
@@ -33,6 +34,10 @@ fun GlassTextField(
         readOnly = readOnly,
         keyboardOptions = keyboardOptions,
         shape = MaterialTheme.shapes.medium,
-        colors = OutlinedTextFieldDefaults.colors()
+        // The field is border-only, so the unfocused border is its whole affordance.
+        // Focused/error borders keep M3's defaults (primary / error), which are already strong.
+        colors = OutlinedTextFieldDefaults.colors(
+            unfocusedBorderColor = MaterialTheme.extendedColors.borderStrong
+        )
     )
 }

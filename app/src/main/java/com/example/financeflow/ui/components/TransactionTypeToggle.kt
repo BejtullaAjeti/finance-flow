@@ -14,7 +14,8 @@ import com.example.financeflow.data.TransactionType
 fun TransactionTypeToggle(
     selected: TransactionType?,
     onSelect: (TransactionType?) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    pill: Boolean = false
 ) {
     // ponytail: labels resolved here (not cached) so they re-resolve on every recomposition
     // instead of being frozen in whatever locale was active at first composition.
@@ -40,6 +41,7 @@ fun TransactionTypeToggle(
                 null -> null
             }
         },
-        modifier = modifier
+        modifier = modifier,
+        pill = pill
     )
 }
