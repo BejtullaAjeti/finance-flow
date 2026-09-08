@@ -75,8 +75,9 @@ val MoneyFigure = TextStyle(
     lineHeight = 26.sp
 )
 
-// Hero-scale money figure — Home screen's month income/expense totals only. Everywhere else
-// (transaction rows, budget progress, report totals) keeps using [MoneyFigure].
+// Hero-scale money figure — Home's month totals and Reports' period totals, the two "numbers first"
+// summaries. Everywhere else (transaction rows, budget progress, report category amounts) keeps
+// using [MoneyFigure].
 val MoneyFigureLarge = TextStyle(
     fontFamily = FontFamily.Monospace,
     fontWeight = FontWeight.SemiBold,

@@ -7,10 +7,7 @@ import com.example.financeflow.data.CategoryCurrencyTotal
 import com.example.financeflow.data.CategoryTotal
 import com.example.financeflow.data.Currency
 import com.example.financeflow.data.ExchangeRateCache
-import com.example.financeflow.data.PeriodCurrencyTotal
-import com.example.financeflow.data.PeriodTotal
 import com.example.financeflow.data.ReportPeriod
-import com.example.financeflow.data.Transaction
 import com.example.financeflow.data.TransactionType
 import com.example.financeflow.data.dateRangeFor
 import com.example.financeflow.data.repository.CategoryRepository
@@ -23,12 +20,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import java.time.LocalDate
 
-data class CategorySlice(val category: Category, val total: Double)
+data class CategorySlice(val category: Category, val income: Double, val expense: Double)
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ReportsViewModel(
@@ -40,46 +35,32 @@ class ReportsViewModel(
 
     private val typeFilter = MutableStateFlow<TransactionType?>(null)
     private val period = MutableStateFlow(ReportPeriod.MONTH)
+    // Only meaningful when period == DAY — the "pick any specific day" reference date. Other
+    // periods always anchor on today's current week/month/year, same as before.
+    private val dailyDate = MutableStateFlow(LocalDate.now())
 
     val selectedType: StateFlow<TransactionType?> = typeFilter.asStateFlow()
     val selectedPeriod: StateFlow<ReportPeriod> = period.asStateFlow()
+    val selectedDailyDate: StateFlow<LocalDate> = dailyDate.asStateFlow()
 
-    private val selection = combine(typeFilter, period) { type, p -> type to p }
+    private val selection = combine(typeFilter, period, dailyDate) { type, p, d -> Triple(type, p, d) }
     private val currencyContext = combine(displayCurrency, exchangeRateRepository.rates) { display, rates -> display to rates }
 
-    // Daily has no useful chart per CLAUDE.md — it's a plain list + running total instead.
-    val dailyTransactions: StateFlow<List<Transaction>> = selection.flatMapLatest { (type, p) ->
-        if (p != ReportPeriod.DAY) return@flatMapLatest flowOf(emptyList())
-        val (start, end) = dateRangeFor(p, LocalDate.now())
-        transactionRepository.getByTypeAndDateRange(type, start, end)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
-
-    // Weekly/Monthly bar charts group by day within their range; Yearly groups by month.
-    val barChartData: StateFlow<List<PeriodTotal>> = combine(selection, currencyContext) { s, c -> s to c }
-        .flatMapLatest { (selectionPair, currencyPair) ->
-            val (type, p) = selectionPair
-            val (display, rates) = currencyPair
-            val (start, end) = dateRangeFor(p, LocalDate.now())
-            val raw = when (p) {
-                ReportPeriod.DAY -> flowOf(emptyList())
-                ReportPeriod.WEEK, ReportPeriod.MONTH -> transactionRepository.getTotals(type, ReportPeriod.DAY, start, end)
-                ReportPeriod.YEAR -> transactionRepository.getTotals(type, ReportPeriod.MONTH, start, end)
-            }
-            raw.map { foldPeriodTotals(it, display, rates) }
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
-
+    // Income and expense per category for the selected (type, period, referenceDate) — the single
+    // source Reports builds its totals, stacked bars, and category list from.
     val categoryBreakdown: StateFlow<List<CategorySlice>> = combine(selection, currencyContext) { s, c -> s to c }
-        .flatMapLatest { (selectionPair, currencyPair) ->
-            val (type, p) = selectionPair
+        .flatMapLatest { (selectionTriple, currencyPair) ->
+            val (type, p, dailyRefDate) = selectionTriple
             val (display, rates) = currencyPair
-            val (start, end) = dateRangeFor(p, LocalDate.now())
+            val referenceDate = if (p == ReportPeriod.DAY) dailyRefDate else LocalDate.now()
+            val (start, end) = dateRangeFor(p, referenceDate)
             combine(
                 transactionRepository.getCategoryTotals(type, start, end),
                 categoryRepository.getAll()
             ) { rawTotals, categories ->
                 val byId = categories.associateBy { it.id }
                 foldCategoryTotals(rawTotals, display, rates).mapNotNull { t ->
-                    byId[t.categoryId]?.let { category -> CategorySlice(category, t.total) }
+                    byId[t.categoryId]?.let { category -> CategorySlice(category, t.income, t.expense) }
                 }
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
@@ -92,26 +73,19 @@ class ReportsViewModel(
         period.value = newPeriod
     }
 
-    companion object {
-        fun foldPeriodTotals(raw: List<PeriodCurrencyTotal>, display: Currency, rates: ExchangeRateCache): List<PeriodTotal> =
-            raw.groupBy { it.bucket }
-                .map { (bucket, rows) ->
-                    PeriodTotal(
-                        bucket = bucket,
-                        income = rows.sumOf { ExchangeRateRepository.convert(it.income, it.currency, display, rates) },
-                        expense = rows.sumOf { ExchangeRateRepository.convert(it.expense, it.currency, display, rates) }
-                    )
-                }
-                .sortedBy { it.bucket }
+    fun setDailyDate(date: LocalDate) {
+        dailyDate.value = date
+    }
 
+    companion object {
         fun foldCategoryTotals(raw: List<CategoryCurrencyTotal>, display: Currency, rates: ExchangeRateCache): List<CategoryTotal> =
             raw.groupBy { it.categoryId }
                 .map { (categoryId, rows) ->
                     CategoryTotal(
                         categoryId = categoryId,
-                        total = rows.sumOf { ExchangeRateRepository.convert(it.total, it.currency, display, rates) }
+                        income = rows.sumOf { ExchangeRateRepository.convert(it.income, it.currency, display, rates) },
+                        expense = rows.sumOf { ExchangeRateRepository.convert(it.expense, it.currency, display, rates) }
                     )
                 }
-                .sortedByDescending { it.total }
     }
 }

@@ -59,6 +59,7 @@ import com.example.financeflow.ui.components.GlassCard
 import com.example.financeflow.ui.components.GlassFab
 import com.example.financeflow.ui.components.GlassTextField
 import com.example.financeflow.ui.components.TransactionRow
+import com.example.financeflow.ui.components.displayName
 import com.example.financeflow.ui.components.TransactionTypeToggle
 import com.example.financeflow.ui.theme.GlassTier
 import com.example.financeflow.ui.theme.Radius
@@ -82,7 +83,7 @@ fun TransactionsScreen(
     val filter by transactionViewModel.currentListFilter.collectAsState()
     val transactions by transactionViewModel.filteredList.collectAsState()
     val categories by categoryViewModel.filteredCategories.collectAsState()
-    val categoryNames = remember(categories) { categories.associate { it.id to it.name } }
+    val categoriesById = remember(categories) { categories.associateBy { it.id } }
     val displayCurrency by CurrencyPreferences.flow(context).collectAsState()
     val exchangeRateRepository = remember { ExchangeRateRepository(AppDatabase.getInstance(context).exchangeRateDao(), context) }
     val rates by exchangeRateRepository.rates.collectAsState(initial = ExchangeRateCache())
@@ -151,7 +152,8 @@ fun TransactionsScreen(
                 items(transactions, key = { it.id }) { transaction ->
                     TransactionRow(
                         transaction = transaction,
-                        categoryName = categoryNames[transaction.categoryId] ?: uncategorized,
+                        category = categoriesById[transaction.categoryId],
+                        uncategorizedName = uncategorized,
                         displayAmount = ExchangeRateRepository.convert(transaction.amount, transaction.currency, displayCurrency, rates),
                         currencyFormat = currencyFormat,
                         dateFormat = dateFormat,
@@ -187,7 +189,7 @@ private fun CategoryDropdown(
 ) {
     var expanded by remember { mutableStateOf(false) }
     val allCategoriesLabel = stringResource(R.string.category_filter_all)
-    val selectedName = categories.find { it.id == selectedCategoryId }?.name ?: allCategoriesLabel
+    val selectedName = categories.find { it.id == selectedCategoryId }?.displayName() ?: allCategoriesLabel
 
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
         GlassTextField(
@@ -205,7 +207,7 @@ private fun CategoryDropdown(
             )
             categories.forEach { category ->
                 DropdownMenuItem(
-                    text = { Text(category.name) },
+                    text = { Text(category.displayName()) },
                     onClick = { onSelect(category.id); expanded = false }
                 )
             }

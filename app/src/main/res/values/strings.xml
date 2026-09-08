@@ -119,10 +119,9 @@
     <string name="label_monthly">Mujore</string>
     <string name="label_yearly">Vjetore</string>
     <string name="label_custom">Personalizuar</string>
-    <string name="report_by_category_title">Sipas Kategorisë</string>
-    <string name="report_no_transactions_today">Asnjë transaksion sot.</string>
-    <string name="report_running_total">Gjendja: %1$s</string>
     <string name="report_no_spending_period">Asnjë shpenzim në këtë periudhë.</string>
+    <string name="report_no_income_period">Asnjë e ardhur në këtë periudhë.</string>
+    <string name="report_percent_of_total">%1$s%% e totalit</string>
 
     <string name="transaction_edit_title">Redakto Transaksionin</string>
     <string name="transaction_add_title">Shto Transaksion</string>

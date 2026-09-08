@@ -1,6 +1,5 @@
 package com.example.financeflow.ui.screens
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -50,16 +49,16 @@ import com.example.financeflow.ui.components.AddCategoryButton
 import com.example.financeflow.ui.components.CategoryIcons
 import com.example.financeflow.ui.components.CancelButton
 import com.example.financeflow.ui.components.ConfirmButton
-import com.example.financeflow.ui.components.GlassCard
+import com.example.financeflow.ui.components.displayName
 import com.example.financeflow.ui.components.GlassDialog
 import com.example.financeflow.ui.components.GlassFab
 import com.example.financeflow.ui.components.GlassFilterChip
 import com.example.financeflow.ui.components.GlassSegmentedControl
 import com.example.financeflow.ui.components.GlassTextField
 import com.example.financeflow.ui.components.InlineHint
+import com.example.financeflow.ui.components.ListRow
 import com.example.financeflow.ui.components.QuickAddCategoryDialog
 import com.example.financeflow.ui.components.TransactionTypeToggle
-import com.example.financeflow.ui.components.TypeIndicatorIcon
 import com.example.financeflow.ui.components.indicatorIcon
 import com.example.financeflow.ui.components.periodLabel
 import com.example.financeflow.ui.components.toCategoryColor
@@ -177,54 +176,59 @@ fun BudgetsScreen(
 private fun BudgetCard(budget: CategoryBudget, currencyFormat: NumberFormat, onClick: () -> Unit, isCombinedView: Boolean) {
     val limit = budget.limit
     val swatch = budget.category.color.toCategoryColor()
+    val typeIcon = if (isCombinedView) budget.category.type.indicatorIcon() else null
 
-    GlassCard(
-        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
-        containerColor = MaterialTheme.extendedColors.accent
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                CategoryIcons.resolve(budget.category.icon),
-                contentDescription = null,
-                tint = swatch
-            )
-            Spacer(Modifier.width(8.dp))
-            Text(text = budget.category.name, style = MaterialTheme.typography.titleLarge)
-            val icon = if (isCombinedView) budget.category.type.indicatorIcon() else null
-            if (icon != null) {
-                Spacer(Modifier.width(6.dp))
-                TypeIndicatorIcon(icon)
+    if (limit == null) {
+        ListRow(
+            icon = CategoryIcons.resolve(budget.category.icon),
+            swatchColor = swatch,
+            title = budget.category.displayName(),
+            titleTrailingIcon = typeIcon,
+            onClick = onClick,
+            extra = {
+                Text(
+                    text = stringResource(R.string.budget_spent_no_limit, currencyFormat.format(budget.spent)),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = stringResource(R.string.budget_not_set),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
             }
-        }
+        )
+        return
+    }
 
-        Spacer(Modifier.height(12.dp))
+    val fraction = if (limit > 0) (budget.spent / limit).toFloat() else 0f
+    val isOverBudget = budget.spent > limit
+    val statusColor = when {
+        fraction >= 1f -> MaterialTheme.colorScheme.tertiary
+        fraction >= 0.8f -> MaterialTheme.extendedColors.warning
+        else -> MaterialTheme.colorScheme.secondary
+    }
+    val statusContainerColor = when {
+        fraction >= 1f -> MaterialTheme.colorScheme.tertiaryContainer
+        fraction >= 0.8f -> MaterialTheme.extendedColors.warningContainer
+        else -> MaterialTheme.colorScheme.secondaryContainer
+    }
 
-        if (limit == null) {
+    ListRow(
+        icon = CategoryIcons.resolve(budget.category.icon),
+        swatchColor = swatch,
+        title = budget.category.displayName(),
+        titleTrailingIcon = typeIcon,
+        onClick = onClick,
+        trailing = {
             Text(
-                text = stringResource(R.string.budget_spent_no_limit, currencyFormat.format(budget.spent)),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                text = "${(fraction * 100).roundToInt()}%",
+                style = MaterialTheme.typography.bodyMedium,
+                color = statusColor
             )
-            Spacer(Modifier.height(4.dp))
-            Text(
-                text = stringResource(R.string.budget_not_set),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
-        } else {
-            val fraction = if (limit > 0) (budget.spent / limit).toFloat() else 0f
-            val isOverBudget = budget.spent > limit
-            val statusColor = when {
-                fraction >= 1f -> MaterialTheme.colorScheme.tertiary
-                fraction >= 0.8f -> MaterialTheme.extendedColors.warning
-                else -> MaterialTheme.colorScheme.secondary
-            }
-            val statusContainerColor = when {
-                fraction >= 1f -> MaterialTheme.colorScheme.tertiaryContainer
-                fraction >= 0.8f -> MaterialTheme.extendedColors.warningContainer
-                else -> MaterialTheme.colorScheme.secondaryContainer
-            }
-
+        },
+        extra = {
             LinearProgressIndicator(
                 progress = { fraction.coerceIn(0f, 1f) },
                 modifier = Modifier.fillMaxWidth().height(8.dp),
@@ -234,22 +238,12 @@ private fun BudgetCard(budget: CategoryBudget, currencyFormat: NumberFormat, onC
 
             Spacer(Modifier.height(8.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = stringResource(R.string.budget_spent_of_limit, currencyFormat.format(budget.spent), currencyFormat.format(limit)) +
-                        " · " + periodLabel(budget.period),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = "${(fraction * 100).roundToInt()}%",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = statusColor
-                )
-            }
+            Text(
+                text = stringResource(R.string.budget_spent_of_limit, currencyFormat.format(budget.spent), currencyFormat.format(limit)) +
+                    " · " + periodLabel(budget.period),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
 
             if (isOverBudget) {
                 Spacer(Modifier.height(4.dp))
@@ -264,7 +258,7 @@ private fun BudgetCard(budget: CategoryBudget, currencyFormat: NumberFormat, onC
                 }
             }
         }
-    }
+    )
 }
 
 // Shared by both entry points: tapping an existing card (fixedCategory set, pickableCategories
@@ -289,7 +283,7 @@ private fun SetBudgetDialog(
 
     GlassDialog(
         onDismissRequest = onDismiss,
-        title = { Text(selected?.name ?: stringResource(R.string.budget_pick_category_title)) },
+        title = { Text(selected?.displayName() ?: stringResource(R.string.budget_pick_category_title)) },
         text = {
             Column {
                 if (fixedCategory == null) {
@@ -298,7 +292,7 @@ private fun SetBudgetDialog(
                             GlassFilterChip(
                                 selected = selected?.id == category.id,
                                 onClick = { selected = category },
-                                label = { Text(category.name) }
+                                label = { Text(category.displayName()) }
                             )
                         }
                         AddCategoryButton(onClick = { showQuickAddCategory = true })

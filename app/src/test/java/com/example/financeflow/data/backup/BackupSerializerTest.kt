@@ -18,7 +18,8 @@ class BackupSerializerTest {
         val payload = BackupPayload(
             categories = listOf(
                 Category(id = 1, name = "Groceries", type = CategoryType.PERSONAL, budgetLimit = 500.0, budgetLimitCurrency = Currency.EUR, icon = "food", color = "#7FB88F"),
-                Category(id = 2, name = "Bank Fees", type = CategoryType.BOTH, budgetLimit = null, icon = null, color = null)
+                Category(id = 2, name = "Bank Fees", type = CategoryType.BOTH, budgetLimit = null, icon = null, color = null),
+                Category(id = 3, name = "Ushqim", nameKey = "food", type = CategoryType.PERSONAL, icon = "food")
             ),
             recurringRules = listOf(
                 RecurringRule(

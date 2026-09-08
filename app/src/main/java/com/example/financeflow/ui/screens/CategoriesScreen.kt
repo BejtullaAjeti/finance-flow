@@ -52,8 +52,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -72,11 +70,12 @@ import com.example.financeflow.ui.components.ConfirmButton
 import com.example.financeflow.ui.components.GlassCard
 import com.example.financeflow.ui.components.GlassDialog
 import com.example.financeflow.ui.components.GlassFab
-import com.example.financeflow.ui.components.GlassRow
 import com.example.financeflow.ui.components.GlassSegmentedControl
 import com.example.financeflow.ui.components.GlassTextField
 import com.example.financeflow.ui.components.InlineHint
+import com.example.financeflow.ui.components.ListRow
 import com.example.financeflow.ui.components.categoryTypeLabel
+import com.example.financeflow.ui.components.displayName
 import com.example.financeflow.ui.components.periodLabel
 import com.example.financeflow.ui.components.selectionRing
 import com.example.financeflow.ui.components.toCategoryColor
@@ -168,6 +167,10 @@ fun CategoriesScreen(
                     }
                 }
                 items(categories, key = { it.id }) { category ->
+                    // Resolved here, in composition, and captured by the callbacks below — they
+                    // run later outside composition, where a @Composable displayName() call
+                    // isn't legal.
+                    val categoryDisplayName = category.displayName()
                     SwipeToDeleteCategoryRow(
                         category = category,
                         onClick = { editingCategory = category; showDialog = true },
@@ -177,7 +180,7 @@ fun CategoriesScreen(
                                 onDeleted = {
                                     scope.launch {
                                         val result = snackbarHostState.showSnackbar(
-                                            message = deletedMessage.format(category.name),
+                                            message = deletedMessage.format(categoryDisplayName),
                                             actionLabel = undoLabel
                                         )
                                         if (result == SnackbarResult.ActionPerformed) {
@@ -190,7 +193,7 @@ fun CategoriesScreen(
                                         CategoryDeleteBlockReason.IN_USE -> inUseMessage
                                         CategoryDeleteBlockReason.LAST_OF_TYPE -> lastOfTypeMessage
                                     }
-                                    scope.launch { snackbarHostState.showSnackbar(message.format(category.name)) }
+                                    scope.launch { snackbarHostState.showSnackbar(message.format(categoryDisplayName)) }
                                 }
                             )
                         }
@@ -273,49 +276,30 @@ private fun CategoryRow(
     onClick: () -> Unit
 ) {
     val currencyFormat = rememberCurrencyFormat(category.budgetLimitCurrency)
-    val swatch = category.color.toCategoryColor()
-    GlassRow(
-        modifier = Modifier.fillMaxWidth(),
-        onClick = onClick
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(swatch, CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    CategoryIcons.resolve(category.icon),
-                    contentDescription = null,
-                    tint = if (swatch.luminance() > 0.5f) Color.Black else Color.White
-                )
-            }
-            Spacer(Modifier.width(12.dp))
-            Column {
-                Text(text = category.name, style = MaterialTheme.typography.bodyLarge)
-                Text(
-                    text = buildString {
-                        append(categoryTypeLabel(category.type))
-                        category.budgetLimit?.let {
-                            append(" · ")
-                            append(
-                                stringResource(
-                                    R.string.categories_budget_suffix,
-                                    currencyFormat.format(it),
-                                    periodLabel(category.budgetPeriod)
-                                )
+    ListRow(
+        icon = CategoryIcons.resolve(category.icon),
+        swatchColor = category.color.toCategoryColor(),
+        title = category.displayName(),
+        onClick = onClick,
+        subtitle = {
+            Text(
+                text = buildString {
+                    append(categoryTypeLabel(category.type))
+                    category.budgetLimit?.let {
+                        append(" · ")
+                        append(
+                            stringResource(
+                                R.string.categories_budget_suffix,
+                                currencyFormat.format(it),
+                                periodLabel(category.budgetPeriod)
                             )
-                        }
-                    },
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
+                        )
+                    }
+                },
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
-    }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -325,7 +309,12 @@ private fun AddEditCategoryDialog(
     onDismiss: () -> Unit,
     onSave: (Category) -> Unit
 ) {
-    var name by remember { mutableStateOf(editing?.name ?: "") }
+    // The name field opens pre-filled with the resolved display name (so a default category's
+    // localized name shows, not its raw stored fallback) — `initialDisplayName` is also compared
+    // against on save so editing icon/budget/etc. without touching the name field doesn't strip
+    // `nameKey` off a default category.
+    val initialDisplayName = editing?.displayName()
+    var name by remember(editing) { mutableStateOf(initialDisplayName ?: "") }
     var type by remember { mutableStateOf(editing?.type ?: CategoryType.PERSONAL) }
     var icon by remember { mutableStateOf(editing?.icon) }
     var color by remember { mutableStateOf(editing?.color ?: CategoryColorPalette.first()) }
@@ -444,6 +433,10 @@ private fun AddEditCategoryDialog(
                         Category(
                             id = editing?.id ?: 0,
                             name = name.trim(),
+                            // Untouched name field on a default category → still its own words
+                            // weren't typed, so keep translating it; changed (or brand new) →
+                            // these are the user's own words now, never resolve them as a key.
+                            nameKey = editing?.nameKey?.takeIf { name == initialDisplayName },
                             type = type,
                             budgetLimit = budgetText.toDoubleOrNull(),
                             budgetLimitCurrency = budgetCurrency,

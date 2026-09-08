@@ -31,7 +31,6 @@ import com.example.financeflow.ui.components.GlassCard
 import com.example.financeflow.ui.components.LocalSnackbarController
 import com.example.financeflow.ui.components.SnackbarController
 import com.example.financeflow.ui.theme.GlassTier
-import com.example.financeflow.ui.theme.extendedColors
 import com.example.financeflow.ui.screens.AddEditRecurringRuleScreen
 import com.example.financeflow.ui.screens.AddEditTransactionScreen
 import com.example.financeflow.ui.screens.BudgetsScreen
@@ -156,10 +155,9 @@ private fun FinanceFlowBottomBar(navController: NavHostController) {
                 },
                 label = { Text(label) },
                 colors = NavigationBarItemDefaults.colors(
-                    // Same per-mode accent as selected filter chips (#BDB2FF light / #DFD0B8
-                    // dark) rather than Primary, which is fixed lavender in both modes and
-                    // wouldn't read as "current tokens" against the dark palette.
-                    indicatorColor = MaterialTheme.extendedColors.selectedFill,
+                    // The Accent role (colorScheme.primary) — #BDB2FF light / #DFD0B8 dark, same
+                    // per-mode value every other selected/active state (chips, FAB, buttons) uses.
+                    indicatorColor = MaterialTheme.colorScheme.primary,
                     selectedIconColor = MaterialTheme.colorScheme.onPrimary,
                     // onSurface, not the accent color, for the label: the accent is a pale
                     // pastel and reads as barely-there text directly on the Surface background

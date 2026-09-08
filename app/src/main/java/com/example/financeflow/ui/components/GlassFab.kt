@@ -20,7 +20,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 
 /**
- * Shared floating action button — solid Primary fill, no border, no shadow, per the minimalist
+ * Shared floating action button — solid Accent fill, no border, no shadow, per the minimalist
  * policy. Larger than M3's default (64dp vs 56dp) for an easier thumb target; used everywhere
  * the app needs a primary "add" action (Home, Transactions, Recurring, Categories).
  */

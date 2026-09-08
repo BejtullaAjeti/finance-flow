@@ -38,7 +38,6 @@ import com.adamglin.phosphoricons.regular.CaretRight
 import com.example.financeflow.R
 import com.example.financeflow.locale.currentAppLocale
 import com.example.financeflow.ui.theme.Radius
-import com.example.financeflow.ui.theme.extendedColors
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
@@ -133,7 +132,7 @@ fun CalendarDialog(
                                 .aspectRatio(1f)
                                 .padding(2.dp)
                                 .clip(CircleShape)
-                                .background(if (isSelected) MaterialTheme.extendedColors.selectedFill else Color.Transparent)
+                                .background(if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent)
                                 .clickable {
                                     selectedDate = day
                                     if (!inMonth) displayedMonth = YearMonth.from(day)
@@ -144,7 +143,7 @@ fun CalendarDialog(
                                 text = day.dayOfMonth.toString(),
                                 color = when {
                                     isSelected -> MaterialTheme.colorScheme.onPrimary
-                                    isToday -> MaterialTheme.extendedColors.selectedFill
+                                    isToday -> MaterialTheme.colorScheme.primary
                                     !inMonth -> MaterialTheme.colorScheme.onSurfaceVariant
                                     else -> MaterialTheme.colorScheme.onSurface
                                 }

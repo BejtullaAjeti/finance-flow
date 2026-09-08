@@ -40,6 +40,7 @@ import com.example.financeflow.data.categoryTypeFor
 import com.example.financeflow.locale.CurrencyPreferences
 import com.example.financeflow.ui.components.ConfirmButton
 import com.example.financeflow.ui.components.DateField
+import com.example.financeflow.ui.components.displayName
 import com.example.financeflow.ui.components.GlassFilterChip
 import com.example.financeflow.ui.components.GlassSegmentedControl
 import com.example.financeflow.viewmodel.CategoryViewModel
@@ -223,7 +224,7 @@ fun AddEditRecurringRuleScreen(
                         GlassFilterChip(
                             selected = selectedCategory?.id == category.id,
                             onClick = { selectedCategory = category },
-                            label = { Text(category.name) }
+                            label = { Text(category.displayName()) }
                         )
                     }
                 }

@@ -43,6 +43,7 @@ private fun <T> JSONArray.mapObjects(transform: (JSONObject) -> T): List<T> =
 private fun Category.toJson(): JSONObject = JSONObject().apply {
     put("id", id)
     put("name", name)
+    put("nameKey", nameKey ?: JSONObject.NULL)
     put("type", type.name)
     put("budgetLimit", budgetLimit ?: JSONObject.NULL)
     put("budgetLimitCurrency", budgetLimitCurrency.name)
@@ -53,6 +54,9 @@ private fun Category.toJson(): JSONObject = JSONObject().apply {
 private fun JSONObject.toCategory(): Category = Category(
     id = getLong("id"),
     name = getString("name"),
+    // optStringOrNull, not getString — backups made before this field existed have no "nameKey"
+    // key at all, and isNull() treats a missing key the same as an explicit null.
+    nameKey = optStringOrNull("nameKey"),
     type = CategoryType.valueOf(getString("type")),
     budgetLimit = optDoubleOrNull("budgetLimit"),
     budgetLimitCurrency = Currency.valueOf(getString("budgetLimitCurrency")),

@@ -21,10 +21,10 @@ private val FinanceFlowShapes = Shapes(
 )
 
 private val FinanceFlowLightScheme = lightColorScheme(
-    primary = Primary,
-    onPrimary = OnPrimaryColor,
+    primary = AccentLight,
+    onPrimary = OnAccentColor,
     secondary = IncomeLight,
-    onSecondary = OnPrimaryColor,
+    onSecondary = OnAccentColor,
     secondaryContainer = IncomeContainerLight,
     tertiary = ExpenseLight,
     onTertiary = Color.White,
@@ -43,14 +43,18 @@ private val FinanceFlowLightScheme = lightColorScheme(
     onError = Color.White
 )
 
+// `primary` is this scheme's Accent role — it must be AccentDark, not AccentLight. Reusing the
+// light hue here was the dark-mode bug: the FAB and every Accent-filled button rendered in the
+// light palette's purple instead of the dark palette's tan, because `primary` was a single
+// `Primary` constant shared by both schemes instead of switching per mode like every other role.
 private val FinanceFlowDarkScheme = darkColorScheme(
-    primary = Primary,
-    onPrimary = OnPrimaryColor,
+    primary = AccentDark,
+    onPrimary = OnAccentColor,
     secondary = IncomeDark,
-    onSecondary = OnPrimaryColor,
+    onSecondary = OnAccentColor,
     secondaryContainer = IncomeContainerDark,
     tertiary = ExpenseDark,
-    onTertiary = OnPrimaryColor,
+    onTertiary = OnAccentColor,
     tertiaryContainer = ExpenseContainerDark,
     background = BackgroundDark,
     onBackground = OnBackgroundDark,
@@ -60,7 +64,7 @@ private val FinanceFlowDarkScheme = darkColorScheme(
     onSurfaceVariant = OnSurfaceMutedDark,
     outline = OnSurfaceMutedDark,
     error = ExpenseDark,
-    onError = OnPrimaryColor
+    onError = OnAccentColor
 )
 
 @Composable

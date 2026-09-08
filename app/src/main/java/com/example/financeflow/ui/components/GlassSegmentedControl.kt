@@ -23,7 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import com.example.financeflow.ui.theme.Radius
 import com.example.financeflow.ui.theme.Spacing
 
-/** Flat Surface-background segmented control — selected segment is a solid Primary fill. Used
+/** Flat Surface-background segmented control — selected segment is a solid Accent fill. Used
  * for every segmented control in the app (type toggles, tabs, period pickers, settings rows). */
 @Composable
 fun <T> GlassSegmentedControl(

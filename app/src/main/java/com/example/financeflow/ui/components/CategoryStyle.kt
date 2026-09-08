@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.financeflow.R
+import com.example.financeflow.data.Category
 import com.example.financeflow.data.CategoryType
 import com.example.financeflow.data.TransactionType
 
@@ -76,6 +77,26 @@ fun categoryTypeLabel(type: CategoryType): String = when (type) {
     CategoryType.PERSONAL -> stringResource(R.string.type_personal)
     CategoryType.BUSINESS -> stringResource(R.string.type_business)
     CategoryType.BOTH -> stringResource(R.string.type_both)
+}
+
+/**
+ * The name to show for [Category] — resolved through the current locale for a seeded default
+ * (non-null [Category.nameKey]) instead of its frozen-at-seed-time [Category.name], and shown
+ * verbatim for a user-created category (nameKey null), whose name is their own words and must
+ * never be run through a resource lookup. Every screen that displays a category name must call
+ * this instead of reading `.name` directly, or it silently reintroduces the "seeded categories
+ * don't re-translate" bug this exists to fix.
+ */
+@Composable
+fun Category.displayName(): String = when (nameKey) {
+    "food" -> stringResource(R.string.category_default_food)
+    "transport" -> stringResource(R.string.category_default_transport)
+    "bills" -> stringResource(R.string.category_default_bills)
+    "salary" -> stringResource(R.string.category_default_salary)
+    "business_income" -> stringResource(R.string.category_default_business_income)
+    "business_expenses" -> stringResource(R.string.category_default_business_expenses)
+    "others" -> stringResource(R.string.category_default_others)
+    else -> name
 }
 
 // Same Personal/Business icons as TransactionTypeToggle, reused here as a small in-Combined-mode

@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 
-/** Flat drop-in for M3's Button — solid Primary fill, no border, per the minimalist policy. */
+/** Flat drop-in for M3's Button — solid Accent fill, no border, per the minimalist policy. */
 @Composable
 fun GlassButton(
     onClick: () -> Unit,

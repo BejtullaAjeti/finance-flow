@@ -29,10 +29,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.financeflow.R
 import com.example.financeflow.data.AppDatabase
+import com.example.financeflow.data.Category
 import com.example.financeflow.data.ExchangeRateCache
 import com.example.financeflow.data.RecurringRule
 import com.example.financeflow.data.TransactionType
@@ -40,11 +40,13 @@ import com.example.financeflow.data.repository.ExchangeRateRepository
 import com.example.financeflow.locale.CurrencyPreferences
 import com.example.financeflow.locale.rememberCurrencyFormat
 import com.example.financeflow.locale.rememberDateFormat
+import com.example.financeflow.ui.components.CategoryIcons
 import com.example.financeflow.ui.components.GlassCard
 import com.example.financeflow.ui.components.GlassFab
-import com.example.financeflow.ui.components.GlassRow
+import com.example.financeflow.ui.components.ListRow
 import com.example.financeflow.ui.components.TransactionRow
 import com.example.financeflow.ui.components.TransactionTypeToggle
+import com.example.financeflow.ui.components.toCategoryColor
 import com.example.financeflow.ui.theme.MoneyFigure
 import com.example.financeflow.ui.theme.MoneyFigureLarge
 import com.example.financeflow.ui.theme.extendedColors
@@ -70,7 +72,7 @@ fun HomeScreen(
     val context = LocalContext.current
     val transactions by transactionViewModel.filteredTransactions.collectAsState()
     val categories by categoryViewModel.categories.collectAsState()
-    val categoryNames = remember(categories) { categories.associate { it.id to it.name } }
+    val categoriesById = remember(categories) { categories.associateBy { it.id } }
 
     val typeFilter by transactionViewModel.currentTypeFilter.collectAsState()
     val displayCurrency by CurrencyPreferences.flow(context).collectAsState()
@@ -114,7 +116,7 @@ fun HomeScreen(
 
             Crossfade(targetState = typeFilter, label = "homeTypeFilterContent") { _ ->
                 Column {
-                    GlassCard(modifier = Modifier.fillMaxWidth(), containerColor = MaterialTheme.extendedColors.accent) {
+                    GlassCard(modifier = Modifier.fillMaxWidth()) {
                         Text(text = stringResource(R.string.home_this_month_title), style = MaterialTheme.typography.titleLarge)
                         Row(
                             modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
@@ -138,7 +140,7 @@ fun HomeScreen(
                         Spacer(Modifier.height(8.dp))
                         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             upcomingRules.forEach { rule ->
-                                UpcomingRuleRow(rule = rule)
+                                UpcomingRuleRow(rule = rule, category = categoriesById[rule.categoryId])
                             }
                         }
                     }
@@ -158,7 +160,8 @@ fun HomeScreen(
                             items(transactions.take(5), key = { it.id }) { transaction ->
                                 TransactionRow(
                                     transaction = transaction,
-                                    categoryName = categoryNames[transaction.categoryId] ?: uncategorized,
+                                    category = categoriesById[transaction.categoryId],
+                                    uncategorizedName = uncategorized,
                                     displayAmount = ExchangeRateRepository.convert(transaction.amount, transaction.currency, displayCurrency, rates),
                                     currencyFormat = currencyFormat,
                                     dateFormat = dateFormat,
@@ -175,7 +178,7 @@ fun HomeScreen(
 }
 
 @Composable
-private fun UpcomingRuleRow(rule: RecurringRule) {
+private fun UpcomingRuleRow(rule: RecurringRule, category: Category?) {
     val currencyFormat = rememberCurrencyFormat(rule.currency)
     val today = LocalDate.now()
     val daysUntilDue = ChronoUnit.DAYS.between(today, rule.nextDueDate)
@@ -184,33 +187,25 @@ private fun UpcomingRuleRow(rule: RecurringRule) {
     } else {
         stringResource(R.string.home_upcoming_due_in_days, daysUntilDue.toInt())
     }
+    val sign = if (rule.isIncome) "+" else "-"
 
-    GlassRow(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = rule.label,
-                    style = MaterialTheme.typography.bodyLarge,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = dueLabel,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            Spacer(Modifier.width(8.dp))
-            val sign = if (rule.isIncome) "+" else "-"
+    ListRow(
+        icon = CategoryIcons.resolve(category?.icon),
+        swatchColor = category?.color.toCategoryColor(),
+        title = rule.label,
+        subtitle = {
+            Text(
+                text = dueLabel,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        },
+        trailing = {
             Text(
                 text = "$sign${currencyFormat.format(rule.amount)}",
                 style = MoneyFigure,
                 color = if (rule.isIncome) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.tertiary
             )
         }
-    }
+    )
 }

@@ -59,69 +59,19 @@ interface TransactionDao {
         search: String?
     ): Flow<List<Transaction>>
 
+    // Income and expense summed separately per category — the one shared "breakdown query" Reports
+    // builds its totals, stacked bar, and category list from (CLAUDE.md §6), for any (type, period)
+    // date range.
     @Query(
         """
-        SELECT categoryId, currency, SUM(amount) AS total
+        SELECT categoryId, currency,
+               SUM(CASE WHEN isIncome = 1 THEN amount ELSE 0 END) AS income,
+               SUM(CASE WHEN isIncome = 0 THEN amount ELSE 0 END) AS expense
         FROM transactions
-        WHERE isIncome = 0
-          AND (:type IS NULL OR type = :type)
+        WHERE (:type IS NULL OR type = :type)
           AND date BETWEEN :start AND :end
         GROUP BY categoryId, currency
         """
     )
     fun getCategoryTotals(type: TransactionType?, start: LocalDate, end: LocalDate): Flow<List<CategoryCurrencyTotal>>
-
-    @Query(
-        """
-        SELECT date(date * 86400, 'unixepoch') AS bucket, currency,
-               SUM(CASE WHEN isIncome = 1 THEN amount ELSE 0 END) AS income,
-               SUM(CASE WHEN isIncome = 0 THEN amount ELSE 0 END) AS expense
-        FROM transactions
-        WHERE date BETWEEN :start AND :end AND (:type IS NULL OR type = :type)
-        GROUP BY bucket, currency
-        ORDER BY bucket ASC
-        """
-    )
-    fun getDailyTotals(start: LocalDate, end: LocalDate, type: TransactionType?): Flow<List<PeriodCurrencyTotal>>
-
-    // ponytail: %W is SQLite's week-of-year (Sunday-start, not ISO-8601), good enough for a bar-chart
-    // bucket; swap for a computed ISO week column if exact week numbering matters later.
-    @Query(
-        """
-        SELECT strftime('%Y-%W', date * 86400, 'unixepoch') AS bucket, currency,
-               SUM(CASE WHEN isIncome = 1 THEN amount ELSE 0 END) AS income,
-               SUM(CASE WHEN isIncome = 0 THEN amount ELSE 0 END) AS expense
-        FROM transactions
-        WHERE date BETWEEN :start AND :end AND (:type IS NULL OR type = :type)
-        GROUP BY bucket, currency
-        ORDER BY bucket ASC
-        """
-    )
-    fun getWeeklyTotals(start: LocalDate, end: LocalDate, type: TransactionType?): Flow<List<PeriodCurrencyTotal>>
-
-    @Query(
-        """
-        SELECT strftime('%Y-%m', date * 86400, 'unixepoch') AS bucket, currency,
-               SUM(CASE WHEN isIncome = 1 THEN amount ELSE 0 END) AS income,
-               SUM(CASE WHEN isIncome = 0 THEN amount ELSE 0 END) AS expense
-        FROM transactions
-        WHERE date BETWEEN :start AND :end AND (:type IS NULL OR type = :type)
-        GROUP BY bucket, currency
-        ORDER BY bucket ASC
-        """
-    )
-    fun getMonthlyTotals(start: LocalDate, end: LocalDate, type: TransactionType?): Flow<List<PeriodCurrencyTotal>>
-
-    @Query(
-        """
-        SELECT strftime('%Y', date * 86400, 'unixepoch') AS bucket, currency,
-               SUM(CASE WHEN isIncome = 1 THEN amount ELSE 0 END) AS income,
-               SUM(CASE WHEN isIncome = 0 THEN amount ELSE 0 END) AS expense
-        FROM transactions
-        WHERE date BETWEEN :start AND :end AND (:type IS NULL OR type = :type)
-        GROUP BY bucket, currency
-        ORDER BY bucket ASC
-        """
-    )
-    fun getYearlyTotals(start: LocalDate, end: LocalDate, type: TransactionType?): Flow<List<PeriodCurrencyTotal>>
 }

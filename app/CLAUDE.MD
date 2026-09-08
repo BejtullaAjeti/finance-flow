@@ -71,10 +71,10 @@ This single-table-with-a-type-tag design is what lets you view personal-only, bu
     - List of categories with budget limits
     - Progress bar per category (spent vs limit), red state if over
 
-5. **Reports**
-    - Pie chart: spending by category (filtered by personal/business/combined)
-    - Bar chart: monthly totals over time
-    - Personal vs business comparison view
+5. **Reports** (numbers-first, no charts as of the 2026-09-08 pass — see §6)
+    - Total income/expense as plain large numbers (filtered by personal/business/combined)
+    - One flat stacked bar per type (income, expense), segmented by category color/share
+    - Category list below: icon, name, amount, % of total — sorted by amount descending
 
 6. **Recurring Rules**
     - List of active recurring income/expenses
@@ -112,16 +112,27 @@ This single-table-with-a-type-tag design is what lets you view personal-only, bu
 - Keep the "add transaction" flow to 2 taps max — this is what makes logging actually stick
 - Consistent icon per category so lists are scannable without reading text
 
-**Minimalist flat design (as of the 2026-08-23 pass):**
+**Minimalist flat design (as of the 2026-08-23 pass, color system corrected 2026-09-08):**
 - Solid colors only — no transparency, no blur, no shadows anywhere in the UI.
 - Light/dark palette follows the system setting (`isSystemInDarkTheme()`); see
   `ui/theme/Color.kt`/`ui/theme/Theme.kt`/`ui/theme/ExtendedColors.kt` for both palettes.
+- Exactly 3 structural color roles per theme, read via `MaterialTheme.colorScheme` — never a
+  hardcoded hex outside `ui/theme/`:
+  - **Background** (`colorScheme.background`) — base screen color: `#FFF4F4` light / `#222831` dark.
+  - **Surface** (`colorScheme.surface`) — cards, list rows, inputs, dialogs, the "element" color:
+    `#FFD6E0` light / `#393E46` dark.
+  - **Accent** (`colorScheme.primary`) — buttons, FAB, selected chips/segments, the active nav
+    indicator: `#BDB2FF` light / `#DFD0B8` dark. Interactive/selected states only — never a full
+    card or section background behind body text (that misuse, on Home's "This Month" card and
+    Budgets' cards, was a dark-mode bug: near-white body text over the pale tan accent fill was
+    close to unreadable; both are plain Surface-fill cards now, like every other card).
+  Income/expense semantic colors (`colorScheme.secondary`/`tertiary`) are a separate pair, not
+  part of these 3 roles — dark mode's are brightened off the original hues so they clear WCAG AA
+  against `SurfaceDark` (the pre-fix greens/oranges were too close to it to read reliably).
 - Component policy is "background XOR border, zero shadow" — which one applies is decided by
   component *type*: list rows and dialogs get a Surface fill and no border; buttons/FAB/selected
-  chips/selected segments get a solid Primary fill and no border; unselected chips and text
-  fields are border-only, no fill. Featured cards (Home's summary, Budgets' cards) get an Accent
-  fill instead of Surface — everything else that used to read as "glass" now reads as flat
-  Surface.
+  chips/selected segments get a solid Accent fill and no border; unselected chips and text fields
+  are border-only, no fill.
 - `GlassCard`/`GlassRow`/`GlassButton`/`GlassTextField`/`GlassSegmentedControl`/`GlassDialog`/
   `GlassFilterChip`/`GlassFab` keep their names from the prior glass-era pass (renaming them
   would touch every call site for no behavioral benefit) but are now flat solid-color
@@ -136,14 +147,20 @@ This single-table-with-a-type-tag design is what lets you view personal-only, bu
 
 ## 6. Reports & Breakdowns
 
-Add a time-period selector to the Reports screen: **Daily / Weekly / Monthly / Yearly**. Each respects the existing Personal/Business/Combined toggle, so views like "Business income, by month, this year" are just a filter + group-by combination — no new database tables needed, just query logic grouping `Transaction.date`.
+A time-period selector on the Reports screen: **Daily / Weekly / Monthly / Yearly**. Each respects the existing Personal/Business/Combined toggle, so views like "Business income, by month, this year" are just a filter + group-by combination — no new database tables needed, just query logic grouping `Transaction.date`.
 
-- **Daily** — simple list view: today's transactions + running total (a chart isn't useful at this granularity)
-- **Weekly** — bar chart, spending per day within the week
-- **Monthly** — bar chart, spending per week (or per day) within the month; this is the main/default view
-- **Yearly** — bar chart, totals per month across the year — good for spotting seasonal patterns, especially useful for business income
+**No charts (as of the 2026-09-08 pass, replacing the earlier Vico bar/pie charts)** — Reports is a
+numbers-first summary instead: plain large income/expense totals at the top, one flat horizontal
+stacked bar per type (segments = categories, sized by share, colored with each category's assigned
+color from the Add Category palette), then a plain category list (icon, name, amount, % of total)
+sorted by amount descending. Daily defaults to today but lets you pick any date via the same
+`DateField`/`CalendarDialog` used on Add Transaction; Weekly/Monthly/Yearly stay anchored on the
+current week/month/year. Vico is no longer a dependency.
 
-Implementation note: build one reusable "breakdown query" function that takes `(type: Personal/Business/Combined, period: Daily/Weekly/Monthly/Yearly, referenceDate)` and returns grouped totals — all four charts and the category pie chart can share this rather than writing separate queries per screen.
+Implementation note: `TransactionDao.getCategoryTotals(type, start, end)` is the one reusable
+"breakdown query" — income and expense summed per category for any `(type, period, referenceDate)`
+window (via `dateRangeFor`) — `ReportsViewModel.categoryBreakdown` derives the totals, the bars, and
+the list from it, so there's one query per view instead of separate ones per widget.
 
 ---
 

@@ -48,6 +48,7 @@ import com.example.financeflow.locale.LastUsedTypePreferences
 import com.example.financeflow.ui.components.AddCategoryButton
 import com.example.financeflow.ui.components.ConfirmButton
 import com.example.financeflow.ui.components.DateField
+import com.example.financeflow.ui.components.displayName
 import com.example.financeflow.ui.components.GlassFilterChip
 import com.example.financeflow.ui.components.GlassSegmentedControl
 import com.example.financeflow.ui.components.GlassTextField
@@ -230,7 +231,7 @@ fun AddEditTransactionScreen(
                     GlassFilterChip(
                         selected = selectedCategory?.id == category.id,
                         onClick = { selectedCategory = category },
-                        label = { Text(category.name) }
+                        label = { Text(category.displayName()) }
                     )
                 }
                 AddCategoryButton(onClick = { showQuickAddCategory = true })

@@ -11,11 +11,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.financeflow.ui.theme.Radius
-import com.example.financeflow.ui.theme.extendedColors
 
 /**
  * Flat drop-in for M3's FilterChip — unselected is border-only (no fill), selected is a solid
- * accent fill (extendedColors.selectedFill, not a generic M3 highlight) with no border, per the
+ * Accent fill (colorScheme.primary, not a generic M3 highlight) with no border, per the
  * minimalist policy's chip rules (spec §6). Corner radius pinned to the shared Radius scale
  * rather than M3's default chip shape token.
  */
@@ -37,7 +36,7 @@ fun GlassFilterChip(
         colors = FilterChipDefaults.filterChipColors(
             containerColor = Color.Transparent,
             labelColor = MaterialTheme.colorScheme.onSurface,
-            selectedContainerColor = MaterialTheme.extendedColors.selectedFill,
+            selectedContainerColor = MaterialTheme.colorScheme.primary,
             selectedLabelColor = MaterialTheme.colorScheme.onPrimary
         ),
         border = FilterChipDefaults.filterChipBorder(

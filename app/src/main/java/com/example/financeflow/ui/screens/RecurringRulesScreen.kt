@@ -1,6 +1,5 @@
 package com.example.financeflow.ui.screens
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,15 +31,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.financeflow.R
+import com.example.financeflow.data.Category
 import com.example.financeflow.data.Frequency
 import com.example.financeflow.data.RecurringRule
 import com.example.financeflow.locale.rememberCurrencyFormat
 import com.example.financeflow.locale.rememberDateFormat
+import com.example.financeflow.ui.components.CategoryIcons
+import com.example.financeflow.ui.components.displayName
 import com.example.financeflow.ui.components.GlassFab
-import com.example.financeflow.ui.components.GlassRow
 import com.example.financeflow.ui.components.InlineHint
+import com.example.financeflow.ui.components.ListRow
 import com.example.financeflow.ui.components.LocalSnackbarController
 import com.example.financeflow.ui.components.TransactionTypeToggle
+import com.example.financeflow.ui.components.toCategoryColor
 import com.example.financeflow.ui.theme.MoneyFigure
 import com.example.financeflow.viewmodel.CategoryViewModel
 import com.example.financeflow.viewmodel.RecurringRuleViewModel
@@ -58,7 +61,7 @@ fun RecurringRulesScreen(
     val rules by recurringRuleViewModel.filteredRules.collectAsState()
     val typeFilter by recurringRuleViewModel.currentTypeFilter.collectAsState()
     val categories by categoryViewModel.categories.collectAsState()
-    val categoryNames = remember(categories) { categories.associate { it.id to it.name } }
+    val categoriesById = remember(categories) { categories.associateBy { it.id } }
     val dateFormat = rememberDateFormat("MMM d, yyyy")
     val uncategorized = stringResource(R.string.category_uncategorized)
     var showRecurringHint by remember { mutableStateOf(true) }
@@ -104,7 +107,8 @@ fun RecurringRulesScreen(
                     items(rules, key = { it.id }) { rule ->
                         RecurringRuleRow(
                             rule = rule,
-                            categoryName = categoryNames[rule.categoryId] ?: uncategorized,
+                            category = categoriesById[rule.categoryId],
+                            uncategorizedName = uncategorized,
                             dateFormat = dateFormat,
                             onClick = { onEditRule(rule.id) },
                             onToggleActive = { active ->
@@ -122,46 +126,39 @@ fun RecurringRulesScreen(
 @Composable
 private fun RecurringRuleRow(
     rule: RecurringRule,
-    categoryName: String,
+    category: Category?,
+    uncategorizedName: String,
     dateFormat: DateTimeFormatter,
     onClick: () -> Unit,
     onToggleActive: (Boolean) -> Unit
 ) {
     val currencyFormat = rememberCurrencyFormat(rule.currency)
-    GlassRow(
-        modifier = Modifier.fillMaxWidth(),
-        onClick = onClick
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = rule.label,
-                    style = MaterialTheme.typography.bodyLarge,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = stringResource(R.string.recurring_row_category_frequency, categoryName, frequencyLabel(rule)),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Text(
-                    text = stringResource(R.string.recurring_row_next_due, rule.nextDueDate.format(dateFormat)),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-            Spacer(Modifier.width(8.dp))
+    val categoryName = category?.displayName() ?: uncategorizedName
+    val sign = if (rule.isIncome) "+" else "-"
+
+    ListRow(
+        icon = CategoryIcons.resolve(category?.icon),
+        swatchColor = category?.color.toCategoryColor(),
+        title = rule.label,
+        onClick = onClick,
+        subtitle = {
+            Text(
+                text = stringResource(R.string.recurring_row_category_frequency, categoryName, frequencyLabel(rule)),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = stringResource(R.string.recurring_row_next_due, rule.nextDueDate.format(dateFormat)),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        },
+        trailing = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                val sign = if (rule.isIncome) "+" else "-"
                 Text(
                     text = "$sign${currencyFormat.format(rule.amount)}",
                     style = MoneyFigure,
@@ -173,7 +170,7 @@ private fun RecurringRuleRow(
                 )
             }
         }
-    }
+    )
 }
 
 @Composable

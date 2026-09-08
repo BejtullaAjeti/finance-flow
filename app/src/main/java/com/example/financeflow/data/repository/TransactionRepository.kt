@@ -1,8 +1,6 @@
 package com.example.financeflow.data.repository
 
 import com.example.financeflow.data.CategoryCurrencyTotal
-import com.example.financeflow.data.PeriodCurrencyTotal
-import com.example.financeflow.data.ReportPeriod
 import com.example.financeflow.data.Transaction
 import com.example.financeflow.data.TransactionDao
 import com.example.financeflow.data.TransactionType
@@ -37,14 +35,6 @@ class TransactionRepository(private val dao: TransactionDao) {
     suspend fun delete(transaction: Transaction) = dao.delete(transaction)
 
     suspend fun deleteAll() = dao.deleteAll()
-
-    fun getTotals(type: TransactionType?, period: ReportPeriod, start: LocalDate, end: LocalDate): Flow<List<PeriodCurrencyTotal>> =
-        when (period) {
-            ReportPeriod.DAY -> dao.getDailyTotals(start, end, type)
-            ReportPeriod.WEEK -> dao.getWeeklyTotals(start, end, type)
-            ReportPeriod.MONTH -> dao.getMonthlyTotals(start, end, type)
-            ReportPeriod.YEAR -> dao.getYearlyTotals(start, end, type)
-        }
 
     fun getCategoryTotals(type: TransactionType?, start: LocalDate, end: LocalDate): Flow<List<CategoryCurrencyTotal>> =
         dao.getCategoryTotals(type, start, end)

@@ -75,9 +75,8 @@ fun CancelButton(
 
 /**
  * Pill-shaped "add category" action, styled like [ConfirmButton]/[CancelButton] (same shape,
- * icon + text) instead of a plain unselected filter chip — the accent fill
- * (extendedColors.selectedFill) marks it as a distinct action, not another selectable option in
- * the chip row it sits in.
+ * icon + text) instead of a plain unselected filter chip — the Accent fill marks it as a
+ * distinct action, not another selectable option in the chip row it sits in.
  */
 @Composable
 fun AddCategoryButton(
@@ -90,7 +89,7 @@ fun AddCategoryButton(
         shape = RoundedCornerShape(percent = 50),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.extendedColors.selectedFill,
+            containerColor = MaterialTheme.colorScheme.primary,
             contentColor = MaterialTheme.colorScheme.onPrimary
         )
     ) {
