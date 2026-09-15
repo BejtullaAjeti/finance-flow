@@ -134,8 +134,7 @@ fun TransactionsScreen(
             onSelect = { type ->
                 transactionViewModel.updateListFilter { it.copy(type = type, categoryId = null) }
                 categoryViewModel.setTypeFilter(type?.let(::categoryTypeFor))
-            },
-            pill = true
+            }
         )
 
         Spacer(Modifier.height(Spacing.md))
@@ -223,12 +222,16 @@ private fun CategoryDropdown(
         )
         // The popup defaulted to MenuDefaults.containerColor (colorScheme.surface), which equals
         // background in this palette — it read as an unbounded sheet. surfaceVariant + the card
-        // radius makes it a flat card like every other elevated surface.
+        // radius makes it a flat card like every other elevated surface. shadowElevation also
+        // defaults to a non-zero M3 token (a real drop shadow) — the design system bans shadows
+        // everywhere else, and the blur was exactly what made this corner read as "more rounded"
+        // than every other flat, shadow-less surface at the same Radius.medium.
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
             shape = RoundedCornerShape(Radius.medium),
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            shadowElevation = 0.dp
         ) {
             DropdownMenuItem(
                 text = { Text(allCategoriesLabel) },

@@ -19,7 +19,13 @@ data class ExtendedColors(
     val onWarning: Color,
     val disabledFill: Color,
     val disabledContent: Color,
-    val onConfirm: Color
+    val onConfirm: Color,
+    // Border for controls with no fill (unselected GlassFilterChip, GlassTextField) where the
+    // border is the whole affordance — needs more contrast than colorScheme.outline, which is
+    // meant to recede (chart guidelines, inert selected-border states). No exact hex was ever
+    // specified for this role; reusing OnBackground gives it the same strong contrast as body
+    // text against each theme's Background/Surface.
+    val borderStrong: Color
 )
 
 val LightExtendedColors = ExtendedColors(
@@ -28,7 +34,8 @@ val LightExtendedColors = ExtendedColors(
     onWarning = OnWarningLight,
     disabledFill = DisabledFillLight,
     disabledContent = DisabledContentLight,
-    onConfirm = Color.White
+    onConfirm = Color.White,
+    borderStrong = OnBackgroundLight
 )
 
 val DarkExtendedColors = ExtendedColors(
@@ -37,7 +44,8 @@ val DarkExtendedColors = ExtendedColors(
     onWarning = OnWarningDark,
     disabledFill = DisabledFillDark,
     disabledContent = DisabledContentDark,
-    onConfirm = OnConfirmDark
+    onConfirm = OnConfirmDark,
+    borderStrong = OnBackgroundDark
 )
 
 val LocalExtendedColors = staticCompositionLocalOf { LightExtendedColors }

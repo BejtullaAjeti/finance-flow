@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -21,6 +22,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import com.example.financeflow.ui.theme.Radius
 import com.example.financeflow.ui.theme.Spacing
 
@@ -37,8 +40,8 @@ fun <T> GlassSegmentedControl(
     /** Fully rounded track and segments. Opt-in so the existing squarer call sites are unchanged. */
     pill: Boolean = false
 ) {
-    val trackShape = if (pill) CircleShape else RoundedCornerShape(Radius.small)
-    val segmentShape = if (pill) CircleShape else RoundedCornerShape(Radius.extraSmall)
+    val trackShape = if (pill) CircleShape else RoundedCornerShape(Radius.medium)
+    val segmentShape = if (pill) CircleShape else RoundedCornerShape(Radius.medium)
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -66,17 +69,40 @@ fun <T> GlassSegmentedControl(
                     .clip(segmentShape)
                     .background(segmentColor)
                     .clickable { onSelect(option) }
-                    .padding(vertical = Spacing.sm),
+                    // Horizontal here is the width budget for the label — Spacing.md (the
+                    // breathing-room pass) left too little room for the longest labels
+                    // ("Biznesore", "Kombinuar") and wrapped mid-word; xs is the moderate middle
+                    // between that and the original 0.
+                    .padding(horizontal = Spacing.xs, vertical = Spacing.md),
                 contentAlignment = Alignment.Center
             ) {
                 val optionIcon = icon?.invoke(option)
                 if (optionIcon != null) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(optionIcon, contentDescription = null, tint = textColor, modifier = Modifier.padding(end = Spacing.xs))
-                        Text(text = label(option), color = textColor, textAlign = TextAlign.Center)
+                        Icon(
+                            optionIcon,
+                            contentDescription = null,
+                            tint = textColor,
+                            modifier = Modifier.size(18.dp).padding(end = Spacing.xs)
+                        )
+                        Text(
+                            text = label(option),
+                            color = textColor,
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.bodyMedium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
                     }
                 } else {
-                    Text(text = label(option), color = textColor, textAlign = TextAlign.Center)
+                    Text(
+                        text = label(option),
+                        color = textColor,
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
             }
         }

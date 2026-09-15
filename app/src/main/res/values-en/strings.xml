@@ -59,6 +59,28 @@
     <string name="backup_import_confirm_title">Replace all data?</string>
     <string name="backup_import_confirm_body">Importing will replace all transactions, categories, and recurring rules with the contents of this file. This cannot be undone.</string>
 
+    <string name="backups_title">Automatic Backups</string>
+    <string name="backups_folder_section">Backup Folder</string>
+    <string name="backups_folder_not_set">No folder selected</string>
+    <string name="backups_folder_default">App storage (default)</string>
+    <string name="backups_choose_folder">Choose Folder</string>
+    <string name="backups_change_folder">Change Folder</string>
+    <string name="backups_backup_now">Backup Now</string>
+    <string name="backups_backup_now_success">Backup created.</string>
+    <string name="backups_backup_now_failed">Backup failed.</string>
+    <string name="backups_empty">No backups in this folder yet.</string>
+    <string name="backups_row_daily">Auto — Daily</string>
+    <string name="backups_row_on_close">Auto — On Close</string>
+    <string name="backups_row_manual">Manual</string>
+    <string name="backups_restore_confirm_title">Restore this backup?</string>
+    <string name="backups_restore_confirm_body">This replaces all current data with the contents of this backup. This cannot be undone.</string>
+    <string name="backups_restore_success">Data restored.</string>
+    <string name="backups_restore_failed">Restore failed.</string>
+    <string name="backups_last_failure_banner">The last automatic backup failed on %1$s.</string>
+    <string name="backup_notification_channel">Backup Failures</string>
+    <string name="backup_notification_failed_title">Automatic backup failed</string>
+    <string name="backup_notification_failed_body">Check the backup folder in Settings.</string>
+
     <string name="settings_currency_title">Display currency</string>
     <string name="settings_currency_last_updated">Updated %1$s</string>
     <string name="settings_currency_never_updated">Not yet updated</string>
@@ -85,9 +107,10 @@
     <string name="report_tab_overview">Overview</string>
     <string name="report_tab_budgets">Budgets</string>
     <string name="settings_recurring">Recurring</string>
+    <string name="settings_backups_row">Automatic Backups</string>
 
     <string name="home_add_transaction_content_description">Add transaction</string>
-    <string name="home_net_this_month">Net this month</string>
+    <string name="balance_label">Balance</string>
     <string name="home_this_month_title">This Month</string>
     <string name="home_expenses_label">Expenses</string>
     <string name="home_recent_transactions_title">Recent Transactions</string>

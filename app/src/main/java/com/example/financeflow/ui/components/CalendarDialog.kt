@@ -54,7 +54,7 @@ fun calendarGridStart(month: YearMonth, firstDayOfWeek: DayOfWeek): LocalDate {
 /**
  * Flat, app-styled replacement for M3's stock DatePickerDialog — java.time + Compose primitives
  * only, no new dependency (spec §8). Container follows the same policy as every other dialog:
- * surfaceVariant background, Radius.large corners, no border, no shadow, and the same fully-opaque
+ * surfaceVariant background, Radius.medium corners, no border, no shadow, and the same fully-opaque
  * backdrop (via [OpaqueDialogSurface]) as every other dialog in the app instead of the platform's
  * translucent dim scrim.
  */
@@ -74,7 +74,7 @@ fun CalendarDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp)
-                .clip(RoundedCornerShape(Radius.large))
+                .clip(RoundedCornerShape(Radius.medium))
                 .background(MaterialTheme.colorScheme.surfaceVariant)
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },

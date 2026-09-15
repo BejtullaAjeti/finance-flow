@@ -23,7 +23,7 @@ import com.example.financeflow.ui.theme.Spacing
 fun GlassRow(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
-    // Radius.medium so rows share the 16dp card language (matches GlassCard).
+    // Radius.medium so rows share the same card language (matches GlassCard).
     shape: Shape = RoundedCornerShape(Radius.medium),
     contentPadding: PaddingValues = PaddingValues(horizontal = Spacing.lg, vertical = Spacing.md),
     content: @Composable RowScope.() -> Unit

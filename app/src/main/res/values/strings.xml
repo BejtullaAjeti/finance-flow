@@ -59,6 +59,28 @@
     <string name="backup_import_confirm_title">Të zëvendësohen të gjitha të dhënat?</string>
     <string name="backup_import_confirm_body">Importimi do të zëvendësojë të gjitha transaksionet, kategoritë dhe rregullat e përsëritura me përmbajtjen e këtij skedari. Kjo nuk mund të zhbëhet.</string>
 
+    <string name="backups_title">Kopjet Rezervë Automatike</string>
+    <string name="backups_folder_section">Dosja e Kopjeve Rezervë</string>
+    <string name="backups_folder_not_set">Nuk është zgjedhur asnjë dosje</string>
+    <string name="backups_folder_default">Ruajtja e aplikacionit (parazgjedhje)</string>
+    <string name="backups_choose_folder">Zgjidh Dosjen</string>
+    <string name="backups_change_folder">Ndrysho Dosjen</string>
+    <string name="backups_backup_now">Kopjo Tani</string>
+    <string name="backups_backup_now_success">Kopja rezervë u krijua.</string>
+    <string name="backups_backup_now_failed">Krijimi i kopjes rezervë dështoi.</string>
+    <string name="backups_empty">Ende nuk ka kopje rezervë në këtë dosje.</string>
+    <string name="backups_row_daily">Auto — Ditore</string>
+    <string name="backups_row_on_close">Auto — Në Mbyllje</string>
+    <string name="backups_row_manual">Manuale</string>
+    <string name="backups_restore_confirm_title">Të rikthehet kjo kopje rezervë?</string>
+    <string name="backups_restore_confirm_body">Kjo do të zëvendësojë të gjitha të dhënat aktuale me përmbajtjen e kësaj kopjeje rezervë. Kjo nuk mund të zhbëhet.</string>
+    <string name="backups_restore_success">Të dhënat u rikthyen.</string>
+    <string name="backups_restore_failed">Rikthimi dështoi.</string>
+    <string name="backups_last_failure_banner">Kopja e fundit automatike dështoi më %1$s.</string>
+    <string name="backup_notification_channel">Dështimet e Kopjeve Rezervë</string>
+    <string name="backup_notification_failed_title">Kopja rezervë automatike dështoi</string>
+    <string name="backup_notification_failed_body">Kontrollo dosjen e kopjeve rezervë në Cilësime.</string>
+
     <string name="settings_currency_title">Monedha kryesore</string>
     <string name="settings_currency_last_updated">Përditësuar më %1$s</string>
     <string name="settings_currency_never_updated">Ende pa u përditësuar</string>
@@ -85,9 +107,10 @@
     <string name="report_tab_overview">Përmbledhje</string>
     <string name="report_tab_budgets">Buxhetet</string>
     <string name="settings_recurring">Përsëritjet</string>
+    <string name="settings_backups_row">Kopjet Rezervë Automatike</string>
 
     <string name="home_add_transaction_content_description">Shto transaksion</string>
-    <string name="home_net_this_month">Bilanci i muajit</string>
+    <string name="balance_label">Bilanci</string>
     <string name="home_this_month_title">Këtë Muaj</string>
     <string name="home_expenses_label">Shpenzimet</string>
     <string name="home_recent_transactions_title">Transaksionet e Fundit</string>

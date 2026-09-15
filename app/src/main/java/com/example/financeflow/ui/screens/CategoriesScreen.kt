@@ -4,6 +4,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import com.example.financeflow.ui.theme.Spacing
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
@@ -153,7 +154,8 @@ fun CategoriesScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .padding(horizontal = 16.dp)
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(Spacing.md)
             ) {
                 if (showSwipeHint) {
                     item {
@@ -252,7 +254,7 @@ private fun SwipeToDeleteCategoryRow(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .clip(RoundedCornerShape(Radius.extraSmall))
+                    .clip(RoundedCornerShape(Radius.medium))
                     .background(MaterialTheme.colorScheme.tertiaryContainer)
                     .padding(horizontal = 20.dp),
                 contentAlignment = Alignment.CenterEnd

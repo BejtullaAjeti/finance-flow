@@ -56,6 +56,7 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.documentfile)
     ksp(libs.androidx.room.compiler)
     testImplementation(libs.junit)
     // ponytail: Android's on-device org.json is stub-only for local JVM tests; this is the real

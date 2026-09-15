@@ -3,6 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Only used to surface a scheduled-backup failure (revoked folder permission, deleted
+         folder) instead of failing silently; the Backups screen's own last-result banner is the
+         reliable fallback when this isn't granted. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <application
         android:allowBackup="true"

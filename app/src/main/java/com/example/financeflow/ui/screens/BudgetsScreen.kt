@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.financeflow.R
 import com.example.financeflow.data.Category
 import com.example.financeflow.data.CategoryType
@@ -46,6 +47,7 @@ import com.example.financeflow.data.categoryTypeFor
 import com.example.financeflow.locale.CurrencyPreferences
 import com.example.financeflow.locale.rememberCurrencyFormat
 import com.example.financeflow.ui.components.AddCategoryButton
+import com.example.financeflow.ui.components.AutoSizeMoneyText
 import com.example.financeflow.ui.components.CategoryIcons
 import com.example.financeflow.ui.components.CancelButton
 import com.example.financeflow.ui.components.ConfirmButton
@@ -59,9 +61,11 @@ import com.example.financeflow.ui.components.InlineHint
 import com.example.financeflow.ui.components.ListRow
 import com.example.financeflow.ui.components.QuickAddCategoryDialog
 import com.example.financeflow.ui.components.TransactionTypeToggle
+import com.example.financeflow.ui.components.abbreviatedCurrencyText
 import com.example.financeflow.ui.components.indicatorIcon
 import com.example.financeflow.ui.components.periodLabel
 import com.example.financeflow.ui.components.toCategoryColor
+import com.example.financeflow.ui.theme.Spacing
 import com.example.financeflow.ui.theme.extendedColors
 import com.example.financeflow.viewmodel.BudgetViewModel
 import com.example.financeflow.viewmodel.CategoryBudget
@@ -104,18 +108,19 @@ fun BudgetsScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
-                TransactionTypeToggle(
-                    selected = typeFilter,
-                    onSelect = budgetViewModel::setTypeFilter
-                )
-            }
-
-            if (noneHaveBudgets && showBudgetHint) {
-                item {
-                    InlineHint(
-                        text = stringResource(R.string.hint_budgets_empty),
-                        onDismiss = { showBudgetHint = false }
+                // Toggle and hint share one item so the LazyColumn's spacedBy gap to the list
+                // below only applies once, rather than stacking a gap on both sides of the hint.
+                Column(verticalArrangement = Arrangement.spacedBy(Spacing.sm)) {
+                    TransactionTypeToggle(
+                        selected = typeFilter,
+                        onSelect = budgetViewModel::setTypeFilter
                     )
+                    if (noneHaveBudgets && showBudgetHint) {
+                        InlineHint(
+                            text = stringResource(R.string.hint_budgets_empty),
+                            onDismiss = { showBudgetHint = false }
+                        )
+                    }
                 }
             }
 
@@ -186,10 +191,12 @@ private fun BudgetCard(budget: CategoryBudget, currencyFormat: NumberFormat, onC
             titleTrailingIcon = typeIcon,
             onClick = onClick,
             extra = {
-                Text(
+                AutoSizeMoneyText(
                     text = stringResource(R.string.budget_spent_no_limit, currencyFormat.format(budget.spent)),
+                    abbreviatedText = stringResource(R.string.budget_spent_no_limit, abbreviatedCurrencyText(budget.spent, currencyFormat)),
                     style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    minFontSize = 10.sp
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
@@ -238,11 +245,17 @@ private fun BudgetCard(budget: CategoryBudget, currencyFormat: NumberFormat, onC
 
             Spacer(Modifier.height(8.dp))
 
-            Text(
+            AutoSizeMoneyText(
                 text = stringResource(R.string.budget_spent_of_limit, currencyFormat.format(budget.spent), currencyFormat.format(limit)) +
                     " · " + periodLabel(budget.period),
+                abbreviatedText = stringResource(
+                    R.string.budget_spent_of_limit,
+                    abbreviatedCurrencyText(budget.spent, currencyFormat),
+                    abbreviatedCurrencyText(limit, currencyFormat)
+                ) + " · " + periodLabel(budget.period),
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                minFontSize = 10.sp
             )
 
             if (isOverBudget) {
@@ -250,10 +263,12 @@ private fun BudgetCard(budget: CategoryBudget, currencyFormat: NumberFormat, onC
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(PhosphorIcons.Fill.WarningCircle, contentDescription = null, tint = MaterialTheme.colorScheme.tertiary)
                     Spacer(Modifier.width(4.dp))
-                    Text(
+                    AutoSizeMoneyText(
                         text = stringResource(R.string.budget_over_amount, currencyFormat.format(budget.spent - limit)),
+                        abbreviatedText = stringResource(R.string.budget_over_amount, abbreviatedCurrencyText(budget.spent - limit, currencyFormat)),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.tertiary
+                        color = MaterialTheme.colorScheme.tertiary,
+                        minFontSize = 12.sp
                     )
                 }
             }

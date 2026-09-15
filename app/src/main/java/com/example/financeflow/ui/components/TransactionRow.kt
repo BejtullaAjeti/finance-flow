@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import com.example.financeflow.data.Category
 import com.example.financeflow.data.Currency
 import com.example.financeflow.data.Transaction
+import com.example.financeflow.locale.rememberCurrencyFormat
 import com.example.financeflow.ui.theme.MoneyFigure
 import java.text.NumberFormat
 import java.time.format.DateTimeFormatter
@@ -38,8 +39,11 @@ fun TransactionRow(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             if (transaction.currency != displayCurrency) {
+                // Same thousand-separator/2-decimal formatting as the main display amount —
+                // manual "%.2f" here rendered a long unbroken run of digits for large amounts.
+                val originalCurrencyFormat = rememberCurrencyFormat(transaction.currency)
                 Text(
-                    text = "${transaction.currency.name} ${"%.2f".format(transaction.amount)}",
+                    text = originalCurrencyFormat.format(transaction.amount),
                     style = MaterialTheme.typography.labelSmall
                 )
             }

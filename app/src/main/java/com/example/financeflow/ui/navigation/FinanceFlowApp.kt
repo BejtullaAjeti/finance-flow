@@ -33,6 +33,7 @@ import com.example.financeflow.ui.components.SnackbarController
 import com.example.financeflow.ui.theme.GlassTier
 import com.example.financeflow.ui.screens.AddEditRecurringRuleScreen
 import com.example.financeflow.ui.screens.AddEditTransactionScreen
+import com.example.financeflow.ui.screens.BackupsScreen
 import com.example.financeflow.ui.screens.BudgetsScreen
 import com.example.financeflow.ui.screens.CategoriesScreen
 import com.example.financeflow.ui.screens.HomeScreen
@@ -79,6 +80,7 @@ fun FinanceFlowApp(navController: NavHostController = rememberNavController()) {
             composable(FinanceFlowDestination.Reports.route) { ReportsScreen() }
             composable(RECURRING_ROUTE) {
                 RecurringRulesScreen(
+                    onBack = { navController.popBackStack() },
                     onAddRule = { navController.navigate("recurring_rule") },
                     onEditRule = { id -> navController.navigate(editRecurringRuleRoute(id)) }
                 )
@@ -86,11 +88,15 @@ fun FinanceFlowApp(navController: NavHostController = rememberNavController()) {
             composable(FinanceFlowDestination.Settings.route) {
                 SettingsScreen(
                     onNavigateToCategories = { navController.navigate(CATEGORIES_ROUTE) },
-                    onNavigateToRecurring = { navController.navigate(RECURRING_ROUTE) }
+                    onNavigateToRecurring = { navController.navigate(RECURRING_ROUTE) },
+                    onNavigateToBackups = { navController.navigate(BACKUPS_ROUTE) }
                 )
             }
             composable(CATEGORIES_ROUTE) {
                 CategoriesScreen(onBack = { navController.popBackStack() })
+            }
+            composable(BACKUPS_ROUTE) {
+                BackupsScreen(onBack = { navController.popBackStack() })
             }
             composable(
                 route = ADD_EDIT_TRANSACTION_ROUTE,

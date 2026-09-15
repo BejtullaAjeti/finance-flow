@@ -14,12 +14,14 @@ import com.example.financeflow.data.Category
 import com.example.financeflow.data.CategoryType
 import com.example.financeflow.data.repository.CategoryRepository
 import com.example.financeflow.data.repository.ExchangeRateRepository
+import com.example.financeflow.locale.BackupFolderPreferences
 import com.example.financeflow.locale.LocalePreferences
 import com.example.financeflow.recurring.RecurringRuleProcessor
 import com.example.financeflow.ui.navigation.FinanceFlowApp
 import com.example.financeflow.ui.theme.FinanceFlowTheme
 import com.example.financeflow.ui.theme.ThemeMode
 import com.example.financeflow.ui.theme.ThemePreferences
+import com.example.financeflow.work.BackupWorker
 import com.example.financeflow.work.RecurringRuleWorker
 import kotlinx.coroutines.launch
 
@@ -33,6 +35,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         RecurringRuleWorker.schedule(applicationContext)
+        BackupFolderPreferences.ensureDefaultFolder(applicationContext)
+        BackupWorker.schedule(applicationContext)
         lifecycleScope.launch {
             val db = AppDatabase.getInstance(applicationContext)
             CategoryRepository(db.categoryDao()).seedDefaultsIfEmpty(defaultCategories())
@@ -51,6 +55,15 @@ class MainActivity : ComponentActivity() {
                 FinanceFlowApp()
             }
         }
+    }
+
+    // Single-Activity app, so this is a reliable proxy for "app backgrounded" — onStop (not
+    // onPause) specifically, since onPause also fires for transient partial-obscuring that
+    // isn't really "closing" (e.g. the system notification shade). Enqueuing is itself
+    // non-blocking, so this can't delay the app backgrounding or cause an ANR.
+    override fun onStop() {
+        super.onStop()
+        BackupWorker.triggerOnClose(applicationContext)
     }
 
     // `name` is only a fallback snapshot (Room requires a non-null value) — every one of these is

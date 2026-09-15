@@ -35,6 +35,7 @@ enum class FinanceFlowDestination(
 // Settings' row respectively) but keep their own routes for the NavHost to register.
 const val BUDGETS_ROUTE = "budgets"
 const val RECURRING_ROUTE = "recurring"
+const val BACKUPS_ROUTE = "backups"
 
 private const val ADD_EDIT_TRANSACTION_BASE_ROUTE = "transaction"
 const val ADD_EDIT_TRANSACTION_ROUTE = "$ADD_EDIT_TRANSACTION_BASE_ROUTE?transactionId={transactionId}&suggestedType={suggestedType}"
@@ -55,6 +56,6 @@ const val ADD_EDIT_RECURRING_RULE_ROUTE = "$ADD_EDIT_RECURRING_RULE_BASE_ROUTE?r
 fun editRecurringRuleRoute(ruleId: Long) = "$ADD_EDIT_RECURRING_RULE_BASE_ROUTE?ruleId=$ruleId"
 
 fun FinanceFlowDestination.matchesCurrentRoute(currentRoute: String?): Boolean = when (this) {
-    FinanceFlowDestination.Settings -> currentRoute == route || currentRoute == CATEGORIES_ROUTE || currentRoute == RECURRING_ROUTE
+    FinanceFlowDestination.Settings -> currentRoute == route || currentRoute == CATEGORIES_ROUTE || currentRoute == RECURRING_ROUTE || currentRoute == BACKUPS_ROUTE
     else -> currentRoute == route
 }

@@ -1,5 +1,6 @@
 package com.example.financeflow.ui.screens
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,12 +14,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import com.adamglin.PhosphorIcons
 import com.adamglin.phosphoricons.Regular
+import com.adamglin.phosphoricons.regular.ArrowLeft
 import com.adamglin.phosphoricons.regular.Plus
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -27,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -45,14 +51,17 @@ import com.example.financeflow.ui.components.LocalSnackbarController
 import com.example.financeflow.ui.components.TransactionTypeToggle
 import com.example.financeflow.ui.components.toCategoryColor
 import com.example.financeflow.ui.theme.MoneyFigure
+import com.example.financeflow.ui.theme.Spacing
 import com.example.financeflow.viewmodel.CategoryViewModel
 import com.example.financeflow.viewmodel.RecurringRuleViewModel
 import com.example.financeflow.viewmodel.rememberCategoryViewModel
 import com.example.financeflow.viewmodel.rememberRecurringRuleViewModel
 import java.time.format.DateTimeFormatter
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecurringRulesScreen(
+    onBack: () -> Unit,
     onAddRule: () -> Unit,
     onEditRule: (Long) -> Unit,
     recurringRuleViewModel: RecurringRuleViewModel = rememberRecurringRuleViewModel(),
@@ -70,6 +79,16 @@ fun RecurringRulesScreen(
     val resumedMessage = stringResource(R.string.recurring_resumed)
 
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(R.string.settings_recurring)) },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(PhosphorIcons.Regular.ArrowLeft, contentDescription = null)
+                    }
+                }
+            )
+        },
         floatingActionButton = {
             GlassFab(onClick = onAddRule, contentDescription = stringResource(R.string.recurring_add_content_description)) {
                 Icon(PhosphorIcons.Regular.Plus, contentDescription = null)
@@ -103,7 +122,10 @@ fun RecurringRulesScreen(
                     }
                 }
             } else {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(Spacing.md)
+                ) {
                     items(rules, key = { it.id }) { rule ->
                         RecurringRuleRow(
                             rule = rule,
@@ -164,9 +186,13 @@ private fun RecurringRuleRow(
                     style = MoneyFigure,
                     color = if (rule.isIncome) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.tertiary
                 )
+                Spacer(Modifier.width(Spacing.sm))
+                // M3's default Switch reads oversized against a 20sp money figure in the same
+                // row — scaled down to a size that matches the rest of the row instead.
                 Switch(
                     checked = rule.active,
-                    onCheckedChange = onToggleActive
+                    onCheckedChange = onToggleActive,
+                    modifier = Modifier.scale(0.8f)
                 )
             }
         }

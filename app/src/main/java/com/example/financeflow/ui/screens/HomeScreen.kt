@@ -40,8 +40,12 @@ import com.example.financeflow.data.repository.ExchangeRateRepository
 import com.example.financeflow.locale.CurrencyPreferences
 import com.example.financeflow.locale.rememberCurrencyFormat
 import com.example.financeflow.locale.rememberDateFormat
+import com.example.financeflow.ui.components.AutoSizeMoneyText
 import com.example.financeflow.ui.components.CategoryIcons
 import com.example.financeflow.ui.components.GlassCard
+import com.example.financeflow.ui.components.abbreviatedCurrencyText
+import com.example.financeflow.ui.components.signedAbbreviatedCurrencyText
+import com.example.financeflow.ui.components.signedCurrencyText
 import com.example.financeflow.ui.components.GlassFab
 import com.example.financeflow.ui.components.ListRow
 import com.example.financeflow.ui.components.TransactionRow
@@ -49,6 +53,7 @@ import com.example.financeflow.ui.components.TransactionTypeToggle
 import com.example.financeflow.ui.components.toCategoryColor
 import com.example.financeflow.ui.theme.MoneyFigure
 import com.example.financeflow.ui.theme.MoneyFigureLarge
+import com.example.financeflow.ui.theme.Spacing
 import com.example.financeflow.ui.theme.extendedColors
 import com.example.financeflow.viewmodel.CategoryViewModel
 import com.example.financeflow.viewmodel.RecurringRuleViewModel
@@ -118,19 +123,42 @@ fun HomeScreen(
                 Column {
                     GlassCard(modifier = Modifier.fillMaxWidth()) {
                         Text(text = stringResource(R.string.home_this_month_title), style = MaterialTheme.typography.titleLarge)
+                        // Label stacked above value, each half weighted — a large amount wraps
+                        // within its own half instead of overlapping its label or the other side
+                        // (the bug a 756,596,675.11-style value exposed with side-by-side Rows).
                         Row(
                             modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text(text = stringResource(R.string.toggle_income), style = MaterialTheme.typography.bodyMedium)
-                            Text(text = currencyFormat.format(summary.income), style = MoneyFigureLarge, color = MaterialTheme.colorScheme.secondary)
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(text = stringResource(R.string.toggle_income), style = MaterialTheme.typography.bodyMedium)
+                                AutoSizeMoneyText(
+                                    text = currencyFormat.format(summary.income),
+                                    abbreviatedText = abbreviatedCurrencyText(summary.income, currencyFormat),
+                                    style = MoneyFigureLarge,
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
+                            }
+                            Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.End) {
+                                Text(text = stringResource(R.string.home_expenses_label), style = MaterialTheme.typography.bodyMedium)
+                                AutoSizeMoneyText(
+                                    text = currencyFormat.format(summary.expense),
+                                    abbreviatedText = abbreviatedCurrencyText(summary.expense, currencyFormat),
+                                    style = MoneyFigureLarge,
+                                    color = MaterialTheme.colorScheme.tertiary
+                                )
+                            }
                         }
-                        Row(
-                            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(text = stringResource(R.string.home_expenses_label), style = MaterialTheme.typography.bodyMedium)
-                            Text(text = currencyFormat.format(summary.expense), style = MoneyFigureLarge, color = MaterialTheme.colorScheme.tertiary)
+
+                        val net = summary.income - summary.expense
+                        Column(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
+                            Text(text = stringResource(R.string.balance_label), style = MaterialTheme.typography.bodyMedium)
+                            AutoSizeMoneyText(
+                                text = signedCurrencyText(net, currencyFormat),
+                                abbreviatedText = signedAbbreviatedCurrencyText(net, currencyFormat),
+                                style = MoneyFigureLarge,
+                                color = if (net >= 0) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.tertiary
+                            )
                         }
                     }
 
@@ -156,7 +184,10 @@ fun HomeScreen(
                             Text(text = stringResource(R.string.transactions_empty), style = MaterialTheme.typography.bodyMedium)
                         }
                     } else {
-                        LazyColumn(modifier = Modifier.fillMaxWidth()) {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(Spacing.md)
+                        ) {
                             items(transactions.take(5), key = { it.id }) { transaction ->
                                 TransactionRow(
                                     transaction = transaction,

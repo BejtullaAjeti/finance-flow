@@ -10,14 +10,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 
-// Shared corner-radius scale, tightened for the minimalist system (spec §5) — every themed
-// surface (text fields, buttons, dialogs) reads as part of the same crisp rounded language.
+// Every M3 shape slot maps to the one shared Radius token (spec §5) — every themed surface
+// (text fields, buttons, dialogs) reads as part of the same crisp rounded language.
 private val FinanceFlowShapes = Shapes(
-    extraSmall = RoundedCornerShape(Radius.extraSmall),
-    small = RoundedCornerShape(Radius.small),
+    extraSmall = RoundedCornerShape(Radius.medium),
+    small = RoundedCornerShape(Radius.medium),
     medium = RoundedCornerShape(Radius.medium),
-    large = RoundedCornerShape(Radius.large),
-    extraLarge = RoundedCornerShape(Radius.large)
+    large = RoundedCornerShape(Radius.medium),
+    extraLarge = RoundedCornerShape(Radius.medium)
 )
 
 private val FinanceFlowLightScheme = lightColorScheme(

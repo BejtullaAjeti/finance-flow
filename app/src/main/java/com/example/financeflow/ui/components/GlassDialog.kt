@@ -110,7 +110,7 @@ fun GlassDialog(
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp)
                 .imePadding()
-                .clip(RoundedCornerShape(Radius.large))
+                .clip(RoundedCornerShape(Radius.medium))
                 // surfaceVariant, not surface: surface equals background in this palette,
                 // so the card would vanish into the opaque backdrop behind it.
                 .background(MaterialTheme.colorScheme.surfaceVariant)

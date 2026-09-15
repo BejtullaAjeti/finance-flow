@@ -33,8 +33,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.financeflow.ui.components.AutoSizeMoneyText
 import com.example.financeflow.ui.components.DateField
 import com.example.financeflow.ui.components.GlassCard
+import com.example.financeflow.ui.components.abbreviatedCurrencyText
+import com.example.financeflow.ui.components.signedAbbreviatedCurrencyText
+import com.example.financeflow.ui.components.signedCurrencyText
 import com.example.financeflow.ui.components.GlassSegmentedControl
 import com.example.financeflow.ui.components.ListRow
 import com.example.financeflow.ui.components.periodLabel
@@ -74,18 +78,27 @@ fun ReportsScreen(
     val overviewLabel = stringResource(R.string.report_tab_overview)
     val budgetsLabel = stringResource(R.string.report_tab_budgets)
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+    // Only the tab row gets a wrapper here — Overview and Budgets each own their horizontal
+    // inset below it (Budgets via its own Scaffold+padding, unchanged), instead of both being
+    // nested inside a second, redundant padding layer on top of that.
+    Column(modifier = Modifier.fillMaxSize()) {
         GlassSegmentedControl(
             options = listOf(0, 1),
             selected = selectedTab,
             onSelect = { selectedTab = it },
-            label = { if (it == 0) overviewLabel else budgetsLabel }
+            label = { if (it == 0) overviewLabel else budgetsLabel },
+            modifier = Modifier.padding(horizontal = Spacing.lg).padding(top = Spacing.sm)
         )
 
-        Spacer(Modifier.height(16.dp))
-
         if (selectedTab == 0) {
-            Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+            Spacer(Modifier.height(16.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = Spacing.lg)
+                    .padding(bottom = Spacing.lg)
+            ) {
                 val periodLabels = ReportPeriod.entries.associateWith { periodLabel(it) }
                 GlassSegmentedControl(
                     options = ReportPeriod.entries,
@@ -151,15 +164,38 @@ fun ReportsScreen(
 @Composable
 private fun ReportTotals(income: Double, expense: Double, currencyFormat: NumberFormat) {
     GlassCard(modifier = Modifier.fillMaxWidth()) {
+        // Weighted halves — without them, two unweighted Columns can measure wider than their
+        // share and overlap once one side's value gets long (large or decimal-heavy amounts).
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(text = stringResource(R.string.toggle_income), style = MaterialTheme.typography.bodyMedium)
-                Text(text = currencyFormat.format(income), style = MoneyFigureLarge, color = MaterialTheme.colorScheme.secondary)
+                AutoSizeMoneyText(
+                    text = currencyFormat.format(income),
+                    abbreviatedText = abbreviatedCurrencyText(income, currencyFormat),
+                    style = MoneyFigureLarge,
+                    color = MaterialTheme.colorScheme.secondary
+                )
             }
-            Column(horizontalAlignment = Alignment.End) {
+            Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.End) {
                 Text(text = stringResource(R.string.home_expenses_label), style = MaterialTheme.typography.bodyMedium)
-                Text(text = currencyFormat.format(expense), style = MoneyFigureLarge, color = MaterialTheme.colorScheme.tertiary)
+                AutoSizeMoneyText(
+                    text = currencyFormat.format(expense),
+                    abbreviatedText = abbreviatedCurrencyText(expense, currencyFormat),
+                    style = MoneyFigureLarge,
+                    color = MaterialTheme.colorScheme.tertiary
+                )
             }
+        }
+
+        val net = income - expense
+        Column(modifier = Modifier.fillMaxWidth().padding(top = 16.dp)) {
+            Text(text = stringResource(R.string.balance_label), style = MaterialTheme.typography.bodyMedium)
+            AutoSizeMoneyText(
+                text = signedCurrencyText(net, currencyFormat),
+                abbreviatedText = signedAbbreviatedCurrencyText(net, currencyFormat),
+                style = MoneyFigureLarge,
+                color = if (net >= 0) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.tertiary
+            )
         }
     }
 }
@@ -189,7 +225,11 @@ private fun ReportCategorySection(
         modifier = Modifier
             .fillMaxWidth()
             .height(20.dp)
-            .clip(RoundedCornerShape(Radius.small))
+            .clip(RoundedCornerShape(Radius.medium))
+            // Shows through as a divider between segments — the bar's own background, not a
+            // new accent color — so adjacent categories stay distinguishable even at similar hues.
+            .background(MaterialTheme.colorScheme.background),
+        horizontalArrangement = Arrangement.spacedBy(1.5.dp)
     ) {
         slices.forEach { slice ->
             Box(

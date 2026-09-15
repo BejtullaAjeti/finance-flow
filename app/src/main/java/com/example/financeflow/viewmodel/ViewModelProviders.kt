@@ -51,6 +51,13 @@ fun rememberRecurringRuleViewModel(): RecurringRuleViewModel {
 }
 
 @Composable
+fun rememberBackupViewModel(): BackupViewModel {
+    val context = LocalContext.current.applicationContext
+    val db = remember { AppDatabase.getInstance(context) }
+    return viewModel(factory = viewModelFactory { initializer { BackupViewModel(context, db) } })
+}
+
+@Composable
 fun rememberReportsViewModel(): ReportsViewModel {
     val context = LocalContext.current.applicationContext
     val db = remember { AppDatabase.getInstance(context) }
